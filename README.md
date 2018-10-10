@@ -1,2 +1,2 @@
-# paysafe_api_riskprofiles_v1
+# paysafe_api_riskprofiles
 Paysafe Risk Check API
