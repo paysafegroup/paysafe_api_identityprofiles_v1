@@ -1,0 +1,3401 @@
+FORMAT: 1A
+HOST: https://api.test.paysafe.com/riskprofiles/
+
+# Risk Check API
+
+# Release Notes
+
+| Version   | Date          | Details |
+|---        |---            |---      |
+| 1.0       | July 2018     | <ul><li>Deprecated Google Pay endpoint /paywithgooglesingleusetokens. Now use /googlepaysingleusetokens.</li><li>Deprecated Google Pay token *payWithGooglePaymentToken*. Now use *googlePayPaymentToken*.</li></ul>     |
+| 1.0       | February 2018 | <ul><li>Clarified NETBANX terminology</li></ul>     |
+| 1.0       | January 2018  | <ul><li>Changed "Google Payment API" to "Google Pay"</li><li>Updated endpoints for creating Direct Debit single-use tokens</li></ul>|
+| 1.0       | December 2017 | <ul><li>Added Direct Debit single-use tokens</li></ul> |
+| 1.0       | November 2016 | <ul><li>Document release</li></ul> |
+
+# Overview
+
+Securely store customer payment information for a quick and simple checkout experience &ndash; PCI compliance is a breeze.
+  * Allow us to securely store your customers’ sensitive payment information like card and bank account numbers in our Customer Vault &ndash; you never have to see or handle it.
+  * Apply our REST-based API to create and modify Customer Profiles, and use tokens to process transactions.
+  * Maintain multiple payment methods for each of your customers.
+  * Build customer loyalty, and offer a streamlined and speedy checkout experience.
+  
+![](https://developer.paysafe.com/fileadmin/flarecontent/devcentre/Content/Resources/Images/CustomerVaultOverview.png)
+
+<a name="apikey" title="Authentication"></a>
+# Authentication
+
+In order for you to use the Paysafe REST API, Paysafe must first set you up on their system and provide you with an API key. Your API key looks something like this:
+
+  * Key Username – MerchantXYZ
+  * Key Password – B-tst1-0-51ed39e4-312d02345d3f123120881dff9bb4020a89e8ac44cdfdcecd702151182fdc952272661d290ab2e5849e31bb03deede7e
+
+Note this is not the same as your Merchant Back Office username and password.
+The case-sensitive API key is sent using HTTP Basic Authentication. To use HTTP Basic Authentication, you must send the API key credentials using the Authorization header with every request. The Authorization header is constructed as follows:
+
+  1. The Key Username and Key Password are combined into a string separated by a colon, e.g.,“Key Username:Key Password”.
+  2. The resulting string literal is then encoded using Base64.
+  3. The authorization method and a space (i.e., “Basic”) are then put before the encoded string.
+
+For example, using the Key Username and Password examples above, the header is formed as follows:
+
+``Authorization: Basic
+TWVyY2hhbnRYWVo6Qi10c3QxLTAtNTFlZDM5ZTQtMzEyZDAyMzQ1ZDNmMTIzMTIwODgxZGZmOWJiNDAyMGE4OWU4YWM0NGNkZmRjZWNkNzAyMTUxMTgyZmRjOTU yMjcyNjYxZDI5MGFiMmU1ODQ5ZTMxYmIwM2RlZWRlN2U=``
+
+For additional details, please refer to [http://en.wikipedia.org/wiki/Basic_access_authentication](http://en.wikipedia.org/wiki/Basic_access_authentication).
+
+  **Note:** Your Production API key will be different from your Test API key. Contact your account manager for details. You must keep your API keys safe and ensure that it is used appropriately for your needs.
+
+# URLs 
+
+##  Test URL
+In order to test your integration with Paysafe, use the following Test URL:
+
+`https://api.test.paysafe.com`
+
+For example:
+
+`https://api.test.paysafe.com/customervault/v1/profiles/{PROFILE_ID}`
+
+## Production URL
+In order to process live requests with Paysafe, use the following Production URL:
+
+`https://api.paysafe.com`
+
+For example:
+
+`https://api.paysafe.com/customervault/v1/profiles/{PROFILE_ID}`
+
+<a name="globalinvalidcharacters" title="Global Invalid Characters"></a>
+# Global Invalid Characters
+
+You must not include any of the characters in the following table as values in any of your request parameters. If you do, your request will result in an error.
+
+|    Character    |    HEX    |    Description                     |
+|-----------------|-----------|------------------------------------|
+| "               | 22        | Double quotes (or speech marks)    |
+| ;               | 3B        | Semicolon                          |
+| ^               | 5E        | Caret, circumflex                  |
+| *               | 2A        | Asterisk                           |
+| <               | 3C        | Less than (or open angled bracket) |
+| /               | 2F        | Slash or divide                    |
+| [               | 5B        | Opening bracket                    |
+| ]               | 5D        | Closing bracket                    |
+| \               | 5C        | Backslash                          |
+
+# API
+
+The Customer Vault API allows merchants to securely store a customer's personal information, including address, payment, and contact information. 
+
+The following request types are supported:
+
+  * [Profiles](#profilesrequest)
+  * [Addresses](#addressesrequest)
+  * [Cards](#cardsrequest)
+  * [ACH Bank Accounts](#achbankaccountsrequest)
+  * [BACS Bank Accounts](#bacsbankaccountsrequest)
+  * [EFT Bank Accounts](#eftbankaccountsrequest)
+  * [SEPA Bank Accounts](#sepabankaccountsrequest)
+  * [Mandates](#mandatesrequest)
+  * [Apple Pay Single-Use Tokens](#applepaysingleusetokens)
+  * [Google Pay Single-Use Tokens](#googlepaysingleusetokens)
+  * [Mobile Device Single-Use Tokens](#singleusetokens)
+  * [ACH Single-Use Tokens](#achsingleusetokens)  
+  * [EFT Single-Use Tokens](#eftsingleusetokens)
+  
+**API Endpoint** 
+
+`https://api.paysafe.com/customervault/v1`
+
+**Resource Patterns**
+
+|Endpoint URL                                       |Description                            |Action |
+|---                                                |---                                    |---    |
+|/profiles                                          |Create a Customer Profile              |POST   |
+|/profiles/{PROFILE_ID}                             |Look Up a Customer Profile             |GET    |
+|/profiles/{PROFILE_ID}                             |Update a Customer Profile              |PUT    |
+|/profiles/{PROFILE_ID}                             |Delete a Customer Profile              |DELETE |
+|/profiles/{PROFILE_ID}/addresses                   |Create an Address                      |POST   |
+|/profiles/{PROFILE_ID}/addresses/{ADDRESS_ID}      |Look Up an Address                     |GET    |
+|/profiles/{PROFILE_ID}/addresses/{ADDRESS_ID}      |Update an Address                      |PUT    |
+|/profiles/{PROFILE_ID}/addresses/{ADDRESS_ID}      |Delete an Address                      |DELETE |
+|/profiles/{PROFILE_ID}/cards                       |Create a Card                          |POST   |
+|/profiles/{PROFILE_ID}/cards/{CARD_ID}             |Look Up a Card                         |GET    |
+|/profiles/{PROFILE_ID}/cards/{CARD_ID}             |Update a Card                          |PUT    |
+|/profiles/{PROFILE_ID}/cards/{CARD_ID}             |Delete a Card                          |DELETE |
+|/profiles/{PROFILE_ID}/achbankaccounts             |Create an ACH Bank Account             |POST   |
+|/profiles/{PROFILE_ID}/achbankaccounts/{BANK_ACCOUNT_ID}   |Look Up an ACH Bank Account    |GET    |
+|/profiles/{PROFILE_ID}/achbankaccounts/{BANK_ACCOUNT_ID}   |Update an ACH Bank Account     |PUT    |
+|/profiles/{PROFILE_ID}/achbankaccounts/{BANK_ACCOUNT_ID}   |Delete an ACH Bank Account     |DELETE |
+|/profiles/{PROFILE_ID}/bacsbankaccounts            |Create a BACS Bank Account             |POST   |
+|/profiles/{PROFILE_ID}/bacsbankaccounts/{BANK_ACCOUNT_ID}  |Look Up a BACS Bank Account    |GET    |
+|/profiles/{PROFILE_ID}/bacsbankaccounts/{BANK_ACCOUNT_ID}  |Update a BACS Bank Account     |PUT    |
+|/profiles/{PROFILE_ID}/bacsbankaccounts/{BANK_ACCOUNT_ID}  |Delete a BACS Bank Account     |DELETE |
+|/profiles/{PROFILE_ID}/eftbankaccounts             |Create an EFT Bank Account             |POST   |
+|/profiles/{PROFILE_ID}/eftbankaccounts/{BANK_ACCOUNT_ID}   |Look Up an EFT Bank Account    |GET    |
+|/profiles/{PROFILE_ID}/eftbankaccounts/{BANK_ACCOUNT_ID}   |Update an EFT Bank Account     |PUT    |
+|/profiles/{PROFILE_ID}/eftbankaccounts/{BANK_ACCOUNT_ID}   |Delete an EFT Bank Account     |DELETE |
+|/profiles/{PROFILE_ID}/sepabankaccounts            |Create a SEPA Bank Account             |POST   |
+|/profiles/{PROFILE_ID}/sepabankaccounts/{BANK_ACCOUNT_ID}  |Look Up a SEPA Bank Account    |GET    |
+|/profiles/{PROFILE_ID}/sepabankaccounts/{BANK_ACCOUNT_ID}  |Update a SEPA Bank Account     |PUT   |
+|/profiles/{PROFILE_ID}/sepabankaccounts/{BANK_ACCOUNT_ID}  |Delete a SEPA Bank Account     |DELETE |
+|/applepaysingleusetokens                           |Create an Apple Pay Single-Use Token   |POST   |
+|/googlepaysingleusetokens                          |Create a Google Pay Single-Use Token |POST   |
+|/singleusetokens                                   |Create a Mobile Device Single-Use Token|POST   |
+|/achsingleusetokens                                |Create an ACH Single-Use Token         |POST   |
+|/eftsingleusetokens                                |Create an EFT Single-Use Token         |POST   |
+|/profiles/{PROFILE_ID}/bacsbankaccounts/{BANK_ACCOUNT_ID}/mandates |Create a BACS Mandate  |POST   |
+|/profiles/{PROFILE_ID}/sepabankaccounts/{BANK_ACCOUNT_ID}/mandates |Create a SEPA Mandate  |POST   |
+|/profiles/{PROFILE_ID}/mandates/{MANDATE_ID}       |Look Up a Mandate                      |GET    |
+|/profiles/{PROFILE_ID}/mandates/{MANDATE_ID}       |Update a Mandate                       |PUT    |
+|/profiles/{PROFILE_ID}/mandates/{MANDATE_ID}       |Delete a Mandate                       |DELETE |
+
+# Getting Started
+
+You can use the Customer Vault REST API to create profiles, addresses, cards, bank accounts, single-use tokens, and mandates. Click [here](https://developer.paysafe.com/en/rest-api/vault/using-the-api/scenarios/) for some common scenarios for using the Customer Vault.
+
+
+# Testing Instructions
+
+The Paysafe Test environment can be used to test websites or applications. It is important to make sure that your systems are working correctly before going into a live environment. Click [here](https://developer.paysafe.com/en/rest-api/vault/test-and-go-live/testing-instructions/) for details of using the test environment.
+
+<a name="isostandards" title="ISO Standards"></a>
+# ISO Standards
+
+<a name="currencycodes" title="Currency Codes"></a>
+## Currency Codes
+
+**Note:**
+  * The table below lists the currencies in which transaction requests are processed, but note that they may be settled in a different currency. 
+  * Not all currencies are supported by all banks. Contact your account manager for more information about which currencies are supported for your merchant account.
+
+|Currency |Code |
+|--- |--- |
+|Argentine Peso |ARS |
+|Australian Dollar  |AUD |
+|Azerbaijanian Manat    |AZN |
+|Bahraini Dinar |BHD  |
+|Belarusian Ruble   |BYR  |
+|Bolivian Boliviano |BOB  |
+|Bosnia and Herzegovina Convertible Mark |BAM  |
+|Brazilian Real |BRL  |
+|Bulgarian Lev  |BGN  |
+|Canadian Dollar    |CAD  |
+|Chilean Peso   |CLP  |
+|China Yuan Renminbi    |CNY  |
+|Columbian Peso |COP  |
+|Costa Rican Colon  |CRC  |
+|Croatian Kuna  |HRK  |
+|Czech Koruna   |CZK  |
+|Danish Krone   |DKK  |
+|Dominican Peso |DOP  |
+|East Caribbean Dollar  |XCD  |
+|Egyptian Pound |EGP  |
+|Ethiopian Birr |ETB  |
+|Euro   |EUR  |
+|Fiji Dollar    |FJD  |
+|Georgian Lari  |GEL  |
+|Guatemala Quetzal  |GTQ  |
+|Haiti Goude    |HTG  |
+|Honduran Lempira   |HNL  |
+|Hong Kong Dollar   |HKD  |
+|Hungarian Forint   |HUF  |
+|Iceland Krona  |ISK  |
+|Indian Rupee   |INR  |
+|Indonesia Rupiah   |IDR  |
+|Iranian Rial   |IRR  |
+|Jamaican Dollar    |JMD  |
+|Japanese Yen   |JPY  |
+|Jordanian Dinar    |JOD  |
+|Kazakhstan Tenge   |KZT  |
+|Kenyan Shilling    |KES  |
+|Korean Won |KRW  |
+|Kuwaiti Dinar  |KWD  |
+|Latvian Lats   |LVL  |
+|Lebanese Pound |LBP  |
+|Libyan Dinars  |LYD  |
+|Lithuanian Litas   |LTL  |
+|Malawi Kwacha  |MWK  |
+|Malaysian Ringotgit  |MYR  |
+|Mauritius Rupee    |MUR  |
+|Mexican Peso   |MXN  |
+|Moldovan Leu   |MDL  |
+|Moroccan Dirham    |MAD  |
+|New Israeli Shekel |ILS  |
+|New Zealand Dollar |NZD  |
+|Nigerian Naira |NGN  |
+|Norwegian Krone    |NOK  |
+|Omani Rial |OMR  |
+|Pakistan Rupee |PKR  |
+|Panamanian Balboa  |PAB  |
+|Paraguayan Guarani |PYG  |
+|Peruvian Sol   |PEN  |
+|Philippine Peso    |PHP  |
+|Polish Zloty   |PLN  |
+|Pound Sterling |GBP  |
+|Qatari Rial    |QAR  |
+|Romanian New Leu   |RON  |
+|Russian Ruble  |RUB  |
+|Saudi Arabian Riyal    |SAR  |
+|Serbian Dinar  |RSD  |
+|Singapore Dollar   |SGD  |
+|South African Rand |ZAR  |
+|Sri Lanka Rupee    |LKR  |
+|Swedish Krona  |SEK  |
+|Swiss Franc    |CHF  |
+|Syrian Pound   |SYP  |
+|Taiwan New Dollar  |TWD  |
+|Thai Baht  |THB  |
+|Trinidad and Tobago Dollar |TTD  |
+|Tunisian Dinar |TND  |
+|Turkish Lira   |TRY  |
+|Ukranian Hryunia   |UAH  |
+|UAE Dirham |AED  |
+|Uruguay Peso   |UYU  |
+|US Dollar  |USD  |
+|Venezuelan Bolivar |VEF  |
+|Viet Nam Dong  |VND  |
+
+<a name="provincecodes" title="Province Codes"></a>
+## Province Codes
+
+|Province               |Code   |
+|---                    |---    |
+|Alberta                |AB     |
+|British Columbia       |BC     |
+|Manitoba               |MB     |
+|New Brunswick          |NB     |
+|Newfoundland           |NL     |
+|Nova Scotia            |NS     |
+|Northwest Territories  |NT     |
+|Nunavut                |NU     |
+|Ontario                |ON     |
+|Prince Edward Island   |PE     |
+|Quebec                 |QC     |
+|Saskatchewan           |SK     |
+|Yukon                  |YT     |
+
+<a name="statecodes" title="State Codes"></a>
+## State Codes
+
+|State                  |Code   |
+|---                    |---    |
+|Alabama                |AL     |
+|Alaska                 |AK     |
+|American Samoa         |AS     |
+|Arizona                |AZ     |
+|Arkansas               |AR     |
+|Armed Forces Americas  |AA     |
+|Armed Forces Europe    |AE     |
+|Armed Forces Pacific   |AP     |
+|California             |CA     |
+|Colorado               |CO     |
+|Connecticut            |CT     |
+|Delaware               |DE     |
+|District of Columbia   |DC     |
+|Florida                |FL     |
+|Georgia                |GA     |
+|Guam                   |GU     |
+|Hawaii                 |HI     |
+|Idaho                  |ID     |
+|Illinois               |IL     |
+|Indiana                |IN     |
+|International          |IT     |
+|Iowa                   |IA     |
+|Kansas                 |KS     |
+|Kentucky               |KY     |
+|Louisiana              |LA     |
+|Maine                  |ME     |
+|Maryland               |MD     |
+|Massachusetts          |MA     |
+|Michigan               |MI     |
+|Minnesota              |MN     |
+|Mississippi            |MS     |
+|Missouri               |MO     |
+|Montana                |MT     |
+|Nebraska               |NE     |
+|Nevada                 |NV     |
+|New Hampshire          |NH     |
+|New Jersey             |NJ     |
+|New Mexico             |NM     |
+|New York               |NY     |
+|North Carolina         |NC     |
+|North Dakota           |ND     |
+|Northern Mariana Is.   |MP     |
+|Ohio                   |OH     |
+|Oklahoma               |OK     |
+|Oregon                 |OR     |
+|Palau                  |PW     |
+|Pennsylvania           |PA     |
+|Puerto Rico            |PR     |
+|Rhode Island           |RI     |
+|South Carolina         |SC     |
+|South Dakota           |SD     |
+|Tennessee              |TN     |
+|Texas                  |TX     |
+|U.S. Virgin Islands    |VI     |
+|United States Federal  |US     |
+|Utah                   |UT     |
+|Vermont                |VT     |
+|Virginia               |VA     |
+|Washington             |WA     |
+|West Virginia          |WV     |
+|Wisconsin              |WI     |
+|Wyoming                |WY     |
+
+
+<a name="countrycodes" title="Country Codes"></a>
+## Country Codes
+| Country                       | Code |
+|---                                |---       |
+| Afghanistan                       | AF |
+| Åland Islands                     | AX |
+| Albania                           | AL |
+| Algeria                           | DZ |
+| American Samoa                    | AS |
+| Andorra                           | AD |
+| Angola                            | AO |
+| Anguilla                          | AI |
+| Antarctica                        | AQ |
+| Antigua and Barbuda               | AG |
+| Argentina                         | AR |
+| Armenia                           | AM |
+| Aruba                             | AW |
+| Australia                         | AU |
+| Austria                           | AT |
+| Azerbaijan                        | AZ |
+| Bahamas                           | BS |
+| Bahrain                           | BH |
+| Bangladesh                        | BD |
+| Barbados                          | BB |
+| Belarus                           | BY |
+| Belgium                           | BE |
+| Belize                            | BZ |
+| Benin                             | BJ |
+| Bermuda                           | BM |
+| Bhutan                            | BT |
+| Bolivia                           | BO |
+| Bonaire, Sint Eustatius and Saba  | BQ |
+| Bosnia and Herzegovina            | BA |
+| Botswana                          | BW |
+| Bouvet Island                     | BV |
+| Brazil                            | BR |
+| British Indian Ocean Territory    | IO |
+| Brunei Darussalam                 | BN |
+| Bulgaria                          | BG |
+| Burkina Faso                      | BF |
+| Burundi                           | BI |
+| Cambodia                          | KH |
+| Cameroon                          | CM |
+| Canada                            | CA |
+| Cape Verde                        | CV |
+| Cayman Islands                    | KY |
+| Central African Republic          | CF |
+| Chad                              | TD |
+| Chile                             | CL |
+| China                             | CN |
+| Christmas Island                  | CX |
+| Cocos (Keeling) Islands           | CC |
+| Colombia                          | CO |
+| Comoros                           | KM |
+| Congo                             | CG |
+| Congo, Democratic Republic of     | CD |
+| Cook Islands                      | CK |
+| Costa Rica                        | CR |
+| Côte D’Ivoire                     | CI |
+| Croatia                           | HR |
+| Cuba                              | CU |
+| Curaçao                           | CW |
+| Cyprus                            | CY |
+| Czech Republic                    | CZ |
+| Denmark                           | DK |
+| Djibouti                          | DJ |
+| Dominica                          | DM |
+| Dominican Republic                | DO |
+| Ecuador                           | EC |
+| Egypt                             | EG |
+| El Salvador                       | SV |
+| Equatorial Guinea                 | GQ |
+| Eritrea                           | ER |
+| Estonia                           | EE |
+| Ethiopia                          | ET |
+| Falkland Islands                  | FK |
+| Faroe Islands                     | FO |
+| Fiji                              | FJ |
+| Finland                           | FI |
+| France                            | FR |
+| French Guiana                     | GF |
+| French Polynesia                  | PF |
+| French Southern Territories       | TF |
+| Gabon                             | GA |
+| Gambia                            | GM |
+| Georgia                           | GE |
+| Germany                           | DE |
+| Ghana                             | GH |
+| Gibraltar                         | GI |
+| Greece                            | GR |
+| Greenland                         | GL |
+| Grenada                           | GD |
+| Guadeloupe                        | GP |
+| Guam                              | GU |
+| Guatemala                         | GT |
+| Guernsey                          | GG |
+| Guinea                            | GN |
+| Guinea-Bissau                     | GW |
+| Guyana                            | GY |
+| Haiti                             | HT |
+| Heard and McDonald Islands        | HM |
+| Honduras                          | HN |
+| Hong Kong                         | HK |
+| Hungary                           | HU |
+| Iceland                           | IS |
+| India                             | IN |
+| Indonesia                         | ID |
+| Iran  (Islamic Republic of)       | IR |
+| Iraq                              | IQ |
+| Ireland                           | IE |
+| Isle of Man                       | IM |
+| Israel                            | IL |
+| Italy                             | IT |
+| Jamaica                           | JM |
+| Japan                             | JP |
+| Jersey                            | JE |
+| Jordan                            | JO |
+| Kazakhstan                        | KZ |
+| Kenya                             | KE |
+| Kiribati                          | KI |
+| Korea, Democratic People’s Republic | KP |
+| Korea, Republic of                | KR |
+| Kuwait                            | KW |
+| Kyrgyzstan                        | KG |
+| Lao People’s Democratic Republic  | LA |
+| Latvia                            | LV |
+| Lebanon                           | LB |
+| Lesotho                           | LS |
+| Liberia                           | LR |
+| Libyan Arab Jamahiriya            | LY |
+| Liechtenstein                     | LI |
+| Lithuania                         | LT |
+| Luxembourg                        | LU |
+| Macau                             | MO |
+| Macedonia                         | MK |
+| Madagascar                        | MG |
+| Malawi                            | MW |
+| Malaysia                          | MY |
+| Maldives                          | MV |
+| Mali                              | ML |
+| Malta                             | MT |
+| Marshall Islands                  | MH |
+| Martinique                        | MQ |
+| Mauritania                        | MR |
+| Mauritius                         | MU |
+| Mayotte                           | YT |
+| Mexico                            | MX |
+| Micronesia, Federated States of   | FM |
+| Moldova, Republic of              | MD |
+| Monaco                            | MC |
+| Mongolia                          | MN |
+| Montenegro                        | ME |
+| Montserrat                        | MS |
+| Morocco                           | MA |
+| Mozambique                        | MZ |
+| Myanmar                           | MM |
+| Namibia                           | NA |
+| Nauru                             | NR |
+| Nepal                             | NP |
+| New Caledonia                     | NC |
+| New Zealand                       | NZ |
+| Nicaragua                         | NI |
+| Niger                             | NE |
+| Nigeria                           | NG |
+| Niue                              | NU |
+| Norfolk Island                    | NF |
+| Northern Mariana Islands          | MP |
+| Norway                            | NO |
+| Oman                              | OM |
+| Pakistan                          | PK |
+| Palau                             | PW |
+| Palestinian Territory, Occupied   | PS |
+| Panama                            | PA |
+| Papua New Guinea                  | PG |
+| Paraguay                          | PY |
+| Peru                              | PE |
+| Philippines                       | PH |
+| Pitcairn                          | PN |
+| Poland                            | PL |
+| Portugal                          | PT |
+| Puerto Rico                       | PR |
+| Qatar                             | QA |
+| Reunion                           | RE |
+| Romania                           | RO |
+| Russian Federation                | RU |
+| Rwanda                            | RW |
+| Saint Barthélemy                  | BL |
+| Saint Helena                      | SH |
+| Saint Kitts and Nevis             | KN |
+| Saint Lucia                       | LC |
+| Saint Martin                      | MF |
+| Saint Vincent and the Grenadines  | VC |
+| Samoa                             | WS |
+| San Marino                        | SM |
+| Sao Tome and Principe             | ST |
+| Saudi Arabia                      | SA |
+| Senegal                           | SN |
+| Serbia                            | RS |
+| Seychelles                        | SC |
+| Sierra Leone                      | SL |
+| Singapore                         | SG |
+| Sint Maarten                      | SX |
+| Slovakia (Slovak Republic)        | SK |
+| Slovenia                          | SI |
+| Solomon Islands                   | SB |
+| Somalia                           | SO |
+| South Africa                      | ZA |
+| South Georgia and the South Sandwich Islands | GS |
+| South Sudan                       | SS |
+| Spain                             | ES |
+| Sri Lanka                         | LK |
+| St. Pierre and Miquelon           | PM |
+| Sudan                             | SD |
+| Suriname                          | SR |
+| Svalbard and Jan Mayen Islands    | SJ |
+| Swaziland                         | SZ |
+| Sweden                            | SE |
+| Switzerland                       | CH |
+| Syrian Arab Republic              | SY |
+| Taiwan                            | TW |
+| Tajikistan                        | TJ |
+| Tanzania, United Republic of      | TZ |
+| Thailand                          | TH |
+| The Netherlands                   | NL |
+| Timor-Leste                       | TL |
+| Togo                              | TG |
+| Tokelau                           | TK |
+| Tonga                             | TO |
+| Trinidad and Tobago               | TT |
+| Tunisia                           | TN |
+| Turkey                            | TR |
+| Turkmenistan                      | TM |
+| Turks and Caicos Islands          | TC |
+| Tuvalu                            | TV |
+| Uganda                            | UG |
+| Ukraine                           | UA |
+| United Arab Emirates              | AE |
+| United Kingdom                    | GB |
+| United States                     | US |
+| United States Minor Outlying Islands | UM |
+| Uruguay                           | UY |
+| Uzbekistan                        | UZ |
+| Vanuatu                           | VU |
+| Vatican City State (Holy See)     | VA |
+| Venezuela                         | VE |
+| Vietnam                           | VN |
+| Virgin Islands (British)          | VG |
+| Virgin Islands (U.S.)             | VI |
+| Wallis and Futuna Islands         | WF |
+| Western Sahara                    | EH |
+| Yemen                             | YE |
+| Zambia                            | ZM |
+| Zimbabwe                          | ZW |
+
+# Complex JSON Objects
+
+<a name="achbankaccountobject" title="ACH Bank Account Object"></a>
+## achBankAccount
+|Element            |Type                       |Description    |
+|---                |---                        |---       |
+|id                 |string<br/>`length<=36`    |This is the ID for the request, returned by Paysafe. It can be used later, e.g., to look up or update the bank account.|
+|nickName           |string<br/>`length<=50`    |This is an alias defined by the customer for the bank account (e.g., "First Bank account").|
+|merchantRefNum     |string<br/>`length<=255`   |This is the merchant reference number created by the merchant and submitted as part of the request. This value is only stored by the Paysafe system and has no bearing on the request.|
+|status             |enum                       |This is the status of the  request. Possible values are:<ul><li>ACTIVE &ndash; The bank account has been created.</li><li>INVALID &ndash; The bank account is invalid.</li><li>INACTIVE &ndash; The bank account has been deleted.</li></ul><br/>**Note:** By default, the bank account is created with the status of ACTIVE.|
+|statusReason       |string<br/>`length<=255`   |If the status is INVALID, this is a description of why the account is invalid (e.g., account closed).|
+|accountNumber      |string<br/>`length=4-17`   |This is the bank account number.|
+|accountHolderName  |string<br/>`length<=22`    ||This is the name of the customer or company that owns the bank account.|
+|routingNumber      |string<br/>`length=9`      ||For USD accounts, this is the 9-digit routing number of the customer’s bank.|
+|accountType        |enum                       ||This is the bank account type. Possible values are:<ul><li>CHECKING</li><li>LOAN</li><li>SAVINGS</li></ul>|
+|lastDigits         |string<br/>`length=2`      |This is the last two digits of the bank account number.|
+|billingAddressId   |string<br/>`length<=36`    |This is the address ID returned in response to the request to create an address, which will be associated with this bank account.|
+|paymentToken       |string<br/>`length<=50`    |This is a token generated by Paysafe that represents the bank account and is returned in the response to the bank account creation request. It can be used in the place of bank account information in Direct Debit transactions.|
+
+```apib
+            {
+                "nickName": "John's RBC Business Bank Account",
+                "accountNumber": "511201",
+                "routingNumber": "123456789",
+                "accountHolderName": "XYZ Business",
+                "billingAddressId": "60022f38-fd17-4731-909c-923930d0d5d4",
+                "accountType": "CHECKING"
+            }
+```
+
+
+<a name="addressesobject" title="Addresses Object"></a>
+## addresses
+|Element            |Type                       |Description    |
+|---                |---                        |---       |
+|id                 |string<br/>`length<=36`    |This is the ID for the request.|
+|nickName           |string<br/>`length<=50`    |This is an alias defined by the customer for this address (e.g., "home address").|
+|street             |string<br/>`length<=50`    |This is the first line of the customer's street address.|
+|street2            |string<br/>`length<=50`    |This is the second line of the customer's street address, if required (e.g., apartment number).|
+|city               |string<br/>`length<=40`    |This is the city where the address is located.|
+|country            |string<br/>`length=2`      |This is the country where the address is located. See [Country Codes](#countrycodes).|
+|state              |string<br/>`length<=40`    |This is the state/province/region in which the customer lives.<br/>For Canada see [Province Codes](#provincecodes). For the United States see [State Codes](#statecodes). Other countries have no restrictions. |
+|zip                |string<br/>`length<=10`    |This is the zip, postal, or post code of the customer's address.|
+|recipientName      |string<br/>`length<=255`   |This is the name of the recipient at this address, if it is different from the name in the profile.|
+|phone              |string<br/>`length<=40`    |This is the phone number to contact the recipient at this address, if it is different from the phone number in the profile.|
+|status             |enum                       |This is the status of the address. Possible values are:<ul><li>ACTIVE</li></ul>|
+|defaultShippingAddressIndicator|boolean        |Flag to mark this address as the default shipping address.|
+
+```apib
+            {
+              "nickName":"home",
+              "street":"100 Queen Street West",
+              "street2":"Unit 201",
+              "city":"Toronto",
+              "country":"CA",
+              "state":"ON",
+              "zip":"M5H 2N2",
+              "recipientName":"Jane Doe",
+              "phone":"647-788-3901",
+              "defaultShippingAddressIndicator": true
+            }
+```
+
+<a name="applepaypaymenttokenobject" title="Apple Pay Payment Token Object"></a>
+## applePayPaymentToken
+
+This is the payment data object generated from the iOS device for Apple Pay and used in the request to [create an Apple Pay single-use token](#applepaysingleusetokenrequest).
+
+|Element            |Type                       |Description    |
+|---                |---                        |---       |
+|data               |string<br/>`length<=4000`  |This is the encrypted payment data.|
+|header             |[header](#headerobject)    |This is additional version-dependent information used to decrypt and verify the payment.|
+|signature          |string<br/>`length<=4000`  |This is the signature of the payment and header data.|
+|version            |string<br/>`length<=36`    |This is version information about the payments token. Value is "EC_v1".|
+
+```apib
+            {
+                "applePayPaymentToken": {
+                    "version": "EC_v1",
+                    "data": "<passkit_encrypted_payment_data>",
+                    "signature": "<signature_for_payment_and_header_data>",
+                    "header": {
+                        "transactionId": "b53e22ef6669ce7f50951cfd6821908f4e679f050f5a551a1b5f6202253136ae",
+                        "ephemeralPublicKey": "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEB39YqvWZG0NOYjbkL5D61Mxip6uw23Q7m8gWgxL41k4fs0BgJ+MFcIGYOH86kAGL/wjiftDahRkUnzOGls2hzw==",
+                        "publicKeyHash": "O5gJ/P5sQ7ufMZQXA7ccLoOkJ13VNknbu+4K0TaCQXE="
+                    }
+                }
+            }
+```
+
+<a name="applepaysingleusetokenobject" title="Apple Pay Single-Use Token Object"></a>
+## applepaysingleusetoken
+|Element                |Type                        |Description    |
+|---                    |---                        |---       |
+|applePayPaymentToken   |[applePayPaymentToken](#applepaypaymenttokenobject)    | This is the payment data object generated from the iOS device for Apple Pay.|
+|card                   |[card](#cardsobject)       |These are the details of the virtual card.|
+|transaction            |[transaction](#transactionobject)  | These are the Apple Pay transaction details.|
+|paymentToken           |string<br/>`length<=50`    |This is the single-use payment token, returned in the response, to use in the authorization or purchase request in the [Card Payments API](https://developer.paysafe.com/en/cards/api/#/reference/0/authorizations/authorization). |
+|timeToLiveSeconds      |number                     |This is the period of time the single-use token is valid before expiration, in seconds, returned in the response.|
+
+```apib
+            {
+              "paymentToken" : "ABC4AFQQBC5UR5H",
+              "timeToLiveSeconds" : 899,
+              "applePayPaymentToken": {
+                "version": "EC_v1",
+                "signature": "<signature_for_payment_and_header_data>",
+                "header": {
+                  "transactionId": "b53e22ef6669ce7f50951cfd6821908f4e679f050f5a551a1b5f6202253136ae",
+                  "publicKeyHash": "O5gJ/P5sQ7ufMZQXA7ccLoOkJ13VNknbu+4K0TaCQXE="
+                  }
+                },
+              "card": {
+                "lastDigits": "1111",
+                "holderName": "Joe Smith"
+              },
+              "transaction": {
+                "amount": 1000,
+                "currencyCode": "USD"
+              }
+            }
+```
+
+<a name="bacsbankaccountobject" title="BACS Bank Account Object"></a>
+## bacsBankAccount
+|Element            |Type                       |Description    |
+|---                |---                        |---       |
+|id                 |string<br/>`length<=36`    |This is the ID for the request, returned by Paysafe. It can be used later, e.g., to look up or update the bank account.|
+|nickName           |string<br/>`length<=50`    |This is an alias defined by the customer for the bank account (e.g., "Sally's Barclays Account").|
+|merchantRefNum     |string<br/>`length<=255`   |This is the merchant reference number created by the merchant and submitted as part of the request. This value is only stored by the Paysafe system and has no bearing on the request.|
+|status             |enum                       |This is the status of the  request. Possible values are:<ul><li>ACTIVE &ndash; The bank account has been created.</li><li>INVALID &ndash; The bank account is invalid.</li><li>INACTIVE &ndash; The bank account has been deleted.</li></ul><br/>**Note:** By default, the bank account is created with the status of ACTIVE.|
+|statusReason       |string<br/>`length<=255`   |If the status is INVALID, this is a description of why the account is invalid (e.g., account closed).|
+|accountNumber      |string<br/>`length=8`      |This is the bank account number.|
+|accountHolderName  |string<br/>`length<=18`    |This is the name of the customer or company that owns the bank account.|
+|sortCode           |string<br/>`length=6`      |This is the 6-digit sort code that identifies the financial institution and branch of the customer’s bank.|
+|lastDigits         |string<br/>`length=2`      |This is the last two digits of the bank account number.|
+|billingAddressId   |string<br/>`length<=36`    |This is the address ID returned in response to the request to create an address, which will be associated with this bank account.|
+|paymentToken       |string<br/>`length<=50`    |This is a token generated by Paysafe that represents the bank account and is returned in the response to the bank account creation request. It can be used in the place of bank account information in Direct Debit transactions.|
+|mandates           |list                       |This is one or more mandates associated with the bank account.
+
+```apib
+            {
+                "nickName": "S sort co",
+                "accountHolderName": "Sally Barnes",
+                "accountNumber": "51120172",
+                "sortCode": "086081",
+                "billingAddressId": "60022f38-fd17-4731-909c-923930d0d5d4",
+                "mandates": [ {
+                  "reference": "ABCDEFGHIJ"
+                } ]
+            }
+```
+
+<a name="billingaddressobject" title="Billing Address Object"></a>
+## billingAddress
+|Element            |Type                       |Description                        |
+|---                |---                        |---       |
+|nickName           |string<br/>`length<=50`    |This is an alias defined by the customer for this address (e.g., "home address").|
+|street             |string<br/>`length<=50`    |This is the first line of the customer's street address.|
+|street2            |string<br/>`length<=50`    |This is the second line of the customer's street address, if required (e.g., apartment number).|
+|city               |string<br/>`length<=40`    |This is the city where the address is located.|
+|state              |string<br/>`length<=40`    |This is the state/province/region in which the customer lives.<br/>For Canada see [Province Codes](#provincecodes). For the United States see [State Codes](#statecodes). Other countries have no restrictions.|
+|zip                |string<br/>`length<=10`    |This is the zip, postal, or post code of the customer's address.|
+|country            |string<br/>`length=2`      |This is the country where the address is located. See [Country Codes](#countrycodes).|
+
+```apib
+            {
+              "nickName":"home",
+              "street":"100 Queen Street West",
+              "street2":"Unit 201",
+              "city":"Toronto",
+              "state":"ON",
+              "zip":"M5H 2N2",
+              "country":"CA"
+            }
+```
+
+<a name="cardexpiryobject" title="Card Expiry Object"></a>
+## cardExpiry
+|Element            |Type                       |Description    |
+|---                |---                        |---            |
+|month              |number<br/>`length=2`      |This is the month the card expires.|
+|year               |number<br/>`length=4`      |This is the year the card expires.|
+
+```apib
+            {
+              "cardExpiry":{
+                "month":"12",
+                "year":"2019"
+              }
+            }
+```
+
+<a name="cardsobject" title="Cards Object"></a>
+## cards
+|Element            |Type                           |Description    |
+|---                |---                            |---            |
+|id                 |string<br/>`length<=36`        |This is the card ID returned by Paysafe that can be used later to look up or update a card on the profile.|
+|nickName           |string<br/>`length<=50`        |This is an alias defined by the customer for this card (e.g., "corporate card").|
+|merchantRefNum     |string<br/>`length<=255`       |This is the merchant’s own card identification, which can be included in the request if desired. This value is only stored by the Paysafe system and has no bearing on the request.|
+|holderName         |string<br/>`length<=160`       |This is the name of the card holder.|
+|cardNum            |string<br/>`length=8-20`       |This is the card number.|
+|cardBin            |string<br/>`length<=6`         |This is the card BIN (typically the first 6 digits).|
+|lastDigits         |string<br/>`length<=4`         |This is the last digits of the card number.|
+|cardExpiry         |[cardexpiry](#cardexpiryobject)    |   |
+|cardType           |enum                           |This is the type of card associated with the profile. Possible values are:<ul><li>AM = American Express</li><li>DC = Diners Club</li><li>DI = Discover</li><li>MC = Mastercard</li><li>VI =Visa</li></ul><br/>This value is determined by the system and returned in the response.|
+|billingAddress     |[billingAddress](#billingaddressobject) |   |
+|billingAddressId   |string<br/>`length<=36`        |This is the ID returned in response to the creation of the address that will be associated with this card. **Note:** Although the *billingAddressID* parameter is optional, it is recommended that you include it when you create the card because Authorization or Purchase requests in the [Card Payments API](https://developer.paysafe.com/en/payments/cards/api/#/introduction/overview) that use the resulting payment token will fail AVS checks unless there is a billing address associated with it. If you do not include it when creating the card, you should then update the card with the *billingAddressId* at a later time before using it for transaction requests.|
+|defaultCardIndicator   |boolean                    |This indicates whether this is the default card for this profile, and is returned in the response. Possible values are:<ul><li>true</li><li>false</li></ul>|
+|paymentToken       |string<br/>`length<=50`        |This is a token generated by Paysafe that represents the card and is returned in the response to the card creation request. It can be used for subsequent payments in our payment APIs.|
+|singleUseToken     |string<br/>`length<=36`        |This is the paymentToken returned in the response to a single-use token creation request. You can use this token to create a card to be stored in a customer profile.|
+|status             |enum                           |This is the status of the card. Possible values are:<ul><li>ACTIVE</li></ul>
+
+```apib
+            {
+              "nickName" : "John's corporate Visa",
+              "holderName" : "MR. JOHN SMITH",
+              "cardNum" : "4111111111111111",
+              "cardExpiry" : {
+                "month" : 12,
+                "year" : 2019
+              }
+            }
+```
+
+
+<a name="dateofbirthobject" title="Date of Birth Object"></a>
+## dateOfBirth
+|Element            |Type                           |Description    |
+|---                |---                            |---            |
+|year               |number<br/>`length=4 min=1900` |This is the year of birth.|
+|month              |number<br/>`length=2 max=12`   |This is the month of birth.|
+|day                |number<br/>`length=2 max=31`   |This is the day of birth.|
+
+```apib
+            { 
+               "dateOfBirth": {
+                  "year": 1980,
+                  "month": 12,
+                  "day": 25
+                }
+            }
+```
+
+<a name="eftbankaccountobject" title="EFT Bank Account Object"></a>
+## eftBankAccount
+|Element            |Type                       |Description                        |
+|---                |---                        |---       |
+|id                 |string<br/>`length<=36`    |This is the ID for the request, returned by Paysafe. It can be used later, e.g., to look up or update the bank account.|
+|nickName           |string<br/>`length<=50`    |This is an alias defined by the customer for the bank account (e.g., "CIBC Account").|
+|merchantRefNum     |string<br/>`length<=255`   |This is the merchant reference number created by the merchant and submitted as part of the request. This value is only stored by the Paysafe system and has no bearing on the request.|
+|status             |enum                       |This is the status of the  request. Possible values are:<ul><li>ACTIVE &ndash; The bank account has been created.</li><li>INVALID &ndash; The bank account is invalid.</li><li>INACTIVE &ndash; The bank account has been deleted.</li></ul><br/>**Note:** By default, the bank account is created with the status of ACTIVE.|
+|statusReason       |string<br/>`length<=255`   |If the status is INVALID, this is a description of why the account is invalid (e.g., account closed).|
+|accountNumber      |string<br/>`length=4-12`   |This is the bank account number.|
+|accountHolderName  |string<br/>`length<=30`    |This is the name of the customer or company that owns the bank account.|
+|transitNumber      |string<br/>`length=5`      |This is the 5-digit transit number of the customer's bank branch.|
+|institutionId      |string<br/>`length=3`      |This is the 3-digit institution ID of the customer’s bank branch.
+|lastDigits         |string<br/>`length=2`      |This is the last two digits of the bank account number.|
+|billingAddressId   |string<br/>`length<=36`    |This is the address ID returned in response to the request to create an address, which will be associated with this bank account.|
+|paymentToken       |string<br/>`length<=50`    |This is a token generated by Paysafe that represents the bank account and is returned in the response to the bank account creation request. It can be used in the place of bank account information in Direct Debit transactions.|
+
+```apib
+            {
+                "nickName" : "Sally's Bank of Montreal Account",
+                "accountHolderName": "Sally",
+                "accountNumber" : "511201",
+                "transitNumber" : "25039",
+                "institutionId" : "001",
+                "billingAddressId": "60022f38-fd17-4731-909c-923930d0d5d4",
+            }
+```
+
+<a name="errorobject" title="Error Object"></a>
+## error
+|Element            |Type       |Description       |
+|---                |---        |---               |
+|code               |string     |The error code.   |
+|message            |string     |A description of the error. Also shown in the X-Application-Status-Code response header.  |
+|fieldErrors        |string array     |Details of any parameter value errors (optional). One or more field:error pairs, where field is the field name and error is the error in the field.      |
+|links              |string array     |One or more rel/href pairs, where rel is "errorinfo", and href is the Developer Center URL containing a description of the error.|
+
+```apib
+"error":{  
+   "code":"5068",
+   "message":"Either you submitted a request that is missing a mandatory field or the value of a field does not match the format expected.",
+   "fieldErrors":[  
+      {  
+         "field":"locale",
+         "error":"Invalid Locale"
+      }
+   ],
+   "links":[  
+      {  
+         "rel":"errorinfo",
+         "href":"https://developer.paysafe.com/en/documentation/customer-vault-api/error-5068"
+      }
+   ]
+}
+```
+
+If you specify an attribute unique to an existing profile, there is also a separate links object &ndash; an array of *rel:href* pairs &ndash; with the following elements:
+
+|Element        |Type       |Description       |
+|---            |---        |---               |
+|rel            |string     |The text "existing_entity"  |
+|href           |string     |The URL to use to look up the existing profile.  |
+
+<a name="headerobject" title="Header Object"></a>
+## header
+|Element            |Type       |Description    |
+|---                |---        |---            |
+|applicationData    |string     |This is a hash of the [applicationData](https://developer.apple.com/library/prerelease/ios/documentation/PassKit/Reference/PKPaymentRequest_Ref/index.html#//apple_ref/occ/instp/PKPaymentRequest/applicationData) property of the original [PKPaymentRequest](https://developer.apple.com/library/prerelease/ios/documentation/PassKit/Reference/PKPaymentRequest_Ref/index.html#//apple_ref/occ/cl/PKPaymentRequest) object. If the value of that property is nil, this key is omitted.|
+|transactionId      |string     |This is the transaction identifier, generated on the device.|
+|ephemeralPublicKey |string     |This is the ephemeral public key bytes (X.509 encoded key bytes, Base64 encoded string).|
+|publicKeyHash      |string     |This is a hash of the x.509 encoded public key bytes of the merchant's certificate as a Base64 encoded string.|
+
+```apib
+            {
+              "header": {
+                        "transactionId": "b53e22ef6669ce7f50951cfd6821908f4e679f050f5a551a1b5f6202253136ae",
+                        "ephemeralPublicKey": "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEB39YqvWZG0NOYjbkL5D61Mxip6uw23Q7m8gWgxL41k4fs0BgJ+MFcIGYOH86kAGL/wjiftDahRkUnzOGls2hzw==",
+                        "publicKeyHash": "O5gJ/P5sQ7ufMZQXA7ccLoOkJ13VNknbu+4K0TaCQXE="
+                }
+            }
+```
+
+<a name="mandatesobject" title="Mandates Object"></a>
+## mandates
+|Element            |Type                               |Description    |
+|---                |---                                |---            |
+|id                 |string<br/>`length<=36`            |This is the bank account ID returned by Paysafe that can be used later to look up or update a mandate.|
+|reference          |string<br/>`For BACS length<=10`<br/>`For SEPA length<=35` |This is the identifier of the mandate in the banking system. SEPA allowed characters are A-Z0-9 (),-./?. BACS allowed characters are A-Z0-9 .&/- and the reference must begin with A-Z or 0-9.|
+|bankAccountId      |string<br/>`length<=36`            |This is the bank account that this mandate belongs to.|
+|status             |enum                               |This is the mandate status. Possible values are:<ul><li>INITIAL – The mandate has been created but is not ready to be batched</li><li>PENDING – The mandate is ready to be batched</li><li>DECLINED – The mandate was not accepted for batching</li>BATCHED – The mandate has been batched (sent into the bacs system)</li><li>ACTIVE – The mandate has been batch for more than 5 business days and no returns have been received that would invalidate it</li><li>CANCELLED – The mandate has been cancelled</li><li>REJECTED – A return has been received that prevents the mandate from being used in a transaction</li><li>DISPUTED – A return has been received that disputes the mandates validity</li><li>INACTIVE – The mandate has been deleted</li></ul>|
+|paymentToken       |string<br/>`length<=50`            |This is a token generated by Paysafe that represents the mandate and is returned in the response to the mandate creation request. It can be used for payments in our payment APIs.|
+|statusChangeDate   |string                             |The date that the status was last changed|
+|statusReasonCode   |string<br/>`length<=2`             |In the case of a REJECTED or DISPUTED status, the reason code received in a return|
+|statusReason       |string<br/>`length<=255`           |In the case of a REJECTED or DISPUTED status, the text description for why the mandate was returned (e.g. bank account closed)|
+
+```apib
+            {
+              "reference": "SUBSCRIP10"
+            }
+```
+
+<a name="googlepaypaymenttokenobject" title="Google Pay Payment Token Object"></a>
+## googlePayPaymentToken
+
+This is the payment data object generated from the Android device for Google Pay and used in the request to [create a Google Pay single-use token](#googlepaymentapisingleusetokenrequest).
+
+|Element            |Type                       |Description    |
+|---                |---                        |---       |
+|signature          |string                     |This is the signature of the payment data.|
+|protocolVersion    |string                     |This is version information about the payments token.|
+|signedMessage      |string                     |This is a UTF-8 encoded, serialized JSON dictionary with values for *encryptedMessage*, *ephemeralPublicKey*, and *tag*.|
+|ephemeralPublicKey |string<br/>`length<=4000`  |This is the ephemeral public key associated with the private key to encrypt the message.|
+|tag                |string<br/>`length<=4000`  |This is the MAC (media access control) of the *encryptedMessage*, which is used to verify the integrity of the *encryptedMessage*. |
+|authMethod         |string                     |This is a constant for 3D Secure requests. |
+|tdsCryptogram      |string                     |This is the 3D Secure cryptogram.  |
+|tdsEciIndicator    |string                     |This is the 3D Secure ECI indicator. |
+|paymentMethod      |enum                       |This indicates the status of the card. <ul><li>TOKENIZED_CARD &ndash; The card has been tokenized with Android Pay</li><li>CARD_ON_FILE &ndash; The card has been stored by Google </li></ul>|
+|messageId          |string                     |This is a unique ID to identify the message in case it needs to be located later. |
+|messageExpiration  |string                     |This is the length of time, in seconds, the message is valid. |
+
+```apib
+            {
+                "googlePayPaymentToken": {
+                    "signature": "BCTSvnX1fF6b64NPlKwJl1r1dAfF0vAWHoktOS4CwH1BocAjnBHfHvKyX2CSM7jf7Cv1b6YfrQMkY9+hgE0dzgY=",
+                    "protocolVersion":"ECv1",
+                    "signedMessage":"signed_message_from_google_payment_api"
+                }
+            }
+```
+
+<a name="googlepaysingleusetokenobject" title="Google Pay Single-Use Token Object"></a>
+## googlepaysingleusetoken
+|Element                |Type                       |Description    |
+|---                    |---                        |---       |
+|googlePayPaymentToken |[googlePayPaymentToken](#googlepaypaymenttokenobject)    | This is the payment data object generated from the Android device.|
+|card                   |[card](#cardsobject)       | These are the details of the virtual card.|
+|paymentToken           |string<br/>`length<=50`    | This is the single-use payment token to use in the authorization or purchase request in the [Card Payments API](https://developer.paysafe.com/en/cards/api/#/reference/0/authorizations/authorization).|
+|timeToLiveSeconds      |number                     | This is the period of time the single-use token is valid before expiration, in seconds, returned in the response.|
+
+```apib
+                {
+                    "paymentToken": "GTCJskXfjWqo34U",
+                    "timeToLiveSeconds": 899,
+                    "googlePayPaymentToken": {
+                        "ephemeralPublicKey": "BCTSvnX1fF6b64NPlKwJl1r1dAfF0vAWHoktOS4CwH1BocAjnBHfHvKyX2CSM7jf7Cv1b6YfrQMkY9+hgE0dzgY=",
+                        "tag": "8EKZt7vGFjtvuukkWlc5U93h+PBxjB7YKJF/w32Wfk8=",
+                        "authMethod": "3DS",
+                        "tdsCryptogram": "AgAAAAAABk4DWZ4C28yUQAAAAAA=",
+                        "tdsEciIndicator": "07",
+                        "paymentMethod": "TOKENIZED_CARD",
+                        "messageId": "AH2EjtfdYZ6GzEduMx5KnnTyAwfuB7fzoIQD483zShYR7Az29Hwx7_6kS5PlD_1A_zHght_YSl2-FxEsKXWW3fF2ZTJMgbrxBUYvYLOzDnLT3X0dYppVbFpVT0_WyCOmKC9UdrTYWDdl",
+                        "messageExpiration": "1506708174199"
+                    },
+                    "card": {
+                        "status": "ACTIVE",
+                        "cardBin": "411111",
+                        "lastDigits": "8298",
+                        "cardType": "VI"
+                    }
+                }
+```
+
+<a name="profilesobject" title="Profiles Object"></a>
+## profiles
+|Element            |Type                               |Description    |
+|---                |---                                |---            |
+|id                 |string <br/>`length<=36`           |This is the ID returned in the response.|
+|status             |enum                               |This is the status of the customer profile. Possible values are:<br/><ul><li>INITIAL</li><li>ACTIVE</li></ul><br/>By default the system automatically sets the profile status to an ACTIVE state. If you want to prevent the profile from being used for payments, you can set the status to an INITIAL state (e.g., in cases where you first want to validate the customer).|
+|merchantCustomerId |string <br/>`length<=100`          |This is a customer ID that the merchant provides with the request for their own internal customer identification. This value must be unique for each customer belonging to a merchant. In NETBANX this is known as the Ref ID.|
+|locale             |enum                               |This indicates the language of the profile. Possible values are:<ul><li>en_US</li><li>fr_CA</li><li>en_GB</li></ul>
+|firstName          |string <br/>`length<=80`           |This is the customer’s first name. |
+|middleName         |string <br/>`length<=80`           |This is the customer’s middle name. |
+|lastName           |string <br/>`length<=80`           |This is the customer’s last name. |
+|dateOfBirth        |[dateOfBirth](#dateofbirthobject)  |This is the customer's date of birth.|
+|ip                 |string<br/>`length<=46`            |This is the customer’s IP address.|
+|gender             |enum                               |This is the customer’s gender. Possible values are:<ul><li>M (male)</li><li>F (female)</li></ul>
+|nationality        |string<br/>`length<=30`            |This is the customer’s nationality.|
+|email              |string<br/>`length<=255`           |This is the customer's email address.|
+|phone              |string<br/>`length<=40`            |This is the customer's phone number.|
+|cellPhone          |string<br/>`length<=40`            |This is the customer's cell phone number.|
+|paymentToken       |string><br/>`length<=50`           |This is a token generated by Paysafe that represents the customer and returned in the response to the profile request.|
+|addresses          |[addresses](#addressesobject)      |These are the addresses associated with this profile.|
+|card               |[cards](#cardsobject)              |These are the cards associated with this profile.|
+|achbankaccounts    |[achbankaccounts](#achbankaccountobject)    |These are the ACH bank accounts associated with this profile.|
+|bacsbankaccounts   |[bacsbankaccounts](#bacsbankaccountobject)  |These are the BACS bank accounts associated with this profile.|
+|eftbankaccounts    |[eftbankaccounts](#eftbankaccountobject)    |These are the EFT bank accounts associated with this profile.|
+|sepabankaccounts   |[sepabankaccounts](#sepabankaccountobject)  |These are the SEPA bank accounts associated with this profile.|
+|recipient          |[recipient](#recipientobject)      |This allows additional data to be included with a profile and then used in an Authorization request using a payment token in the Card Payments API.|
+
+```apib
+            {
+              "merchantCustomerId":"mycustomer1",
+              "locale" : "en_US",
+              "firstName" : "John",
+              "lastName" : "Smith",
+              "email" : "john.smith@somedomain.com",
+              "phone" : "713-444-5555"
+             }
+```
+<a name="recipientobject" title="recipient Object"></a>
+## recipient
+
+When you add recipient data to a profile, that data will be used in the authorization request if you use the payment token from a credit card associated with that profile.
+
+The recipient is deemed to be the person or party who has the contractual relationship with the merchant/financial institution. This may be different from the cardholder, e.g., in the case of a parent topping up a child's savings account. Therefore, the fields should not be collected on the same page as cardholder information, but instead be passed in the background from the merchant’s records.
+
+**Note:** You can include *recipient* elements in your [authorization request](#authrequest) **only if** your Merchant Category Code is **6012** and your registered trading address is in the United Kingdom. All fields are optional. However, scheme fines may apply if data is consistently not supplied and chargebacks persist. If you have any questions, contact your account manager. 
+
+|Element                    |Type                       |Description                        |
+|---                        |---                        |---                                |
+|dateOfBirth                |[dateOfBirth](#dateofbirthobject) |This is the recipient's date of birth. |
+|zip                        |string<br/>`length<=10`    |This is the recipient's postcode.<br/>**Note:** The last 3 characters are not sent to the banking network.|
+|lastName                   |string<br/>`length<=255`   |This is the recipient's last name.<br/>**Note:** Only the first 6 characters are sent to the banking network.|
+|accountNumber              |string<br/>`length<=25`    |This is the recipient's account number, e.g., a loan agreement number or customer ID. In the case where the recipient account is a prepaid card, the card number may be sent in full.<br/>**Note:** Only the first 6 and last 4 characters are sent to the banking network and will be masked accordingly within the back office and any other reports, to comply with PCI regulations.|
+
+```apib
+    {
+    "recipient": {
+        "dateOfBirth": {
+            "day": 29,
+            "month": 1,
+            "year": 2001
+        },
+        "zip": "CB24 9AD",
+        "lastName": "Smith",
+        "accountNumber": "ABC1234567890"
+    }
+    }
+```
+
+<a name="sepabankaccountobject" title="SEPA Bank Account Object"></a>
+## sepaBankAccount
+Element            |Type                        |Description                        |
+|---                |---                        |---       |
+|id                 |string<br/>`length<=36`    |This is the ID for the request, returned by Paysafe. It can be used later, e.g., to look up or update the bank account.|
+|nickName           |string<br/>`length<=50`    |This is an alias defined by the customer for the bank account (e.g., "ABN Account").|
+|merchantRefNum     |string<br/>`length<=255`   |This is the merchant reference number created by the merchant and submitted as part of the request. This value is only stored by the Paysafe system and has no bearing on the request.|
+|status             |enum                       |This is the status of the  request. Possible values are:<ul><li>ACTIVE &ndash; The bank account has been created.</li><li>INVALID &ndash; The bank account is invalid.</li><li>INACTIVE &ndash; The bank account has been deleted.</li></ul><br/>**Note:** By default, the bank account is created with the status of ACTIVE.|
+|statusReason       |string<br/>`length<=255`   |If the status is INVALID, this is a description of why the account is invalid (e.g., account closed).|
+|iban               |string<br/>`length<=34`    |This is the international bank account number.|
+|bic                |string<br/>`length=8-11`   |This is the bank identification code.|
+|accountHolderName  |string<br/>`length<=32`    |This is the name of the customer or company that owns the bank account.|
+|lastDigits         |string<br/>`length=2`      |This is the last two digits of the bank account number.|
+|billingAddressId   |string<br/>`length<=36`    |This is the address ID returned in response to the request to create an address, which will be associated with this bank account.|
+|paymentToken       |string<br/>`length<=50`    |This is a token generated by Paysafe that represents the bank account and is returned in the response to the bank account creation request. It can be used in the place of bank account information in Direct Debit transactions.|
+|mandates           |list                       |This is one or more mandates associated with the bank account.|
+
+```apib
+            {
+                "nickName": "Sally's Account",
+                "accountHolderName": "Sally Barnes",
+                "iban": "NL77ABNA0492122466",
+                "bic": "ABNANL2A",
+                "billingAddressId": "60022f38-fd17-4731-909c-923930d0d5d4",
+                "mandates": [
+                {
+                  "reference": "ABCDEF0987"
+                }
+                ]
+            }
+```
+
+<a name="singleusetokenobject" title="Single-Use Token Object"></a>
+## singleusetoken
+|Element                |Type                      |Description    |
+|---                    |---                       |---       |
+|id                     |string<br/>`length<=36`   ||This is an ID returned by Paysafe.|
+|card                   |[card](#cardsobject)      |These are the details of the card.|
+|billingAddress         |[billingAddress](#billingaddressobject) |This is the billing address associated with the card.|
+|paymentToken           |string<br/>`length<=50`    |This is the single-use payment token for the mobile device.|
+|timeToLiveSeconds      |number                     |This is the period of time the single-use token is valid before expiration, in seconds, returned in the response.|
+
+```apib
+            {
+                "paymentToken": "SCovFNfF0xnGSmZf",
+                "timeToLiveSeconds": 899,
+                "billingAddress": {
+                    "street": "100 Queen Street",
+                    "street2": "201",
+                    "city": "Toronto",
+                    "country": "CA",
+                    "state": "ON",
+                    "zip": "M5H 2N2"
+                },
+                "card": {
+                    "cardBin": "411111",
+                    "lastDigits": "1111",
+                    "cardExpiry": {
+                        "year": 2020,
+                        "month": 12
+                    },
+                    "holderName": "John Smith",
+                    "cardType": "VI"
+                }
+            }
+```
+
+
+<a name="transactionobject" title="Transaction Object"></a>
+## transaction
+|Element            |Type                           |Description    |
+|---                |---                            |---            |
+|amount             |number<br>`max=99999999999`    |This is the amount of the request, in minor units.<br/>For example, to process US $10.99, this value should be 1099. To process 1000 Japanese yen, this value should be 1000. To process 10.139 Tunisian dinar, this value should be 10139.<br/>**Note:** For a currency that has 3 decimal units, our system will half round up the least significant digit. Therefore, a transaction of 10.139 Tunisian dinar would be processed as 10.14.|
+|currencyCode       |string<br/>`length<=3`         |This is the currency of the merchant account, e.g., USD or CAD, returned in the request response.<br/>See [Currency Codes](#currencycodes)|
+
+```apib
+            {
+              "amount": 2500,
+              "currencyCode":"CAD"
+            }
+```
+
+# Error Summary
+
+<a name="commonerrors" title="Common Errors"></a>
+## Common Errors
+|HTTP Status Code       |Error Code    |Description|
+|---                    |---           |---|
+|500                    |1000           |An internal error occurred.         |
+|502                    |1001           |An error occurred with the external processing gateway.|
+|500                    |1002           |An internal error occurred.            |
+|500                    |1003           |An internal error occurred.            |
+|500                    |1007           |An internal error occurred.            |
+|500                    |1008           |An internal error occurred.            |
+|429                    |1200           |The API call has been denied as it has exceeded the permissible call rate limit.|
+|401                    |5000           |Your merchant account authentication failed. Either your store ID/password are invalid or the IP address from which you are sending the transaction has not been authorized.|
+|400                    |5001           |The submitted currency code is invalid or your account does not support this currency.|
+|400                    |5003           |You submitted an invalid amount with your request.|
+|400                    |5004           |You submitted an invalid account type with your request.|
+|400                    |5005           |You submitted an invalid operation type with your request.|
+|400                    |5010           |The submitted country code is invalid.|
+|400                    |5016           |The merchant account you provided cannot be found.|
+|400                    |5017           |The merchant account you provided is disabled.|
+|402                    |5021           |Your transaction request has been declined.|
+|400                    |5023           |The request is not parseable.|
+|409                    |5031           |The transaction you have submitted has already been processed.|
+|401                    |5040           |Your merchant account is not configured for the transaction you attempted.|
+|400                    |5042           |The merchant reference number is missing or invalid or it exceeds the maximum permissible length.|
+|400                    |5068           |Either you submitted a request that is missing a mandatory field or the value of a field does not match the format expected.|
+|404                    |5269           |The ID(s) specified in the URL do not correspond to the values in the system.|
+|403                    |5270           |The credentials provided with the request do not have permission to access the requested data.|
+|406                    |5271           |You requested a response in the 'Accept' header that is in an unsupported format.|
+|406                    |5272           |The 'Content-Type' you specified in request header was submitted in an unsupported format.|
+|404                    |5273           |Your client reached our application but we were unable to service your request due to an invalid URL.|
+|401                    |5275           |The authentication credentials provided with the request have expired.|
+|401                    |5276           |The authentication credentials provided with the request provided have been disabled.|
+|401                    |5277           |The authentication credentials provided with the request have been locked due to multiple authentication failures.|
+|401                    |5278           |The authentication credentials provided with the request were not accepted for an unknown reason.|
+|401                    |5279           |The authentication credentials are invalid.|
+|401                    |5280           |The required authentication credentials were not provided.|
+|405                    |5281           |The request uses an action (e.g., GET, POST, or PUT) that is not supported by the resource.|
+|400                    |5502           |Either the payment token is invalid or the corresponding profile or bank account is not active.|
+
+<a name="customervaulterrors" title="Customer Vault Errors"></a>
+## Customer Vault Errors
+|HTTP Status Code       |Error Code |Description|
+|---                    |---        |---|
+|409                    |7503       |The card number you are trying to add to this profile is already used by this profile.|
+|409                    |7504       |This card has been used for the maximum number of profiles allowed. Please use a different card.|
+|409                    |7505       |The *merchantCustomerId* provided for this profile has already been used for another profile.|
+|409                    |7506       |The bank account you are trying to add to this profile is already in use.|
+|409                    |7507       |The mandate reference you are trying to add to this profile is already in use.|
+|400                    |7508       |You submitted an invalid card number or brand or combination of card number and brand with your request.|
+|409                    |7509       |The bank account has one or more existing mandates so associated banking information cannot be updated.|
+|400                    |7510       |You submitted invalid bank account information for your banking scheme.|
+|404                    |7511       |The address ID provided in your request could not be found.|
+|400                    |7512       |The merchant's Apple Pay configuration could not be found.|
+|400                    |7513       |The Apple Pay token is invalid.|
+|404                    |7514       |The payment token has expired.|
+|409                    |7515       |The card cannot be added to this profile because the profile has reached the maximum number of cards allowed.|
+|400                    |7516       |You need to provide at least one search parameter.|
+|400                    |7517       |You need to provide dates with the format YYYY-MM-DDTHH24:MI:SSZ.|
+|400                    |7518       |The days between the dates specified exceeds the maximum.|
+|400                    |7519       |The pagination limit exceeds the maximum.|
+|409                    |7520       |The bank account cannot be added to this profile because the profile has reached the maximum number of bank accounts allowed.|
+
+# Using the example API calls (Console Window)
+To configure and test the API examples, first click on one of the API calls in the API Reference section and then click **Switch to Console** in the right hand pane. 
+Using the Console window you can update the headers, the request body, and parts of the API endpoint.
+You must update the Header to include your API Key by selecting **Headers** and then updating the **Authorization** value using the Base64
+version of your API key. To get your API key, log into the test version of the Merchant Back Office and choose **Settings > API Key**. 
+Click *View Base 64 Encoded* and copy the key to your clipboard. Paste the key after the word Basic to replace the text YOUR-BASE64-ENCODED-API-KEY.
+When you are ready to test your example, you can choose between the Production and Mock server environment:
+* Production server – This calls the resource on Paysafe's Test system. 
+* Mock server – This environment simply returns the dummy values in the example response irrespective of the parameters you supply. You do not need to use your account ID or Test API key for this request.
+
+To call the API resource, click **Call Resource**. The response is displayed in the Console window.
+
+# Legal and Community
+<ul>
+<li><a href="https://www.paysafe.com/paysafegroup/privacy-policy/" target="_blank">Privacy Policy</a></li>
+<li><a href="https://developer.paysafe.com/en/resources-and-support/terms-of-use/" target="_blank">Terms of Use</a></li>
+<li><a href="https://www.paysafe.com/paysafegroup/regulatory-disclosures/" target="_blank">Regulatory Disclosures</a></li>
+<li><a href="http://community.paysafe.com/spaces/11/index.html" target="_blank">FAQs</a></li>
+<li><a href="http://community.paysafe.com/index.html" target="_blank">Community</a></li>
+<li><a href="http://community.paysafe.com/spaces/10/index.html" target="_blank">Paysafe Blog</a></li>
+</ul>
+
+## Verify That the Service Is Accessible [GET /monitor]
+<a name="verifyservice" title="Verify Service"></a>
+
+This call returns a status of READY if the API is available.
+
++ Response 200 (application/json)
+
+  + Body
+    
+            {
+                "status" : "READY"
+            }
+
+# Profiles [/profiles]
+<a name="profilesrequest" title="Profiles Request"></a>
+
+## Create a Profile [POST /v1/profiles]
+<a name="createprofilerequest" title="Create a Profile"></a>
+
+This is how you submit a profile creation request. 
+
+**Note:** The *paymentToken* returned in the response to a profile creation request cannot be used for payment requests.
+
++ Request Profile Creation (application/json)
+
+    + Attributes
+        + Include Profile Base
+        
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Response Base
+        + Include Status Profile
+        + Include Profile Base
+        + paymentToken:P0zPDqggWESaktW (string, required) - This is a token that represents the customer and is returned in the response to the profile request. This token cannot be used to make a payment.
+
+## Create a Profile with Recipient Data [POST /v1/profiles]
+<a name="createprofilerequestrecipient" title="Create a Profile with Recipient Data"></a>
+
+This is how you submit a profile creation request that includes the [recipient object](#recipientobject). 
+
+**Note:** The *paymentToken* returned in the response to a profile creation request cannot be used for payment requests.
+
++ Request Profile Creation (application/json)
+
+    + Attributes
+        + Include Profile Base
+        + Include Recipient
+        
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Response Base
+        + Include Status Profile
+        + Include Profile Base
+        + Include Recipient Response
+        + paymentToken:P0zPDqggWESaktW (string, required) - This is a token that represents the customer and is returned in the response to the profile request. This token cannot be used to make a payment.
+
+## Create a Profile Using a Card [POST /v1/profiles]
+<a name="createprofilerequestcard" title="Create a Profile Using a Card"></a>
+
+This is how you submit a profile creation request using a card. 
+
+**Note:** Only the *paymentToken* returned in the *cards* array in the response can be used for [payment requests with the Card Payments API](https://developer.paysafe.com/en/cards/api/#/reference/0/authorizations). The top-level *paymentToken* in the profile response is not valid for payment requests.
+
++ Request Profile Creation Using a Card (application/json)
+
+    + Attributes
+    
+        + Include Profile Base
+        + Include Card for Profile
+        
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Response Base
+        + Include Status Profile
+        + Include Profile Base
+        + paymentToken:P0zPDqggWESaktW (string, required) - This is a token that represents the customer and is returned in the response to the profile request. This token cannot be used to make a payment.
+        + Include Addresses Response
+        + Include Cards Response
+
+## Create a Profile Using a Single-Use Token [POST /v1/profiles]
+<a name="createprofilerequesttoken" title="Create a Profile Using a Single-Use Token"></a>
+
+This is how you submit a profile creation request using a single-use token.
+
+You can use this request to convert a single-use payment token to a permanent token, but before doing so you should use the [Card Payments API to verify that the single-use token is valid](https://developer.paysafe.com/en/payments/cards/api/#/reference/0/verifications/verification-with-a-payment-token).
+
+**Note:** Only the *paymentToken* returned in the *cards* object in the response can be used for [payment requests with the Card Payments API](https://developer.paysafe.com/en/cards/api/#/reference/0/authorizations). The top-level *paymentToken* in the profile response is not valid for payment requests.
+
++ Request Profile Creation Using a Single-Use Token (application/json)
+
+    + Attributes
+    
+        + Include Profile Base
+        + Include Card for Token
+        
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Response Base
+        + Include Status Profile
+        + Include Profile Base
+        + paymentToken:P0zPDqggWESaktW (string, required) - This is a token that represents the customer and is returned in the response to the profile request. This token cannot be used to make a payment.
+        + Include Addresses Response
+        + Include Cards for Token Response
+    
+## Create a Profile Using an ACH Bank Account [POST /v1/profiles]
+<a name="createprofilerequestach" title="Create a Profile Using an ACH Bank Account"></a>
+
+This is how you submit a profile creation request using an ACH bank account. 
+
+**Note:** Only the *paymentToken* returned in the *achBankAccounts* array in the response can be used for [requests with the Direct Debit API](https://developer.paysafe.com/en/direct-debit/api/#/reference/0/purchases). The top-level *paymentToken* in the profile response is not valid for payment requests.
+
++ Request Profile Creation Using an ACH Bank Account (application/json)
+
+    + Attributes
+    
+        + Include Profile Base ACH
+        + Include ACH Bank Account for Profile
+        
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Response Base
+        + Include Status Profile
+        + Include Profile Base ACH 
+        + paymentToken:P0zPDqggWESaktW (string, required) - This is a token that represents the customer and is returned in the response to the profile request. This token cannot be used to make a payment.
+        + Include Addresses Response Direct Debit Profile
+        + Include ACH Bank Account for Profile Response
+
+## Create a Profile Using an ACH Single-Use Token [POST /v1/profiles]
+<a name="createprofilerequestachsut" title="Create a Profile Using an ACH Single-Use Token"></a>
+
+This is how you submit a profile creation request using an ACH single-use token. 
+
+**Note:** Only the *paymentToken* returned in the *achBankAccounts* object in the response can be used for [requests with the Direct Debit API](https://developer.paysafe.com/en/direct-debit/api/#/reference/0/purchases). The top-level *paymentToken* in the profile response is not valid for payment requests.
+
++ Request Profile Creation Using an ACH Single-Use Token (application/json)
+
+    + Attributes
+    
+        + Include Profile Base ACH Token
+        + Include ACH Bank Account for SUT
+        
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Response Base
+        + Include Status Profile
+        + Include Profile Base ACH Token Response
+        + paymentToken:P0zPDqggWESaktW (string, required) - This is a token that represents the customer and is returned in the response to the profile request. This token cannot be used to make a payment.
+        + Include Addresses Response Direct Debit Profile
+        + Include ACH Bank Account for Token Response
+
+## Create a Profile Using an EFT Bank Account [POST /v1/profiles]
+<a name="createprofilerequesteft" title="Create a Profile Using an EFT Bank Account"></a>
+
+This is how you submit a profile creation request using an EFT bank account. 
+
+**Note:** Only the *paymentToken* returned in the *eftBankAccounts* array in the response can be used for [requests with the Direct Debit API](https://developer.paysafe.com/en/direct-debit/api/#/reference/0/purchases). The top-level *paymentToken* in the profile response is not valid for payment requests.
+
++ Request Profile Creation Using an EFT Bank Account (application/json)
+
+    + Attributes
+    
+        + Include Profile Base EFT
+        + Include EFT Bank Account for Profile
+        
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Response Base
+        + Include Status Profile
+        + Include Profile Base EFT Response
+        + paymentToken:P0zPDqggWESaktW (string, required) - This is a token that represents the customer and is returned in the response to the profile request. This token cannot be used to make a payment.
+        + Include Addresses Response Direct Debit Profile
+        + Include EFT Bank Account for Profile Response
+
+## Create a Profile Using an EFT Single-Use Token [POST /v1/profiles]
+<a name="createprofilerequesteftsut" title="Create a Profile Using an EFT Single-Use Token"></a>
+
+This is how you submit a profile creation request using an EFT single-use token. 
+
+**Note:** Only the *paymentToken* returned in the *eftBankAccounts* object in the response can be used for [requests with the Direct Debit API](https://developer.paysafe.com/en/direct-debit/api/#/reference/0/purchases). The top-level *paymentToken* in the profile response is not valid for payment requests.
+
++ Request Profile Creation Using an EFT Single-Use Token (application/json)
+
+    + Attributes
+    
+        + Include Profile Base EFT Token
+        + Include EFT Bank Account for SUT
+        
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Response Base
+        + Include Status Profile
+        + Include Profile Base EFT Token
+        + paymentToken:P0zPDqggWESaktW (string, required) - This is a token that represents the customer and is returned in the response to the profile request. This token cannot be used to make a payment.
+        + Include Addresses Response Direct Debit Profile
+        + Include EFT Bank Account for Token Response
+
+## Get Profile [GET /v1/profiles/{PROFILE_ID}]
+<a name="getprofilerequest" title="Look Up a Profile"></a>
+
+This is how you look up a profile using the ID returned in the response to the original request. 
+    
++ Parameters
+
+    + PROFILE_ID:`a7b218e7-290a-4434-aea2-a1f985fc26c0` (string, required) - This is the profile ID returned in the response (in NETBANX this is called the Consumer ID). 
+
++ Request Get Profile (application/json)
+    
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+            
++ Response 200 (application/json)
+
+    + Attributes    
+        + Include Response Base
+        + Include Status Profile
+        + Include Profile Base
+        + paymentToken:Pzb8AstnaGug5Y4 (string, required) - This is a token that represents the customer and is returned in the response to the profile request.
+
+## Get Profile Including Subcomponents [GET /v1/profiles/{PROFILE_ID}?fields={fields}]
+<a name="getprofilerequestsubcomponents" title="Look Up a Profile Including Subcomponents"></a>
+
+You can look up a profile along with its associated sub-components using one or more comma-separated values from this list:
+  * cards
+  * addresses
+  * achbankaccounts
+  * bacsbankaccounts
+  * eftbankaccounts
+  * sepabankaccounts
+    
++ Parameters
+
+    + PROFILE_ID:`a7b218e7-290a-4434-aea2-a1f985fc26c0` (string, required) - This is the profile ID returned in the response (in NETBANX this is called the Consumer ID).
+    + fields:`addresses,cards` (string, optional) - This is a comma-separated list of sub-components.
+
++ Request Get Profile (application/json)
+    
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+            
++ Response 200 (application/json)
+
+    + Attributes    
+        + Include Response Base
+        + Include Status Profile
+        + Include Profile Base
+        + paymentToken:Pzb8AstnaGug5Y4 (string, required) - This is a token that represents the customer and is returned in the response to the profile request.
+        + Include Addresses Response
+        + Include Cards Response
+    
+## Update a Profile [PUT /v1/profiles/{PROFILE_ID}]
+<a name="updateprofilerequest" title="Update a Profile"></a>
+
+This is how you update a profile.
+
+**Note:** You must provide all of the elements of the profile when you are updating it, including the elements that are not changing. Elements that are part of an existing profile but that are not included in the update request will be set to *null* in the resulting profile, with the exception of the *status* element.
+
++ Parameters
+    + PROFILE_ID:`a7b218e7-290a-4434-aea2-a1f985fc26c0` (string, required) - This is the profile ID returned in the response (in NETBANX this is called the Consumer ID).
+
++ Request Update a Profile (application/json)
+    
+    + Attributes
+        + Include Status Profile Update
+        + Include Profile Base
+        
+    + Headers        
+
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+            
++ Response 200 (application/json)
+
+    + Attributes    
+        + Include Response Base
+        + Include Status Profile
+        + Include Profile Base
+        + paymentToken:Pzb8AstnaGug5Y4 (string, required) - This is a token that represents the customer.
+
+## Delete a Profile [DELETE /v1/profiles/{PROFILE_ID}]
+<a name="deleteprofilerequest" title="Delete a Profile"></a>
+
+This is how you delete a profile.
+
++ Parameters
+    + PROFILE_ID:`a7b218e7-290a-4434-aea2-a1f985fc26c0` (string, required) - This is the profile ID returned in the response (in NETBANX this is called the Consumer ID).
+
++ Request Delete a Profile (application/json)
+
+    + Headers        
+
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+            
++ Response 200 (application/json)
+
+    
+# Addresses [/addresses]
+<a name="addressesrequest" title="Addresses Request"></a>
+
+## Create an Address [POST /v1/profiles/{PROFILE_ID}/addresses]
+<a name="createaddressrequest" title="Create an Address"></a>
+
+This is how you submit an address creation request.
+
++ Parameters
+
+    + PROFILE_ID:`a5f1889d-f1be-4bbf-941d-fd9b8d09d5b1` (string,required) - This is the ID of the profile to which you are adding an address.
+
++ Request Address Creation (application/json)
+
+    + Attributes
+        
+        + Include Address
+        
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        
+        + Include Response Base
+        + Include Address Response
+
+## Get Address [GET /v1/profiles/{PROFILE_ID}/addresses/{ADDRESS_ID}]
+<a name="getaddressrequest" title="Look Up an Address"></a>
+
+This is how you look up an address using the ID returned in the response to the original request.
+    
++ Parameters
+    + PROFILE_ID:`a7b218e7-290a-4434-aea2-a1f985fc26c0` (string, required) - This is the profile ID returned in the response.
+    + ADDRESS_ID:`6a275b7c-6f11-4ed1-ae77-21071724574a` (string, required) - This is the address ID returned in the response.
+
++ Request Get Address (application/json)
+    
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+            
++ Response 200 (application/json)
+
+    + Attributes    
+        + Include Response Base
+        + Include Address Response
+
+## Update an Address [PUT /v1/profiles/{PROFILE_ID}/addresses/{ADDRESS_ID}]
+<a name="updateaddressrequest" title="Update an Address"></a>
+
+This is how you update an address.
+
+**Note:** You must provide all of the elements of the address when you are updating it, including the elements that are not changing. Elements that are part of an existing address but that are not included in the update request will be set to *null* in the resulting address.
+
+
++ Parameters
+    + PROFILE_ID:`a7b218e7-290a-4434-aea2-a1f985fc26c0` (string, required) - This is the profile ID returned in the response.
+    + ADDRESS_ID:`6a275b7c-6f11-4ed1-ae77-21071724574a` (string, required) - This is the address ID returned in the response.
+
++ Request Update an Address (application/json)
+    
+    + Attributes
+        + Include Address
+        
+    + Headers        
+
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+            
++ Response 200 (application/json)
+
+    + Attributes    
+        + Include Response Base
+        + Include Address Response
+    
+## Delete an Address [DELETE /v1/profiles/{PROFILE_ID}/addresses/{ADDRESS_ID}]
+<a name="deleteaddressrequest" title="Delete an Address"></a>
+
+This is how you delete an address. 
+
++ Parameters
+    + PROFILE_ID:`a7b218e7-290a-4434-aea2-a1f985fc26c0` (string, required) - This is the profile ID returned in the response.
+    + ADDRESS_ID:`6a275b7c-6f11-4ed1-ae77-21071724574a` (string, required) - This is the address ID returned in the response.
+
++ Request Delete an Address (application/json)
+
+    + Headers        
+
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+            
++ Response 200 (application/json)
+
+    + Attributes
+    
+    
+# Cards [/cards]
+<a name="cardsrequest" title="Cards Request"></a>
+
+## Create a Card [POST /v1/profiles/{PROFILE_ID}/cards]
+<a name="createcardrequest" title="Create a Card"></a>
+
+This is how you submit a card creation request. The *paymentToken* returned in the response can be used for payment requests in the [Card Payments API](https://developer.paysafe.com/en/cards/api/#/reference/0/authorizations/authorization).
+
+**Note:** Although the *billingAddressID* parameter is optional, it is recommended that you include it when you create the card because Authorization or Purchase requests in the [Card Payments API](https://developer.paysafe.com/en/payments/cards/api/#/introduction/overview) that use the resulting payment token will fail AVS checks unless there is a billing address associated with it. If you do not include it when creating the card, you should then update the card with the *billingAddressId* at a later time before using it for transaction requests.
+
++ Parameters
+
+    + PROFILE_ID:`a5f1889d-f1be-4bbf-941d-fd9b8d09d5b1` (string,required) - This is the ID of the profile to which you are adding a card.
+
++ Request Card Creation (application/json)
+
+    + Attributes
+        
+        + Include Card
+        
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Response Base
+        + Include Card Response
+        
+## Create a Card Using a Single-Use Token [POST /v1/profiles/{PROFILE_ID}/cards]
+<a name="createcardrequesttoken" title="Create a Card Using a Single-Use Token"></a>
+
+This is how you submit a card creation request using a single-use token. The *paymentToken* returned in the response can be used for payment requests in the [Card Payments API](https://developer.paysafe.com/en/cards/api/#/reference/0/authorizations/authorization).
+
++ Parameters
+
+    + PROFILE_ID:`a5f1889d-f1be-4bbf-941d-fd9b8d09d5b1` (string,required) - This is the ID of the profile to which you are adding a card.
+
++ Request Card Creation Using a Single-Use Token (application/json)
+
+    + Attributes
+        
+        + Include Single Use Token
+        
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Response Base
+        + Include Card Response 
+
+## Get Card [GET /v1/profiles/{PROFILE_ID}/cards/{CARD_ID}]
+<a name="getcardrequest" title="Look Up a Card"></a>
+
+This is how you look up a card using the ID returned in the response to the original request.
+    
++ Parameters
+    + PROFILE_ID:`a7b218e7-290a-4434-aea2-a1f985fc26c0` (string, required) - This is the profile ID returned in the response.
+    + CARD_ID:`6dcc704e-106a-4fb3-98e2-f138ba5f16a1` (string, required) - This is the card ID returned in the response.
+
++ Request Get Card (application/json)
+    
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+            
++ Response 200 (application/json)
+
+    + Attributes    
+        + Include Response Base
+        + Include Card Response
+        
+## Update a Card [PUT /v1/profiles/{PROFILE_ID}/cards/{CARD_ID}]
+<a name="updatecardrequest" title="Update a Card"></a>
+
+This is how you update a card.
+
+**Note:** You must provide all of the elements of the card when you are updating it, including the elements that are not changing. Elements that are part of an existing card but that are not included in the update request will be set to null in the resulting card, with the exception of the *cardNum* element.
+
+
++ Parameters
+    + PROFILE_ID:`a7b218e7-290a-4434-aea2-a1f985fc26c0` (string, required) - This is the profile ID returned in the response.
+    + CARD_ID:`6dcc704e-106a-4fb3-98e2-f138ba5f16a1` (string, required) - This is the card ID returned in the response.
+
++ Request Update a Card (application/json)
+    
+    + Attributes
+        + Include Card for Update
+        
+    + Headers        
+
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+            
++ Response 200 (application/json)
+
+    + Attributes    
+        + Include Response Base
+        + Include Card Response        
+
+## Update a Card Using a Single-Use Token [PUT /v1/profiles/{PROFILE_ID}/cards/{CARD_ID}]
+<a name="updatecardrequesttoken" title="Update a Card Using a Single-Use Token"></a>
+
+This is how you update a card using a single-use token.
+
+**Note:** The existing card and corresponding billing details will be updated based on the information stored for the single-use token. For example, if an existing card has billing details information but the single-use token does not, this operation will remove the existing billing details from the card.
+
++ Parameters
+    + PROFILE_ID:`a7b218e7-290a-4434-aea2-a1f985fc26c0` (string, required) - This is the profile ID returned in the response.
+    + CARD_ID:`6dcc704e-106a-4fb3-98e2-f138ba5f16a1` (string, required) - This is the card ID returned in the response.
+
++ Request Update a Card (application/json)
+    
+    + Attributes
+    
+        + Include Single Use Token
+        
+    + Headers        
+
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+            
++ Response 200 (application/json)
+
+    + Attributes    
+        + Include Response Base
+        + Include Card Response                
+
+## Delete a Card [DELETE /v1/profiles/{PROFILE_ID}/cards/{CARD_ID}]
+<a name="deletecardrequest" title="Delete a Card"></a>
+
+This is how you delete a card. 
+
++ Parameters
+    + PROFILE_ID:`a7b218e7-290a-4434-aea2-a1f985fc26c0` (string, required) - This is the profile ID returned in the response.
+    + CARD_ID:`6dcc704e-106a-4fb3-98e2-f138ba5f16a1` (string, required) - This is the card ID returned in the response.
+
++ Request Delete a Card (application/json)
+
+    + Headers        
+
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+            
++ Response 200 (application/json)
+
+    + Attributes
+
+# ACH Bank Accounts [/achbankaccounts]
+<a name="achbankaccountsrequest" title="ACH Bank Accounts Request"></a>
+
+## Create an ACH Bank Account [POST /v1/profiles/{PROFILE_ID}/achbankaccounts]
+<a name="createachbankaccountrequest" title="Create an ACH Bank Account"></a>
+
+This is how you submit an ACH bank account creation request. The *paymentToken* returned in the response can be used for payment requests in the [Direct Debit API](https://developer.paysafe.com/en/direct-debit/api/#/reference/0/purchases).
+
++ Parameters
+
+    + PROFILE_ID:`a5f1889d-f1be-4bbf-941d-fd9b8d09d5b1` (string,required) - This is the ID of the profile to which you are adding an ACH bank account. 
+
++ Request ACH Bank Account Creation (application/json)
+
+    + Attributes
+        + Include ACH Bank Account
+        
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Response Base
+        + Include ACH Bank Account Response
+
+## Create an ACH Bank Account Using a Single-Use Token [POST /v1/profiles/{PROFILE_ID}/achbankaccounts]
+<a name="createachbankaccountrequestsut" title="Create an ACH Bank Account Using a Single-Use Token"></a>
+
+This is how you submit an ACH bank account creation request using an ACH single-use token. The *paymentToken* returned in the response can be used for payment requests in the [Direct Debit API](https://developer.paysafe.com/en/direct-debit/api/#/reference/0/purchases).
+
++ Parameters
+
+    + PROFILE_ID:`a5f1889d-f1be-4bbf-941d-fd9b8d09d5b1` (string,required) - This is the ID of the profile to which you are adding an ACH bank account. 
+
++ Request ACH Bank Account Creation Using a Single-Use Token (application/json)
+
+    + Attributes
+        + Include ACH Bank Account for Token
+        
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Response Base
+        + Include ACH Bank Account Response Using Token
+
+## Get ACH Bank Account [GET /v1/profiles/{PROFILE_ID}/achbankaccounts/{BANK_ACCOUNT_ID}]
+<a name="getachbankaccountrequest" title="Look Up an ACH Bank Account"></a>
+
+This is how you look up an ACH bank account using the ID returned in the response to the original request.
+    
++ Parameters
+    + PROFILE_ID:`a7b218e7-290a-4434-aea2-a1f985fc26c0` (string, required) - This is the profile ID returned in the response.
+    + BANK_ACCOUNT_ID:`6a275b7c-6f11-4ed1-ae77-21071724574a` (string, required) - This is the bank account ID returned in the response.
+
++ Request Get ACH Bank Account (application/json)
+    
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+            
++ Response 200 (application/json)
+
+    + Attributes    
+        + Include Response Base
+        + Include ACH Bank Account Response
+
+## Update an ACH Bank Account [PUT /v1/profiles/{PROFILE_ID}/achbankaccounts/{BANK_ACCOUNT_ID}]
+<a name="updateachbankaccountrequest" title="Update an ACH Bank Account"></a>
+
+This is how you update an ACH bank account.
+
+**Note:** You must provide all of the elements of the bank account when you are updating it, including the elements that are not changing. Elements not included will be set to null in the resulting bank account, with the exception of the *accountNumber* element.
+
++ Parameters
+    + PROFILE_ID:`a7b218e7-290a-4434-aea2-a1f985fc26c0` (string, required) - This is the profile ID returned in the response.
+    + BANK_ACCOUNT_ID:`6a275b7c-6f11-4ed1-ae77-21071724574a` (string, required) - This is the bank account ID returned in the response.
+
++ Request Update an ACH Bank Account (application/json)
+    
+    + Attributes
+        + Include ACH Bank Account for Update
+        
+    + Headers        
+
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+            
++ Response 200 (application/json)
+
+    + Attributes    
+        + Include Response Base
+        + Include ACH Bank Account Response
+
+## Delete an ACH Bank Account [DELETE /v1/profiles/{PROFILE_ID}/achbankaccounts/{BANK_ACCOUNT_ID}]
+<a name="deleteachbankaccountrequest" title="Delete an ACH Bank Account"></a>
+
+This is how you delete an ACH bank account. 
+
++ Parameters
+    + PROFILE_ID:`a7b218e7-290a-4434-aea2-a1f985fc26c0` (string, required) - This is the profile ID returned in the response.
+    + BANK_ACCOUNT_ID:`6a275b7c-6f11-4ed1-ae77-21071724574a` (string, required) - This is the bank account ID returned in the response.
+
++ Request Delete an ACH Bank Account (application/json)
+
+    + Headers        
+
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+            
++ Response 200 (application/json)
+
+    + Attributes
+    
+# BACS Bank Accounts [/bacsbankaccounts]
+<a name="bacsbankaccountsrequest" title="BACS Bank Accounts Request"></a>
+
+## Create a BACS Bank Account [POST /v1/profiles/{PROFILE_ID}/bacsbankaccounts]
+<a name="createbacsbankaccountrequest" title="Create a BACS Bank Account"></a>
+
+This is how you submit a BACS bank account creation request. 
+
+**Note:** The *paymentToken* returned in the response **cannot** be used for requests in the [Direct Debit API](https://developer.paysafe.com/en/direct-debit/api/#/reference/0/purchases). 
+In the case of BACS bank accounts, you must use the *paymentToken* returned in the response to the [BACS mandate creation request](https://developer.paysafe.com/en/vault/api/#/reference/0/mandates/create-a-bacs-mandate) for the mandate associated with this BACS bank account.
+
++ Parameters
+    + PROFILE_ID:`a5f1889d-f1be-4bbf-941d-fd9b8d09d5b1` (string,required) - This is the ID of the profile to which you are adding a BACS bank account. 
+
++ Request BACS Bank Account Creation (application/json)
+
+    + Attributes
+        + Include BACS Bank Account
+        
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Response Base
+        + Include BACS Bank Account Response
+
+## Get BACS Bank Account [GET /v1/profiles/{PROFILE_ID}/bacsbankaccounts/{BANK_ACCOUNT_ID}]
+<a name="getbacsbankaccountrequest" title="Look Up a BACS Bank Account"></a>
+
+This is how you look up a BACS bank account using the ID returned in the response to the original request.
+    
++ Parameters
+    + PROFILE_ID:`a7b218e7-290a-4434-aea2-a1f985fc26c0` (string, required) - This is the profile ID returned in the response.
+    + BANK_ACCOUNT_ID:`6a275b7c-6f11-4ed1-ae77-21071724574a` (string, required) - This is the bank account ID returned in the response.
+
++ Request Get BACS Bank Account (application/json)
+    
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+            
++ Response 200 (application/json)
+
+    + Attributes    
+        + Include Response Base
+        + Include BACS Bank Account Response
+
+## Update a BACS Bank Account [PUT /v1/profiles/{PROFILE_ID}/bacsbankaccounts/{BANK_ACCOUNT_ID}]
+<a name="updatebacsbankaccountrequest" title="Update a BACS Bank Account"></a>
+
+This is how you update a BACS bank account.
+
+**Note:** <ul><li>Any attributes that cannot be null that are not included in the request will be unchanged.</li><li>Any attributes that can be null that are not included in the request will be set to null.</li><li> The *sortCode* and *accountNumber* elements can be updated only if the bank account does not have any associated mandates.</li><li>Any mandate associated with this bank account cannot be updated with this request.</li></ul>
+
++ Parameters
+    + PROFILE_ID:`a7b218e7-290a-4434-aea2-a1f985fc26c0` (string, required) - This is the profile ID returned in the response.
+    + BANK_ACCOUNT_ID:`6a275b7c-6f11-4ed1-ae77-21071724574a` (string, required) - This is the bank account ID returned in the response.
+
++ Request Update a BACS Bank Account (application/json)
+    
+    + Attributes
+        + Include BACS Bank Account for Update 
+        
+    + Headers        
+
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+            
++ Response 200 (application/json)
+
+    + Attributes    
+        + Include Response Base
+        + Include BACS Bank Account Response
+    
+## Delete a BACS Bank Account [DELETE /v1/profiles/{PROFILE_ID}/bacsbankaccounts/{BANK_ACCOUNT_ID}]
+<a name="deletebacsbankaccountrequest" title="Delete a BACS Bank Account"></a>
+
+This is how you delete a BACS bank account. 
+
++ Parameters
+    + PROFILE_ID:`a7b218e7-290a-4434-aea2-a1f985fc26c0` (string, required) - This is the profile ID returned in the response.
+    + BANK_ACCOUNT_ID:`6a275b7c-6f11-4ed1-ae77-21071724574a` (string, required) - This is the bank account ID returned in the response.
+
++ Request Delete a BACS Bank Account (application/json)
+
+    + Headers        
+
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+            
++ Response 200 (application/json)
+
+    + Attributes    
+    
+# EFT Bank Accounts [/eftbankaccounts]
+<a name="eftbankaccountsrequest" title="EFT Bank Accounts Request"></a>
+
+## Create an EFT Bank Account [POST /v1/profiles/{PROFILE_ID}/eftbankaccounts]
+<a name="createeftbankaccountrequest" title="Create an EFT Bank Account"></a>
+
+This is how you submit an EFT bank account creation request. The *paymentToken* returned in the response can be used for payment requests in the [Direct Debit API](https://developer.paysafe.com/en/direct-debit/api/#/reference/0/purchases).
+
++ Parameters
+
+    + PROFILE_ID:`a5f1889d-f1be-4bbf-941d-fd9b8d09d5b1` (string,required) - This is the ID of the profile to which you are adding an EFT bank account. 
+
++ Request EFT Bank Account Creation (application/json)
+
+    + Attributes
+        + Include EFT Bank Account
+        
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Response Base
+        + Include EFT Bank Account Response
+    
+## Create an EFT Bank Account Using a Single-Use Token [POST /v1/profiles/{PROFILE_ID}/eftbankaccounts]
+<a name="createeftbankaccountrequestsut" title="Create an EFT Bank Account Using a Single-Use Token"></a>
+
+This is how you submit an EFT bank account creation request using an EFT single-use token. The *paymentToken* returned in the response can be used for payment requests in the [Direct Debit API](https://developer.paysafe.com/en/direct-debit/api/#/reference/0/purchases).
+
++ Parameters
+
+    + PROFILE_ID:`a5f1889d-f1be-4bbf-941d-fd9b8d09d5b1` (string,required) - This is the ID of the profile to which you are adding an EFT bank account. 
+
++ Request EFT Bank Account Creation Using a Single-Use Token (application/json)
+
+    + Attributes
+        + Include EFT Bank Account for Token
+        
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Response Base
+        + Include EFT Bank Account Response Using Token
+
+## Get EFT Bank Account [GET /v1/profiles/{PROFILE_ID}/eftbankaccounts/{BANK_ACCOUNT_ID}]
+<a name="geteftbankaccountrequest" title="Look Up an EFT Bank Account"></a>
+
+This is how you look up an EFT bank account using the ID returned in the response to the original request.
+    
++ Parameters
+    + PROFILE_ID:`a7b218e7-290a-4434-aea2-a1f985fc26c0` (string, required) - This is the profile ID returned in the response.
+    + BANK_ACCOUNT_ID:`6a275b7c-6f11-4ed1-ae77-21071724574a` (string, required) - This is the bank account ID returned in the response.
+
++ Request Get EFT Bank Account (application/json)
+    
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+            
++ Response 200 (application/json)
+
+    + Attributes    
+        + Include Response Base
+        + Include EFT Bank Account Response    
+
+## Update an EFT Bank Account [PUT /v1/profiles/{PROFILE_ID}/eftbankaccounts/{BANK_ACCOUNT_ID}]
+<a name="updateeftbankaccountrequest" title="Update an EFT Bank Account"></a>
+
+This is how you update an EFT bank account.
+
+**Note:** You must provide all of the elements of the bank account when you are updating it, including the elements that are not changing. Elements not included will be set to null in the resulting bank account, with the exception of the *accountNumber* element.
+
++ Parameters
+    + PROFILE_ID:`a7b218e7-290a-4434-aea2-a1f985fc26c0` (string, required) - This is the profile ID returned in the response.
+    + BANK_ACCOUNT_ID:`6a275b7c-6f11-4ed1-ae77-21071724574a` (string, required) - This is the bank account ID returned in the response.
+
++ Request Update an EFT Bank Account (application/json)
+    
+    + Attributes
+        + Include EFT Bank Account for Update
+        
+    + Headers        
+
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+            
++ Response 200 (application/json)
+
+    + Attributes    
+        + Include Response Base
+        + Include EFT Bank Account Response
+
+## Delete an EFT Bank Account [DELETE /v1/profiles/{PROFILE_ID}/eftbankaccounts/{BANK_ACCOUNT_ID}]
+<a name="deleteeftbankaccountrequest" title="Delete an EFT Bank Account"></a>
+
+This is how you delete an EFT bank account. 
+
++ Parameters
+    + PROFILE_ID:`a7b218e7-290a-4434-aea2-a1f985fc26c0` (string, required) - This is the profile ID returned in the response.
+    + BANK_ACCOUNT_ID:`6a275b7c-6f11-4ed1-ae77-21071724574a` (string, required) - This is the bank account ID returned in the response.
+
++ Request Delete an EFT Bank Account (application/json)
+
+    + Headers        
+
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+            
++ Response 200 (application/json)
+
+    + Attributes
+    
+# SEPA Bank Accounts [/sepabankaccounts]
+<a name="sepabankaccountsrequest" title="SEPA Bank Accounts Request"></a>
+
+## Create a SEPA Bank Account [POST /v1/profiles/{PROFILE_ID}/sepabankaccounts]
+<a name="createsepabankaccountrequest" title="Create a SEPA Bank Account"></a>
+
+This is how you submit a SEPA bank account creation request.
+
+**Note:** The *paymentToken* returned in the response **cannot** be used for requests in the [Direct Debit API](https://developer.paysafe.com/en/direct-debit/api/#/reference/0/purchases). 
+In the case of SEPA bank accounts, you must use the *paymentToken* returned in the response to the [SEPA mandate creation request](https://developer.paysafe.com/en/vault/api/#/reference/0/mandates/create-a-sepa-mandate) for the mandate associated with this SEPA bank account.
+
++ Parameters
+    + PROFILE_ID:`a5f1889d-f1be-4bbf-941d-fd9b8d09d5b1` (string,required) - This is the ID of the profile to which you are adding a SEPA bank account. 
+
++ Request SEPA Bank Account Creation (application/json)
+
+    + Attributes
+        + Include SEPA Bank Account
+        
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Response Base
+        + Include SEPA Bank Account Response
+
+## Get SEPA Bank Account [GET /v1/profiles/{PROFILE_ID}/sepabankaccounts/{BANK_ACCOUNT_ID}]
+<a name="getsepabankaccountrequest" title="Look Up a SEPA Bank Account"></a>
+
+This is how you look up a SEPA bank account using the ID returned in the response to the original request.
+    
++ Parameters
+    + PROFILE_ID:`a7b218e7-290a-4434-aea2-a1f985fc26c0` (string, required) - This is the profile ID returned in the response.
+    + BANK_ACCOUNT_ID:`6a275b7c-6f11-4ed1-ae77-21071724574a` (string, required) - This is the bank account ID returned in the response.
+
++ Request Get SEPA Bank Account (application/json)
+    
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+            
++ Response 200 (application/json)
+
+    + Attributes    
+        + Include Response Base
+        + Include SEPA Bank Account Response
+
+## Update a SEPA Bank Account [PUT /v1/profiles/{PROFILE_ID}/sepabankaccounts/{BANK_ACCOUNT_ID}]
+<a name="updatesepabankaccountrequest" title="Update a SEPA Bank Account"></a>
+
+This is how you update a SEPA bank account.
+
+**Note:** <ul><li>Any attributes that cannot be null that are not included in the request will be unchanged.</li><li>Any attributes that can be null that are not included in the request will be set to null.</li><li> The *iban* and *bic* elements can be updated only if the bank account does not have any associated mandates.</li><li>Any mandate associated with this bank account cannot be updated with this request.</li></ul>
+
++ Parameters
+    + PROFILE_ID:`a7b218e7-290a-4434-aea2-a1f985fc26c0` (string, required) - This is the profile ID returned in the response.
+    + BANK_ACCOUNT_ID:`6a275b7c-6f11-4ed1-ae77-21071724574a` (string, required) - This is the bank account ID returned in the response.
+
++ Request Update a SEPA Bank Account (application/json)
+    
+    + Attributes
+        + Include SEPA Bank Account for Update 
+        
+    + Headers        
+
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+            
++ Response 200 (application/json)
+
+    + Attributes    
+        + Include Response Base
+        + Include SEPA Bank Account Response
+    
+## Delete a SEPA Bank Account [DELETE /v1/profiles/{PROFILE_ID}/sepabankaccounts/{BANK_ACCOUNT_ID}]
+<a name="deletesepabankaccountrequest" title="Delete a SEPA Bank Account"></a>
+
+This is how you delete a SEPA bank account. 
+
++ Parameters
+    + PROFILE_ID:`a7b218e7-290a-4434-aea2-a1f985fc26c0` (string, required) - This is the profile ID returned in the response.
+    + BANK_ACCOUNT_ID:`6a275b7c-6f11-4ed1-ae77-21071724574a` (string, required) - This is the bank account ID returned in the response.
+
++ Request Delete a SEPA Bank Account (application/json)
+
+    + Headers        
+
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+            
++ Response 200 (application/json)
+
+    + Attributes
+    
+# Mandates [/mandates]
+<a name="mandatesrequest" title="Mandates Request"></a>
+
+## Create a BACS Mandate [POST /v1/profiles/{PROFILE_ID}/bacsbankaccounts/{BANK_ACCOUNT_ID}/mandates]
+<a name="createbacsmandaterequest" title="Create a BACS Mandate"></a>
+
+This is how you submit a BACS mandate creation request. 
+
+**Note:** The *paymentToken* returned in the response here is used for BACS requests in the [Direct Debit API](https://developer.paysafe.com/en/direct-debit/api/#/reference/0/purchases), and **not** the *paymentToken* returned in the response to the [BACS bank account creation request](https://developer.paysafe.com/en/vault/api/#/reference/0/bacs-bank-accounts/create-a-bacs-bank-account).
+
+By default, the BACS mandate is created with the status of PENDING.
+
++ Parameters
+    + PROFILE_ID:`a5f1889d-f1be-4bbf-941d-fd9b8d09d5b1` (string,required) - This is the ID of the profile to which the BACS bank account belongs.
+    + BANK_ACCOUNT_ID:`6a275b7c-6f11-4ed1-ae77-21071724574a` (string, required) - This is the ID of the BACS bank account to which you are adding the mandate.
+
++ Request BACS Mandate Creation (application/json)
+
+    + Headers
+
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
+    + Attributes
+        + Include Mandate
+
++ Response 200 (application/json)
+
+    + Attributes
+        + id:`e250fdeb-dceb-4953-9268-8305d06b9292` (string, required) - This is the mandate ID returned in the response.
+        + reference:`ABCDEF0987` (string, required) - This is the identifier of the mandate in the banking system.
+        + paymentToken:MUwqiUNjndxxiFs (string, required) - This is a token returned in the response to the mandate creation request. This is the *paymentToken* you must use for BACS requests in the [Direct Debit API](https://developer.paysafe.com/en/direct-debit/api/),
+        + status:PENDING (enum, required) - This is the status of the mandate.
+        + statusChangeDate:`2016-12-14T20:41:32Z` (string, required) - This is the date that the status was last changed.
+        + statusReasonCode:`2` (string) - In the case of a REJECTED or DISPUTED status, the reason code received.
+        + statusReason:`Bank account closed` (string) - In the case of a REJECTED or DISPUTED status, a description of why the mandate was returned.
+        + bankAccountId:`51120172` (string) - The bank account that this mandate belongs to.
+    
+## Create a SEPA Mandate [POST /v1/profiles/{PROFILE_ID}/sepabankaccounts/{BANK_ACCOUNT_ID}/mandates]
+<a name="createsepamandaterequest" title="Create a SEPA Mandate"></a>
+
+This is how you submit a SEPA mandate creation request.
+
+**Note:** The *paymentToken* returned in the response here is used for SEPA requests in the [Direct Debit API](https://developer.paysafe.com/en/direct-debit/api/#/reference/0/purchases), and **not** the *paymentToken* returned in the response to the [SEPA bank account creation request](https://developer.paysafe.com/en/vault/api/#/reference/0/sepa-bank-accounts/create-a-sepa-bank-account).
+
+By default, the SEPA mandate is created with the status of ACTIVE.
+
++ Parameters
+    + PROFILE_ID:`a5f1889d-f1be-4bbf-941d-fd9b8d09d5b1` (string,required) - This is the ID of the profile to which the SEPA bank account belongs.
+    + BANK_ACCOUNT_ID:`6a275b7c-6f11-4ed1-ae77-21071724574a` (string, required) - This is the ID of the SEPA bank account to which you are adding the mandate.
+
++ Request SEPA Mandate Creation (application/json)
+
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
+    + Attributes
+        + Include Mandate 
+
++ Response 200 (application/json)
+
+    + Attributes
+        + id:`e250fdeb-dceb-4953-9268-8305d06b9292` (string, required) - This is the mandate ID returned in the response.
+        + reference:`ABCDEF0987` (string, required) - This is the identifier of the mandate in the banking system.
+        + paymentToken:MUwqiUNjndxxiFs (string, required) - This is a token returned in the response to the mandate creation request. This is the *paymentToken* you must use for SEPA requests in the [Direct Debit API](https://developer.paysafe.com/en/direct-debit/api/)
+        + status:ACTIVE (enum, required) - This is the status of the mandate.
+        + statusChangeDate:`2016-12-14T20:41:32Z` (string, required) - This is the date that the status was last changed.
+
+## Get Mandate [GET /v1/profiles/{PROFILE_ID}/mandates/{MANDATE_ID}]
+<a name="getmandaterequest" title="Look Up a Mandate"></a>
+
+This is how you look up a mandate using the ID returned in the response to the original request.
+    
++ Parameters
+    + PROFILE_ID:`a7b218e7-290a-4434-aea2-a1f985fc26c0` (string, required) - This is the profile ID returned in the response.
+    + MANDATE_ID:`e250fdeb-dceb-4953-9268-8305d06b9292` (string, required) - This is the mandate ID returned in the response.
+
++ Request Get Mandate (application/json)
+    
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+            
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Mandates Response
+        
+## Update a Mandate [PUT /v1/profiles/{PROFILE_ID}/mandates/{MANDATE_ID}]
+<a name="updatemandaterequest" title="Update a Mandate"></a>
+
+This is how you update a mandate.
+
+**Note:** Only the *status* element can be updated.  Any other elements provided will be ignored. </br> The only valid status for a mandate update is CANCELLED.
+
++ Parameters
+    + PROFILE_ID:`a7b218e7-290a-4434-aea2-a1f985fc26c0` (string, required) - This is the profile ID returned in the response.
+    + MANDATE_ID:`e250fdeb-dceb-4953-9268-8305d06b9292` (string, required) - This is the mandate ID returned in the response.
+
++ Request Update a Mandate (application/json)
+    
+    + Attributes
+        + status:PENDING 
+        
+    + Headers        
+
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+            
++ Response 200 (application/json)
+
+    + Attributes    
+        + Include Mandates Response
+
+## Delete a Mandate [DELETE /v1/profiles/{PROFILE_ID}/mandates/{MANDATE_ID}]
+<a name="deletemandaterequest" title="Delete a Mandate"></a>
+
+This is how you delete a mandate. 
+
++ Parameters
+    + PROFILE_ID:`a7b218e7-290a-4434-aea2-a1f985fc26c0` (string, required) - This is the profile ID returned in the response.
+    + MANDATE_ID:`e250fdeb-dceb-4953-9268-8305d06b9292` (string, required) - This is the mandate ID returned in the response.
+
++ Request Delete a Mandate (application/json)
+
+    + Headers        
+
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+            
++ Response 200 (application/json)
+
+    + Attributes
+
+
+# Group Single-Use Tokens
+
+**Note:** For payment requests coming from mobile devices you need a specific API key to retrieve single-use tokens from the Customer Vault. This API key is different from the server-to-server API key that you use to process all other Paysafe API requests. See [Where to Find Your API Key](https://developer.paysafe.com/en/rest-api/reference-information/important-integration-concepts/using-your-api-key/#where-to-find-your-api-key) for more information.
+
+## Apple Pay Single-Use Tokens [/applepaysingleusetokens]
+<a name="applepaysingleusetokens" title="Apple Pay Single-Use Tokens"></a>
+
+### Create an Apple Pay Single-Use Token [POST /v1/applepaysingleusetokens]
+<a name="applepaysingleusetokenrequest" title="Apple Pay Single-Use Token Request"></a>
+
+This is how you submit an Apple Pay single-use token creation request. In the response, you will find a *paymentToken* value to include with your Authorization or Purchase request in the [Card Payments](https://developer.paysafe.com/en/payments/cards/api/) API.
+
+You have to generate a new single-use token for each Apple Pay transaction you wish to process.
+
++ Request Apple Pay Single-Use Token Creation (application/json)
+
+    + Attributes
+        + Include Apple Pay Payment Token
+        
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Response Base
+        + paymentToken:`ABC4AFQQBC5UR5H` (string, required) - This is the single-use payment token to use in the authorization or purchase request in the [Card Payments API](https://developer.paysafe.com/en/cards/api/#/reference/0/authorizations/authorization).
+        + timeToLiveSeconds:899 (number, required) - This is the period of time the single-use token is valid before expiration, in seconds.
+        + Include Apple Pay Payment Token Response
+        + card - These are the details of the virtual card.
+            + lastDigits:1234 (string, optional) - This is the last digits of the card number.
+            + holderName:Joe Smith (string, optional) - This is the name of the card holder.
+        + transaction - These are the Apple Pay transaction details.
+            + amount:1000 (string, optional) - This is the amount of the request, in minor units.
+            + currencyCode:USD (string, optional) - This is the currency of the merchant account.
+
+## Google Pay Single-Use Tokens [/googlepaysingleusetokens]
+<a name="googlepaysingleusetokens" title="Google Pay Single-Use Tokens"></a>
+
+### Create a Google Pay Single-Use Token [POST /v1/googlepaysingleusetokens]
+<a name="googlepaymentapisingleusetokenrequest" title="Google Pay Single-Use Token Request"></a>
+
+This is how you submit a Google Pay single-use token creation request. In the response, you will find a *paymentToken* value to include with your Authorization or Purchase request in the [Card Payments](https://developer.paysafe.com/en/payments/cards/api/) API.
+
+Note the following in the response:
+* If *paymentMethod* = *TOKENIZED_CARD*, this indicates that the card is an Android Pay card.
+* If *paymentMethod* = *CARD_ON_FILE*, this indicates that the card is on file with Google after having been used at Google for some other purpose (e.g., Google Play).
+
+You have to generate a new single-use token for each Google Pay transaction you wish to process.
+
++ Request Google Pay Single-Use Token Creation for Card on File (application/json)
+
+    + Attributes
+        + Include Google Pay Payment Token
+        
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Response Base
+        + paymentToken:`GTCJskXfjWqo34U` (string, required) - This is the single-use payment token to use in the authorization or purchase request in the [Card Payments API](https://developer.paysafe.com/en/cards/api/#/reference/0/authorizations/authorization).
+        + timeToLiveSeconds:899 (number, required) - This is the period of time the single-use token is valid before expiration, in seconds.
+        + googlePayPaymentToken - This is the [payment data object](#googlepaypaymenttokenobject) generated from the Android device for Google Pay.
+            + ephemeralPublicKey:`BDR57RpnLXtBEuKZfuVKNTym9u2q93bXxAds+Gpe0VwBw8nL6dyMaEENB4hnXRglx0QQYRHoxc1qKwNBqBnx4qY=` (string, required)
+            + tag:`8EKZt7vGFjtvuukkWlc5U93h+PBxjB7YKJF/w32Wfk8=` (string, required)
+            + paymentMethod:`CARD_ON_FILE`
+            + messageId:`AH2EjtdtxE5P5FVoHjoVhVJiaslejbWZePOtu2G2nyZYJpZVIWeNV_tJYodBbX9iuZWMCUe_aBOVim6sKd1u2-KUSia5C9WNqGw7tTVy1epkqjxDhMBCnxQ6C8WJcMJ9luBWWjOnrHzb`
+            + messageExpiration:`1506708174199`
+        + card - These are the details of the virtual card.
+            + status:`ACTIVE`
+            + cardBin:`411111`
+            + lastDigits:`8298`
+            + cardType:`VI`
+
++ Request Google Pay Single-Use Token Creation for Tokenized Card - Android Pay (application/json)
+
+    + Attributes
+        + Include Google Pay Payment Token
+        
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Response Base
+        + paymentToken:`GTCJskXfGXTYbsejEDnGQt3jWqo34U` (string, required) - This is the single-use payment token to use in the authorization or purchase request in the [Card Payments API](https://developer.paysafe.com/en/cards/api/#/reference/0/authorizations/authorization).
+        + timeToLiveSeconds:899 (number, required) - This is the period of time the single-use token is valid before expiration, in seconds.
+        + googlePayPaymentToken - This is the [payment data object](#googlepaypaymenttokenobject) generated from the Android device for Google Pay.
+            + ephemeralPublicKey:`BCTSvnX1fF6b64NPlKwJl1r1dAfF0vAWHoktOS4CwH1BocAjnBHfHvKyX2CSM7jf7Cv1b6YfrQMkY9+hgE0dzgY=` (string, required) - This is the ephemeral public key bytes (X.509 encoded key bytes, Base64 encoded string).
+            + tag:`8EKZt7vGFjtvuukkWlc5U93h+PBxjB7YKJF/w32Wfk8=` (string, required)
+            + authMethod:`3DS`
+            + tdsCryptogram:`AgAAAAAABk4DWZ4C28yUQAAAAAA=`
+            + tdsEciIndicator:`07`
+            + paymentMethod:`TOKENIZED_CARD`
+            + messageId:`AH2EjtfdYZ6GzEduMx5KnnTyAwfuB7fzoIQD483zShYR7Az29Hwx7_6kS5PlD_1A_zHght_YSl2-FxEsKXWW3fF2ZTJMgbrxBUYvYLOzDnLT3X0dYppVbFpVT0_WyCOmKC9UdrTYWDdl`
+            + messageExpiration:`1506708174199`
+        + card - These are the details of the virtual card. 
+            + status:`ACTIVE`
+            + cardBin:`489537`
+            + lastDigits:`3478`
+            + cardType:`VI`
+
+## Mobile Device Single-Use Tokens [/singleusetokens]
+<a name="singleusetokens" title="Single-Use Tokens"></a>
+
+### Create a Mobile Device Single-Use Token [POST /v1/singleusetokens]
+<a name="singleusetokenrequest" title="Single-Use Token Request"></a>
+
+This is how you submit a mobile device single-use token creation request. In the response, you will find a *paymentToken* value to include with your Authorization or Purchase request in the [Card Payments](https://developer.paysafe.com/en/payments/cards/api/) API.
+
+You have to generate a new single-use token for each mobile device transaction you wish to process.
+
++ Request Mobile Device Single-Use Token Creation (application/json)
+
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
+    + Attributes
+        + card (object, required) - These are the [card](#cardsobject) details.
+            + holderName:John Smith (string, optional) - This is the name of the card holder.
+            + cardNum:4111111111111111 (string, required) - This is the card number.
+            + cardExpiry (required) - This is the card expiry date.
+                + month:12 (string, required) - This is the expiry month.
+                + year:2020 (string, required) - This is the expiry year.
+            + billingAddress (object, optional) - This the card [billing address](#billingaddressobject). **Note:** This object is optional, but when it is included, the *country* and *zip* fields are then required.
+                + street:100 Queen Street (string, optional) - This is the first line of the customer's street address.
+                + street2:201 (string, optional) - This is the second line of the customer's street address.
+                + city:Toronto (string, optional) - This is the city where the address is located.
+                + country:CA (string, required) - This is the country where the address is located.
+                + state:ON (string, optional) - This is the state/province/region of the customer's address.
+                + zip:M5H 2N2 (string, required) - This is the country of the customer's address.
+                
+            
+    
++ Response 200 (application/json)
+
+    + Attributes
+        + Include Response Base
+        + paymentToken:`ABC4AFQQBC5UR5H` (string, required) - This is the single-use payment token returned in the response to the single-use token creation request.
+        + timeToLiveSeconds:899 (number, required) - This is the period of time the single-use token is valid before expiration, in seconds.
+        + card - These are the [card](#cardsobject) details.
+            + cardBin:411111 (string, required) - This is the card BIN (typically the first 6 digits).
+            + lastDigits:1111 (string, required) - This is the last digits of the card number.
+            + holderName:John Smith (string, optional) - This is the name of the card holder.
+            + cardType:VI (enum, required) - This is the type of card associated with the profile. 
+            + cardExpiry (required) - This is the card expiry date.
+                + month:12 (string, required) - This is the expiry month.
+                + year:2020 (string, required) - This is the expiry year.
+        + billingAddress - This the card [billing address](#billingaddressobject).
+            + street:100 Queen Street (string, optional) - This is the first line of the customer's street address.
+            + street2:201 (string, optional) - This is the second line of the customer's street address.
+            + city:Toronto (string, optional) - This is the city where the address is located.
+            + country:CA (string, required) - This is the country where the address is located.
+            + state:ON (string, optional) - This is the state/province/region of the customer's address.
+            + zip:M5H 2N2 (string, required) - This is the country of the customer's address.
+
+
+# Group Direct Debit Single-Use Tokens
+
+**Note:** For payment requests coming from mobile devices you need a specific API key to retrieve single-use tokens from the Customer Vault. This API key is different from the server-to-server API key that you use to process all other Paysafe API requests. See [Where to Find Your API Key](https://developer.paysafe.com/en/rest-api/reference-information/important-integration-concepts/using-your-api-key/#where-to-find-your-api-key) for more information.
+
+## ACH Single-Use Tokens [/achsingleusetokens]
+<a name="achsingleusetokens" title="ACH Single-Use Tokens"></a>
+
+### Create an ACH Single-Use Token [POST /v1/achsingleusetokens]
+<a name="achsingleusetokenrequest" title="ACH Single-Use Token Request"></a>
+
+This is how you submit an ACH single-use token creation request. In the response, you will find a *paymentToken* value to include with your Direct Debit Purchase or Standalone Credit request in the [Direct Debit](https://developer.paysafe.com/en/direct-debit/api/) API or when accepting Direct Debit payments using the [Paysafe Checkout](https://developer.paysafe.com/en/sdks/paysafe-checkout/overview/).
+
+You have to generate a new single-use token for each ACH transaction you wish to process.
+
++ Request ACH Single-Use Token Creation (application/json)
+
+    + Attributes
+        + Include Profile for Direct Debit Single Use Token
+        + Include ACH Bank Account for Payment Token
+        + Include Billing Address for Direct Debit Single Use Token
+        
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + id:`a02e52c7-c991-4418-966a-b62989cb0eae` (string, required) - This is the ID returned in the response.
+        + paymentToken:`SAec6TpEoNVQpbSM` (string, required) - This is the single-use payment token returned in the response to the request.
+        + timeToLiveSeconds:899 (number, required) - This is the period of time the single-use token is valid before expiration, in seconds.
+        + Include Profile for Direct Debit Single Use Token
+        + Include Billing Address for Direct Debit Single Use Token
+        + Include ACH Bank Account for Payment Token
+
+## EFT Single-Use Tokens [/eftsingleusetokens]
+<a name="eftsingleusetokens" title="EFT Single-Use Tokens"></a>
+
+### Create an EFT Single-Use Token [POST /v1/eftsingleusetokens]
+<a name="eftsingleusetokenrequest" title="EFT Single-Use Token Request"></a>
+
+This is how you submit an EFT single-use token creation request. In the response, you will find a *paymentToken* value to include with your Direct Debit Purchase or Standalone Credit request in the [Direct Debit](https://developer.paysafe.com/en/direct-debit/api/) API or when accepting Direct Debit payments using the [Paysafe Checkout](https://developer.paysafe.com/en/sdks/paysafe-checkout/overview/).
+
+You have to generate a new single-use token for each EFT transaction you wish to process.
+
++ Request EFT Single-Use Token Creation (application/json)
+
+    + Attributes
+        + Include Profile for Direct Debit Single Use Token
+        + Include EFT Bank Account for Payment Token
+        + Include Billing Address for Direct Debit Single Use Token
+        
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Attributes
+        + id:`a02e52c7-c991-4418-966a-b62989cb0eae` (string, required) - This is the ID returned in the response.
+        + paymentToken:`SAec6TpEoNVQpbSM` (string, required) - This is the single-use payment token returned in the response to the request.
+        + timeToLiveSeconds:899 (number, required) - This is the period of time the single-use token is valid before expiration, in seconds.
+        + Include Profile for Direct Debit Single Use Token
+        + Include Billing Address for Direct Debit Single Use Token
+        + Include EFT Bank Account for Payment Token
+
+# Data Structures
+
+## ACH Bank Account for Payment Token
++ achBankAccount (object, required) - This is the customer's [ACH bank account information](#achbankaccountobject).
+
+    + Properties
+        + accountNumber:`50557600` (string, required) - This is the bank account number.
+        + accountHolderName:`R. Dodson` (string, required) - This is the name of the customer or company that owns the bank account.
+        + routingNumber:`123456789` (string, required) - For USD accounts, this is the 9-digit routing number of the bank.
+        + accountType:`CHECKING` (enum, required) - This is the bank account type.
+            - CHECKING
+            - LOAN
+            - SAVINGS
+
+## Apple Pay Payment Token
++ applePayPaymentToken (object, required) - This is the [payment data object](#applepaypaymenttokenobject) generated from the iOS device for Apple Pay.
+
+    + Properties
+        + version:`EC_v1` (string, required) - This is version information about the payments token.
+        + data:`<passkit_encrypted_payment_data>` (string, required) - This is the encrypted payment data.
+        + signature:`<signature_for_payment_and_header_data>` (string, required) - This is the signature of the payment and header data.
+        + Include Apple Pay Header
+
+## Apple Pay Payment Token Response
++ applePayPaymentToken (object) - This is the [payment data object](#applepaypaymenttokenobject) generated from the iOS device for Apple Pay.
+
+    + Properties
+        + version:`EC_v1` (string) - This is version information about the payments token.
+        + signature:`<signature_for_payment_and_header_data>` (string) - This is the signature of the payment and header data.
+        + Include Apple Pay Header Response
+
+## Apple Pay Header
++ header (object, required) - This is [additional version-dependent information](#headerobject) used to decrypt and verify the payment.
+
+    + Properties
+        + transactionId:`b53e22ef6669ce7f50951cfd6821908f4e679f050f5a551a1b5f6202253136ae` (string, required) - This is the transaction identifier, generated on the device.
+        + ephemeralPublicKey:`MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEB39YqvWZG0NOYjbkL5D61Mxip6uw23Q7m8gWgxL41k4fs0BgJ+MFcIGYOH86kAGL/wjiftDahRkUnzOGls2hzw==` (string, required) - This is the ephemeral public key bytes (X.509 encoded key bytes, Base64 encoded string).
+        + publicKeyHash:`O5gJ/P5sQ7ufMZQXA7ccLoOkJ13VNknbu+4K0TaCQXE=` (string, required) - This is a hash of the x.509 encoded public key bytes of the merchant's certificate as a Base64 encoded string.
+
+## Apple Pay Header Response
++ header (object) - This is [additional version-dependent information](#headerobject) used to decrypt and verify the payment.
+
+    + Properties
+        + transactionId:`b53e22ef6669ce7f50951cfd6821908f4e679f050f5a551a1b5f6202253136ae` (string) - This is the transaction identifier, generated on the device.
+        + publicKeyHash:`O5gJ/P5sQ7ufMZQXA7ccLoOkJ13VNknbu+4K0TaCQXE=` (string) - This is a hash of the x.509 encoded public key bytes of the merchant's certificate as a Base64 encoded string.
+
+## ACH Bank Account
++ nickName:`John's Account` (string, optional) - This is an alias for this bank account.
++ accountHolderName:`Argon Corp.` (string, required) - This is the name of the customer or company that owns the bank account.
++ accountNumber:`511201` (string, required) - This is the bank account number.
++ routingNumber:`123456789` (string, required) - For USD accounts, this is the 9-digit routing number of the customer’s bank.
++ billingAddressId:`60022f38-fd17-4731-909c-923930d0d5d4` (string, required) - This is the Address ID returned in response to the request to create an address, which will be associated with this bank account.
++ accountType:`CHECKING` (enum, required) - This is the bank account type.
+    - CHECKING
+    - LOAN
+    - SAVINGS
++ merchantRefNum:`ACH888` (string, optional) - This is the merchant reference number created by the merchant and submitted as part of the request. This value is only stored by the Paysafe system and has no bearing on the request.
+
+## ACH Bank Account for Profile
++ achBankAccount (object, required)
+
+    + Properties
+        + accountHolderName:`Argon Corp.` (string, required) - This is the name of the customer or company that owns the bank account.
+        + accountNumber:`511221` (string, required) - This is the bank account number.
+        + routingNumber:`123456789` (string, required) - For USD accounts, this is the 9-digit routing number of the customer’s bank.
+        + accountType:`CHECKING` (enum, required) - This is the bank account type.
+            - CHECKING
+            - LOAN
+            - SAVINGS
+        + Include Billing Address
+
+## ACH Bank Account for Profile Response
++ achBankAccounts (array)
+
+    + (object)
+        + id:`fae7e0be-5b9c-4edc-bdd0-9732c6569e59` (string) - This is the ACH bank account ID.
+        + accountHolderName:`Argon Corp.` (string) - This is the name of the customer or company that owns the bank account.
+        + accountNumber:`511221` (string) - This is the bank account number.
+        + billingAddressId:`6a275b7c-6f11-4ed1-ae77-21071724574a` (string)
+        + lastDigits:`21` (string) - This is the last two digits of the bank account.
+        + paymentToken:`D4VBx3EzOqlAi6k` (string) - This is the payment token representing the bank account, used to make a payment.
+        + status:`ACTIVE` (enum) - This is the status of the bank account.
+        + routingNumber:`123456789` (string) - For USD accounts, this is the 9-digit routing number of the customer’s bank.
+        + accountType:`CHECKING` (enum) - This is the bank account type.
+            - CHECKING
+            - LOAN
+            - SAVINGS
+
+## ACH Bank Account for Token
++ singleUseToken:`D4VBx3EzOqlAi6k` (string, required) - This is the payment token representing the bank account, used to make a payment.
+
+## ACH Bank Account for SUT
++ achBankAccount (object, required)
+
+    + Properties
+        + singleUseToken:`D4VBx3EzOqlAi6k` (string, required) - This is the single-use payment token representing the bank account.
+
+## ACH Bank Account for Token Response
++ achBankAccounts (array)
+
+    + (object)
+        + id:`fae7e0be-5b9c-4edc-bdd0-9732c6569e59` (string) - This is the ACH bank account ID.
+        + accountHolderName:`Argon Corp.` (string) - This is the name of the customer or company that owns the bank account.
+        + accountNumber:`511221` (string) - This is the bank account number.
+        + billingAddressId:`6a275b7c-6f11-4ed1-ae77-21071724574a` (string)
+        + lastDigits:`21` (string) - This is the last two digits of the bank account.
+        + paymentToken:`D4VBx3EzOqlAi6k` (string) - This is the payment token representing the bank account, used to make a payment.
+        + status:`ACTIVE` (enum) - This is the status of the bank account.
+        + singleUseToken:`D4VBx3EzOqlAi6k` (string) - This is the single-use token included in the request.
+        + routingNumber:`123456789` (string) - For USD accounts, this is the 9-digit routing number of the customer’s bank.
+        + accountType:`CHECKING` (enum) - This is the bank account type.
+            - CHECKING
+            - LOAN
+            - SAVINGS
+
+## ACH Bank Account for Update
++ nickName:`John's Account` (string, optional) - This is an alias for this bank account.
++ accountHolderName:`Argon Corp.` (string, required) - This is the name of the customer or company that owns the bank account.
++ accountNumber:`511201` (string, optional) - This is the bank account number.
++ routingNumber:`123456789` (string, required) - For USD accounts, this is the 9-digit routing number of the customer’s bank.
++ billingAddressId:`60022f38-fd17-4731-909c-923930d0d5d4` (string, required) - This is the address ID returned in response to the request to create an address, which will be associated with this bank account.
++ accountType:`CHECKING` (enum, required) - This is the bank account type.
+    - CHECKING
+    - LOAN
+    - SAVINGS
++ merchantRefNum:`ACH888` (string, optional) - This is the merchant reference number created by the merchant and submitted as part of the request. This value is only stored by the Paysafe system and has no bearing on the request.
+
+## ACH Bank Account Response
++ id:`6a275b7c-6f11-4ed1-ae77-21071724574a` (string) - This is the bank account ID returned in the response.
++ status:`ACTIVE` (enum) - This is the status of the bank acount request.
+    - ACTIVE
+    - INVALID
+    - INACTIVE
++ nickName:`John's Account` (string) - This is an alias for this bank account.
++ accountHolderName:`Argon Corp.` (string) - This is the name of the customer or company that owns the bank account.
++ routingNumber:`123456789` (string) - For USD accounts, this is the 9-digit routing number of the customer’s bank.
++ billingAddressId:`60022f38-fd17-4731-909c-923930d0d5d4` (string) - This is the address ID returned in response to the request to create an address, which will be associated with this bank account.
++ accountType:`CHECKING` (enum) - This is the bank account type.
+    - CHECKING
+    - LOAN
+    - SAVINGS 
++ lastDigits:`01` (string) - This is the last two digits of the bank account number.
++ merchantRefNum:`ACH888` (string) - This is the merchant reference number created by the merchant and submitted as part of the request. 
++ paymentToken:`CNjEzMTM4NDg1` (string) - This is a token that represents the bank account and is returned in the response to the bank account creation request. It can be used in the place of bank account information in Direct Debit transactions.
+
+## ACH Bank Account Response Using Token
++ id:`6a275b7c-6f11-4ed1-ae77-21071724574a` (string) - This is the bank account ID returned in the response.
++ accountHolderName:`Argon Corp.` (string) - This is the name of the customer or company that owns the bank account.
++ billingAddressId:`60022f38-fd17-4731-909c-923930d0d5d4` (string) - This is the address ID returned in response to the request to create an address, which will be associated with this bank account.
++ lastDigits:`01` (string) - This is the last two digits of the bank account number.
++ paymentToken:`CNjEzMTM4NDg1` (string) - This is a token that represents the bank account and is returned in the response to the bank account creation request. It can be used in the place of bank account information in Direct Debit transactions.
++ status:`ACTIVE` (enum) - This is the status of the bank account request.
+    - ACTIVE
+    - INVALID
+    - INACTIVE
++ routingNumber:`123456789` (string) - For USD accounts, this is the 9-digit routing number of the customer’s bank.
++ accountType:`CHECKING` (enum) - This is the bank account type.
+    - CHECKING
+    - LOAN
+    - SAVINGS 
+
+## Address
++ nickName:`Home` (string, optional) - This is an alias defined by the customer for this address (e.g., "home address").
++ street:`100 Queen` (string, required) - This is the first line of the customer's street address. **Note:** This is required only when the address is to be used in association with a bank account.
++ street2:`Unit 201` (string, optional) - This is the second line of the customer's street address, if required.
++ city:`Toronto` (string, required) - This is the city where the address is located. **Note:** This is required only when the address is to be used in association with a bank account.
++ zip:`M5H 2N2` (string, required) - This is the zip, postal, or post code of the customer's address.
++ country:`CA` (string, required) - This is the country where the address is located.
++ state:`ON` (string, optional) - This is the state/province/region in which the customer lives.
++ recipientName:`Jane Smith` (string, optional) - This is the name of the recipient at this address, if it is different from the name in the profile.
++ phone:`647-788-3901` (string, optional) - This is the recipient's phone number.
++ defaultShippingAddressIndicator:`true` (boolean, optional) - Flag to mark this address as the default shipping address.
+
+## Address Response
++ id:`6a275b7c-6f11-4ed1-ae77-21071724574a` (string) - This is the address ID returned in the response.
++ status:`ACTIVE` (enum) - This is the status of the address request. 
++ nickName:`Home` (string) - This is an alias defined by the customer for this address (e.g., "home address").
++ street:`100 Queen` (string) - This is the first line of the customer's street address.
++ street2:`Unit 201` (string) - This is the second line of the customer's street address, if required.
++ city:`Toronto` (string) - This is the city where the address is located.
++ zip:`M5H 2N2` (string) - This is the zip, postal, or post code of the customer's address.
++ country:`CA` (string) - This is the country where the address is located.
++ state:`ON` (string) - This is the state/province/region in which the customer lives.
++ recipientName:`Jane Smith` (string) - This is the name of the recipient at this address, if it is different from the name in the profile.
++ phone:`647-788-3901` (string) - This is the recipient's phone number.
++ defaultShippingAddressIndicator:`true` (boolean) - Flag to mark this address as the default shipping address.
+
+## Addresses
++ addresses (object, optional) - This is the customer's [address](#billingaddressobject).
+
+    + Properties
+        + nickName:`Home` (string, optional) - This is an alias defined by the customer for this address (e.g., "home address").
+        + street:`100 Queen` (string, optional) - This is the first line of the customer's street address.
+        + street2:`Unit 201` (string, optional) - This is the second line of the customer's street address, if required.
+        + city:`Toronto` (string, optional) - This is the city where the address is located.
+        + zip:`M5H 2N2` (string, optional) - This is the zip, postal, or post code of the customer's address.
+        + country:`CA` (string, optional) - This is the country where the address is located.
+        + state:`ON` (string, optional) - This is the state/province/region in which the customer lives.
+        + recipientName:`Jane Smith` (string, optional) - This is the name of the recipient at this address, if it is different from the name in the profile.
+        + phone:`647-788-3901` (string, optional) - This is the recipient's phone number.
+
+## Addresses Response
++ addresses (array) - This is the customer's address.
+
+    + (object)
+        + id:`6a275b7c-6f11-4ed1-ae77-21071724574a` (string) - This is the address ID returned in the response.
+        + status:`ACTIVE` (enum) - This is the status of the address.
+        + nickName:`Home` (string) - This is an alias defined by the customer for this address (e.g., "home address").
+        + street:`100 Queen` (string) - This is the first line of the customer's street address.
+        + street2:`Unit 201` (string) - This is the second line of the customer's street address, if required.
+        + city:`Toronto` (string) - This is the city where the address is located.
+        + zip:`M5H 2N2` (string) - This is the zip, postal, or post code of the customer's address.
+        + country:`CA` (string) - This is the country where the address is located.
+        + state:`ON` (string) - This is the state/province/region in which the customer lives.
+        + recipientName:`Jane Smith` (string) - This is the name of the recipient at this address, if it is different from the name in the profile.
+        + phone:`647-788-3901` (string) - This is the recipient's phone number.
+
+## Addresses Response Direct Debit Profile
++ addresses (array) - This is the customer's address.
+
+    + (object)
+        + id:`6a275b7c-6f11-4ed1-ae77-21071724574a` (string) - This is the address ID returned in the response.
+        + nickName:`Home` (string) - This is an alias defined by the customer for this address (e.g., "home address").
+        + street:`100 Queen` (string) - This is the first line of the customer's street address.
+        + street2:`Unit 201` (string) - This is the second line of the customer's street address, if required.
+        + city:`Toronto` (string) - This is the city where the address is located.
+        + zip:`M5H 2N2` (string) - This is the zip, postal, or post code of the customer's address.
+        + country:`CA` (string) - This is the country where the address is located.
+        + state:`ON` (string) - This is the state/province/region in which the customer lives.
+        + defaultShippingAddressIndicator:`false` (boolean) - This indicates whether this address is the default shipping address.
+        + status:`ACTIVE` (enum) - This is the status of the address.
+
+## BACS Bank Account
++ nickName:`Sally's Barclays Account` (string, optional) - This is an alias for this bank account.
++ accountHolderName:`Sally Barnes` (string, required) - This is the name of the customer or company that owns the bank account.
++ accountNumber:`51120172` (string, required) - This is the bank account number.
++ sortCode:`086081` (string, required) - This is the 6-digit sort code that identifies the financial institution and branch of the customer’s bank.
++ billingAddressId:`60022f38-fd17-4731-909c-923930d0d5d4` (string, required) - This is the address ID returned in response to the request to create an address, which will be associated with this bank account.
++ Include Mandate Reference
++ merchantRefNum:`BACS888` (string, optional) - This is the merchant reference number created by the merchant and submitted as part of the request. This value is only stored by the Paysafe system and has no bearing on the request.
+
+## BACS Bank Account for Update
++ nickName:`Sally's Barclays Account` (string, optional) - This is an alias for this bank account.
++ accountHolderName:`Sally Barnes` (string, required) - This is the name of the customer or company that owns the bank account.
++ accountNumber:`51120172` (string, required) - This is the bank account number.
++ sortCode:`086081` (string, required) - This is the 6-digit sort code that identifies the financial institution and branch of the customer’s bank.
++ billingAddressId:`60022f38-fd17-4731-909c-923930d0d5d4` (string, required) - This is the address ID returned in response to the request to create an address, which will be associated with this bank account.
++ merchantRefNum:`BACS888` (string, optional) - This is the merchant reference number created by the merchant and submitted as part of the request. This value is only stored by the Paysafe system and has no bearing on the request.
+
+## BACS Bank Account Response
++ id:`6a275b7c-6f11-4ed1-ae77-21071724574a` (string) - This is the bank account ID returned in the response.
++ status:ACTIVE (enum) - This is the status of the bank acount request.
+    - ACTIVE
+    - INVALID
+    - INACTIVE
++ nickName:`Sally's Barclays Account` (string) - This is an alias for this bank account.
++ accountHolderName:`Sally Barnes` (string) - This is the name of the customer or company that owns the bank account.
++ lastDigits:`01` (string) - This is the last two digits of the bank account number.
++ sortCode:`086081` (string) - This is the 6-digit sort code that identifies the financial institution and branch of the customer’s bank.
++ billingAddressId:`60022f38-fd17-4731-909c-923930d0d5d4` (string) - This is the address ID returned in response to the request to create an address, which will be associated with this bank account.
++ paymentToken:`CNjEzMTM4NDg1` (string) - This is a token that represents the bank account and is returned in the response to the bank account creation request. It **cannot** be used in the place of bank account information in Direct Debit transactions. The *paymentToken* from the [BACS mandate creation request](#createbacsmandaterequest) must be used.
++ Include Mandates for Bank Response
+
+## Billing Address
++ billingAddress (object, optional) - This is the customer's [billing address](#billingaddressobject). **Note:** This object is optional, but when it is included, the *street*, *city*, *country*, and *zip* fields are then required.
+
+    + Properties
+        + nickName:`Home` (string, optional) - This is an alias defined by the customer for this address (e.g., "home address").
+        + street:`100 Queen` (string, required) - This is the first line of the customer's street address. **Note:** This is required only when the address is to be used in association with a bank account.
+        + street2:`Unit 201` (string, optional) - This is the second line of the customer's street address, if required.
+        + city:`Toronto` (string, required) - This is the city where the address is located. **Note:** This is required only when the address is to be used in association with a bank account.
+        + zip:`M5H 2N2` (string, required) - This is the zip, postal, or post code of the customer's address.
+        + country:`CA` (string, required) - This is the country where the address is located.
+        + state:`ON` (string, optional) - This is the state/province/region in which the customer lives.
+
+
+## Billing Address for Direct Debit Single Use Token
++ billingAddress (object, required) - This is the customer's [billing address](#billingaddressobject). **Note:** This object is optional, but when it is included, the *street*, *city*, *country*, and *zip* fields are then required.
+
+    + Properties
+        + nickName:`Home` (string, optional) - This is an alias defined by the customer for this address (e.g., "home address").
+        + street:`100 Queen` (string, required) - This is the first line of the customer's street address. **Note:** This is required only when the address is to be used in association with a bank account.
+        + street2:`Unit 201` (string, optional) - This is the second line of the customer's street address, if required.
+        + city:`Toronto` (string, required) - This is the city where the address is located. **Note:** This is required only when the address is to be used in association with a bank account.
+        + zip:`M5H 2N2` (string, required) - This is the zip, postal, or post code of the customer's address.
+        + country:`CA` (string, required) - This is the country where the address is located.
+        + state:`ON` (string, optional) - This is the state/province/region in which the customer lives.
+
+## Card
++ cardNum:`4111111111111111` (string, required) - This is the card number.
++ Include cardExpiry
++ nickName:`John Corporate Card` (string, optional) - This is an alias defined by the customer for this card.
++ merchantRefNum:`MC123` (string, optional) - This is the merchant’s own card identification, which can be included in the request if desired.
++ holderName:`John Smith` (string, optional) - This is the name of the card holder.
++ billingAddressId:`794b2b05-1a3b-4544-a59c-8612d0a4711e` (string, optional) - This is the ID returned in response to the creation of an address that will be associated with the card.
++ defaultCardIndicator:`false` (boolean, optional) - This indicates whether this is the default card for the profile.
+
+## Card for Profile
++ card (object, required) - This is the customer's card information.
+
+    + Properties
+        + cardNum:`4111111111111111` (string, required) - This is the card number.
+        + Include cardExpiry
+        + nickName:`John Corporate Card` (string, optional) - This is an alias defined by the customer for this card.
+        + merchantRefNum:`MC123` (string, optional) - This is the merchant’s own card identification, which can be included in the request if desired.
+        + holderName:`John Smith` (string, optional) - This is the name of the card holder.
+        + Include Billing Address
+
+## Card for Update
++ Include cardExpiry
++ nickName:`John Corporate Card` (string, optional) - This is an alias defined by the customer for this card.
++ merchantRefNum:`MC123` (string, optional) - This is the merchant’s own card identification, which can be included in the request if desired.
++ holderName:`John Smith` (string, optional) - This is the name of the card holder.
++ billingAddressId:`794b2b05-1a3b-4544-a59c-8612d0a4711e` (string, required) - This is the ID returned in response to the creation of an address that will be associated with the card.
++ defaultCardIndicator:`false` (boolean, optional) - This indicates whether this is the default card for the profile.
+
+## Card for Token
++ card (object, required) - This is the customer's [card](#cardsobject) information.
+
+    + Properties
+        + singleUseToken:`abcdefg23d32d2` (string, required) - This is the single-use token returned in response to a single-use token creation request.
+
+## Cards for Token Response
++ cards (object, required) - This is the customer's [card](#cardsobject) information.
+
+    + Properties
+        + paymentToken:`CNjEzMTM4NDg1` (string, required) - This is a permanent payment token that represents the card and is returned in the response to the profile creation request.
+
+## Card Response
++ id:`6a275b7c-6f11-4ed1-ae77-21071724574a` (string, required) - This is the card ID returned in the response.
++ status:`ACTIVE` (enum) - This is the status of the card request. 
++ nickName:`John Corporate Card` (string) - This is an alias defined by the customer for this card.
++ holderName:`John Smith` (string) - This is the name of the card holder.
++ cardBin:`411111` (string) - This is the card BIN (typically the first 6 digits).
++ lastDigits:`1111` (string) - This is the last digits of the card number.
++ Include cardExpiry
++ cardType:`VI` (enum) - This is the card brand.
+    - AM
+    - DC
+    - DI
+    - MC
+    - VI
++ paymentToken:`CNjEzMTM4NDg1` (string) - This is a token that represents the card and is returned in the response to the card creation request.
++ billingAddressId:`794b2b05-1a3b-4544-a59c-8612d0a4711e` (string) - This is the ID returned in response to the creation of an address that will be associated with the card.
++ defaultCardIndicator:`false` (boolean) - This indicates whether this is the default card for the profile.
+
+## Cards
++ card (object, required) - This is the customer's [card](#cardsobject) information.
+
+    + Properties
+        + cardNum:`4111111111111111` (string, required) - This is the card number.
+        + Include cardExpiry
+        + nickName:`John Corporate Card` (string, optional) - This is an alias defined by the customer for this card.
+        + merchantRefNum:`MC123` (string, optional) - This is the merchant’s own card identification, which can be included in the request if desired.
+        + holderName:`John Smith` (string, optional) - This is the name of the card holder.
+        + Include Addresses
+        + billingAddressId:`794b2b05-1a3b-4544-a59c-8612d0a4711e` (string, required) - This is the ID returned in response to the creation of an address that will be associated with the card.
+        + defaultCardIndicator:`false` (boolean, optional) - This indicates whether this is the default card for the profile.
+        + singleUseToken:`abcdefg23d32d2` (string, optional) - This is the *paymentToken* returned in the response to a single-use token creation request.
+        
+
+## Cards Response
++ cards (array) - This is the customer's [card](#cardsobject) information.
+
+    + (object)
+        + id:`6a275b7c-6f11-4ed1-ae77-21071724574a` (string) - This is the card ID returned in the response that can be used later to look up or update a card on the profile.
+        + cardBin:`411111` (string) - This is the card BIN (typically the first 6 digits).
+        + lastDigits:`1111` (string) - This is the last digits of the card number.
+        + Include cardExpiry
+        + cardType:`VI` (enum) - This is the card brand.
+            - AM
+            - DC
+            - DI
+            - MC
+            - VI
+        + nickName:`John Corporate Card` (string) - This is an alias defined by the customer for this card.
+        + merchantRefNum:`MC123` (string) - This is the merchant’s own card identification, which can be included in the request if desired.
+        + holderName:`John Smith` (string) - This is the name of the card holder.
+        + billingAddressId:`794b2b05-1a3b-4544-a59c-8612d0a4711e` (string) - This is the ID returned in response to the creation of an address that will be associated with the card.
+        + defaultCardIndicator:`true` (boolean) - This indicates whether this is the default card for the profile.
+        + paymentToken:`CNjEzMTM4NDg1` (string) - This is a token that represents the card and is returned in the response to the card creation request.
+        + status:`ACTIVE` (enum) - This is the status of the card.        
+
+## Cards for Profile
++ cards (object, required) - This is the customer's card information.
+
+    + Properties
+        + cardNum:`4111111111111111` (string, required) - This is the card number.
+        + Include cardExpiry
+        + nickName:`John Corporate Card` (string, optional) - This is an alias defined by the customer for this card.
+        + merchantRefNum:`MC123` (string, optional) - This is the merchant’s own card identification, which can be included in the request if desired.
+        + holderName:`John Smith` (string, optional) - This is the name of the card holder.
+        + Include Addresses
+
+## Cards for Token
++ cards (object, required) - This is the customer's [card](#cardsobject) information.
+
+    + Properties
+        + singleUseToken:`abcdefg23d32d2` (string, required) - This is the single-use token returned in response to a single-use token  creation request.
+
+## cardExpiry
++ cardExpiry (object, required) - This is the card [expiry date](#cardexpiryobject).
+
+    + Properties
+        + month:`12` (number, required)
+        + year:`2020` (number, required)
+
+## dateOfBirth
++ dateOfBirth (object, optional) - This is the [date of birth](#dateofbirthobject).
+
+    + Properties
+        + year:`1981` (number, required) - This is the birth year.
+        + month:`10` (number, required) - This is the birth month.
+        + day:`24` (number, required) - This is the birth day.
+
+## EFT Bank Account
++ nickName:`John's Account` (string, optional) - This is an alias for this bank account.
++ accountHolderName:`Argon Corp.` (string, required) - This is the name of the customer or company that owns the bank account.
++ accountNumber:`511201` (string, required) - This is the bank account number.
++ transitNumber:`25039` (string, required) - This is the 5-digit transit number of the customer's bank branch.
++ institutionId:`001` (string, required) - This is the 3-digit institution ID of the customer’s bank branch.
++ billingAddressId:`60022f38-fd17-4731-909c-923930d0d5d4` (string, required) - This is the address ID returned in response to the request to create an address, which will be associated with this bank account.
++ merchantRefNum:`EFT888` (string, optional) - This is the merchant reference number created by the merchant and submitted as part of the request. This value is only stored by the Paysafe system and has no bearing on the request.
+
+## EFT Bank Account for Payment Token
++ eftBankAccount (object, required) - This is the customer's [EFT bank account information](#eftbankaccountobject).
+
+    + Properties
+        + accountNumber:`5002205` (string, required) - This is the bank account number.
+        + accountHolderName:`R. Smith` (string, required) - This is the name of the customer or company that owns the bank account.
+        + transitNumber:`20250` (string, required) - This is the 5-digit transit number of the customer's bank branch. 
+        + institutionId:`001` (string, required) - This is the 3-digit institution ID of the customer’s bank branch.
+
+## EFT Bank Account for Profile
++ eftBankAccount (object, required)
+
+    + Properties
+        + nickName:`John's Account` (string, optional) - This is an alias for this bank account.
+        + accountHolderName:`Argon Corp.` (string, required) - This is the name of the customer or company that owns the bank account.
+        + accountNumber:`511221` (string, required) - This is the bank account number.
+        + transitNumber:`25039` (string, required) - This is the 5-digit transit number of the customer's bank branch.
+        + institutionId:`001` (string, required) - This is the 3-digit institution ID of the customer’s bank branch.
+        + Include Billing Address
+
+## EFT Bank Account for Profile Response
++ eftBankAccounts (array)
+
+    + (object)
+        + id:`fae7e0be-5b9c-4edc-bdd0-9732c6569e59` (string) - This is the EFT bank account ID.
+        + nickName:`John's Account` (string) - This is an alias for this bank account.
+        + accountHolderName:`Argon Corp.` (string) - This is the name of the customer or company that owns the bank account.
+        + accountNumber:`511221` (string) - This is the bank account number.
+        + billingAddressId:`6a275b7c-6f11-4ed1-ae77-21071724574a` (string)
+        + lastDigits:`21` (string) - This is the last two digits of the bank account.
+        + paymentToken:`D4VBx3EzOqlAi6k` (string) - This is the payment token representing the bank account, used to make a payment.
+        + status:`ACTIVE` (enum) - This is the status of the bank account.
+        + transitNumber:`25039` (string) - This is the 5-digit transit number of the customer's bank branch.
+        + institutionId:`001` (string) - This is the 3-digit institution ID of the customer’s bank branch.
+
+## EFT Bank Account for SUT
++ eftBankAccount (object, required)
+
+    + Properties
+        + singleUseToken:`D4VBx3EzOqlAi6k` (string, required) - This is the single-use payment token representing the bank account.
+
+## EFT Bank Account for Token
++ singleUseToken:`D4VBx3EzOqlAi6k` (string, required) - This is the payment token representing the bank account, used to make a payment.
+
+## EFT Bank Account for Token Response
++ eftBankAccounts (array)
+
+    + (object)
+        + id:`fae7e0be-5b9c-4edc-bdd0-9732c6569e59` (string) - This is the EFT bank account ID.
+        + accountHolderName:`Argon Corp.` (string) - This is the name of the customer or company that owns the bank account.
+        + accountNumber:`511221` (string) - This is the bank account number.
+        + billingAddressId:`6a275b7c-6f11-4ed1-ae77-21071724574a` (string)
+        + lastDigits:`21` (string) - This is the last two digits of the bank account.
+        + paymentToken:`D4VBx3EzOqlAi6k` (string) - This is the payment token representing the bank account, used to make a payment.
+        + status:`ACTIVE` (enum) - This is the status of the bank account.
+        + singleUseToken:`SAb5oxySrsihKXnp` (string) - This is the single-use token included in the request.
+        + transitNumber:`25039` (string) - This is the 5-digit transit number of the customer's bank branch.
+        + institutionId:`001` (string) - This is the 3-digit institution ID of the customer’s bank branch.
+
+## EFT Bank Account for Update
++ nickName:`John's Account` (string, optional) - This is an alias for this bank account.
++ accountHolderName:`Argon Corp.` (string, required) - This is the name of the customer or company that owns the bank account.
++ accountNumber:`511201` (string, optional) - This is the bank account number. 
++ transitNumber:`25039` (string, required) - This is the 5-digit transit number of the customer's bank branch.
++ institutionId:`001` (string, required) - This is the 3-digit institution ID of the customer’s bank branch.
++ billingAddressId:`60022f38-fd17-4731-909c-923930d0d5d4` (string, required) - This is the address ID returned in response to the request to create an address, which will be associated with this bank account.
++ merchantRefNum:`EFT888` (string, optional) - This is the merchant reference number created by the merchant and submitted as part of the request. This value is only stored by the Paysafe system and has no bearing on the request.
+
+## EFT Bank Account Response
++ id:`6a275b7c-6f11-4ed1-ae77-21071724574a` (string, required) - This is the bank account ID returned in the response.
++ status:`ACTIVE` (enum) - This is the status of the bank account request.
+    - ACTIVE
+    - INVALID
+    - INACTIVE
++ nickName:`John's Account` (string) - This is an alias for this bank account.
++ accountHolderName:`Argon Corp.` (string) - This is the name of the customer or company that owns the bank account.
++ lastDigits:`01` (string) - This is the last two digits of the bank account number.
++ transitNumber:`25039` (string) - This is the 5-digit transit number of the customer's bank branch.
++ institutionId:`001` (string) - This is the 3-digit institution ID of the customer’s bank branch.
++ billingAddressId:`60022f38-fd17-4731-909c-923930d0d5d4` (string) - This is the address ID returned in response to the request to create an address, which will be associated with this bank account.
++ merchantRefNum:`EFT888` (string) - This is the merchant reference number created by the merchant and submitted as part of the request.
++ paymentToken:`CNjEzMTM4NDg1` (string) - This is a token that represents the bank account and is returned in the response to the bank account creation request. It can be used in the place of bank account information in Direct Debit transactions.
+
+## EFT Bank Account Response Using Token
++ id:`6a275b7c-6f11-4ed1-ae77-21071724574a` (string) - This is the bank account ID returned in the response.
++ accountHolderName:Argon Corp. (string) - This is the name of the customer or company that owns the bank account.
++ billingAddressId:`60022f38-fd17-4731-909c-923930d0d5d4` (string) - This is the address ID returned in response to the request to create an address, which will be associated with this bank account.
++ lastDigits:`01` (string) - This is the last two digits of the bank account number.
++ paymentToken:`CNjEzMTM4NDg1` (string) - This is a token that represents the bank account and is returned in the response to the bank account creation request. It can be used in the place of bank account information in Direct Debit transactions.
++ status:`ACTIVE` (enum) - This is the status of the bank account request.
+    - ACTIVE
+    - INVALID
+    - INACTIVE
++ transitNumber:`25039` (string) - This is the 5-digit transit number of the customer's bank branch.
++ institutionId:`001` (string) - This is the 3-digit institution ID of the customer’s bank branch.
+
+## Google Pay Payment Token
++ googlePayPaymentToken (object, required) - This is the [payment data object](#googlepaypaymenttokenobject) generated from the Android device for Google Pay.
+
+    + Properties
+        + signature:`MEYCIQC3SyFpLO3yVxqYeVDeFJ8rHbkSSe4TyuATINrAMmzf9AIhALusXhNPJvWVoEUo5ZjSXIK8dx/GMswkdQiqp4/xCd/D` (string, required) - This is the signature of the payment data.
+        + protocolVersion:`ECv1` (string, required) - This is version information about the payments token. Value is "ECv1". 
+        + signedMessage:`<signed_message_from_google_payment_api>` (string, required) - This is a UTF-8 encoded, serialized JSON dictionary with values for *encryptedMessage*, *ephemeralPublicKey*, and *tag*. 
+
+## Mandate
++ reference:ABCDEF0987
+
+## Mandates
++ mandates (object, required) - This is one or more [mandates](#mandatesobject) associated with the bank account.
+
+    + Properties
+        + id:`e250fdeb-dceb-4953-9268-8305d06b9292` (string, required) - This is the mandate ID returned in the response.
+        + reference:`ABCDEF1234` (string, required) - This is the identifier of the mandate in the banking system.
+        + paymentToken:`MUwqiUNjndxxiFs` (string, required) - This is a token returned in the response to the mandate creation request.
+        + status:`ACTIVE` (enum, required) - This is the status of the mandate.
+            - ACTIVE
+            - INITIAL
+            - PENDING
+            - DECLINED
+            - BATCHED
+            - CANCELLED
+            - REJECTED
+            - DISPUTED
+            - INACTIVE
+        + statusChangeDate:`2016-12-14T20:41:32Z` (string, required) - This is the date that the status was last changed.
+
+## Mandates Response
++ id:`e250fdeb-dceb-4953-9268-8305d06b9292` (string) - This is the mandate ID returned in the response.
++ reference:`ABCDEF0987` (string) - This is the identifier of the mandate in the banking system.
++ paymentToken:`MUwqiUNjndxxiFs` (string) - This is a token returned in the response to the mandate creation request.
++ status:`ACTIVE` (enum) - This is the status of the mandate.
+    - ACTIVE
+    - INITIAL
+    - PENDING
+    - DECLINED
+    - BATCHED
+    - CANCELLED
+    - REJECTED
+    - DISPUTED
+    - INACTIVE
++ statusChangeDate:`2016-12-14T20:41:32Z` (string, required) - This is the date that the status was last changed.
+
+## Mandates for Bank Response
++ mandates (array, optional) - This is one or more [mandates](#mandatesobject) associated with the bank account.
+    
+    + (object)
+        + id:`e250fdeb-dceb-4953-9268-8305d06b9292` (string) - This is the mandate ID returned in the response.
+        + reference:`ABCDEF0987` (string) - This is the identifier of the mandate in the banking system.
+        + paymentToken:MUwqiUNjndxxiFs (string) - This is a token returned in the response to the mandate creation request.
+        + status:ACTIVE (enum) - This is the status of the mandate.
+            - ACTIVE
+            - INITIAL
+            - PENDING
+            - DECLINED
+            - BATCHED
+            - CANCELLED
+            - REJECTED
+            - DISPUTED
+            - INACTIVE
+        + statusChangeDate:`2016-12-14T20:41:32Z` (string) - This is the date that the status was last changed.
+
+## Mandate Reference
++ mandates (array, required) - This is one or more [mandates](#mandatesobject) associated with the bank account.
+    
+    + (object)
+        + reference:`ABCDEF0987` (string, required) - This is the identifier of the mandate in the banking system.
+ 
+
+## Profile Base
++ merchantCustomerId:`mycustomer1` (string, required) - This is a customer ID that the merchant provides with the request for their own internal customer identification. This value must be unique for each customer belonging to a merchant. In NETBANX this is known as the Ref ID.
++ locale:`en_US` (enum, required) - This indicates the language of the profile.
+    - en_US
+    - fr_CA
+    - en_GB
++ firstName:`John` (string, optional) - This is the customer's first name.
++ middleName:`James` (string, optional) - This is the customer's middle name.
++ lastName:`Smith` (string, optional) - This is the customer's last name.
++ Include dateOfBirth
++ email:`john.smith@email.com` (string, optional) - This is the customer's email address.
++ phone:`777-444-8888` (string, optional) - This is the customer's phone number.
++ ip:`192.0.126.111` (string, optional) - This is the customer’s IP address.
++ gender:`M` (enum, optional) - This is the customer’s gender.
+    - F
+    - M
++ nationality:`Canadian` (string, optional) - This is the customer’s nationality. 
++ cellPhone:`777-555-8888` (string, optional) - This is the customer’s cell phone number.
+
+## Profile Base ACH
++ merchantCustomerId:`mycustomer1` (string, required) - This is a customer ID that the merchant provides with the request for their own internal customer identification. This value must be unique for each customer belonging to a merchant. In NETBANX this is known as the Ref ID.
++ locale:`en_US` (enum, optional) - This indicates the language of the profile. Default is *en_US*.
+    - en_US
+    - fr_CA
+    - en_GB
++ firstName:`John` (string, optional) - This is the customer's first name.
++ middleName:`James` (string, optional) - This is the customer's middle name.
++ lastName:`Smith` (string, optional) - This is the customer's last name.
++ Include dateOfBirth
++ email:`john.smith@email.com` (string, optional) - This is the customer's email address.
++ phone:`777-444-8888` (string, optional) - This is the customer's phone number.
++ ip:`192.0.126.111` (string, optional) - This is the customer’s IP address.
++ gender:`M` (enum, optional) - This is the customer’s gender.
+    - F
+    - M
++ nationality:`American` (string, optional) - This is the customer’s nationality.
+
+## Profile Base ACH Response
++ merchantCustomerId:`mycustomer1` (string) - This is a customer ID that the merchant provides with the request for their own internal customer identification. This value must be unique for each customer belonging to a merchant. In NETBANX this is known as the Ref ID.
++ locale:`en_US` (enum) - This indicates the language of the profile.
+    - en_US
+    - fr_CA
+    - en_GB
++ firstName:`John` (string) - This is the customer's first name.
++ middleName:`James` (string) - This is the customer's middle name.
++ lastName:`Smith` (string) - This is the customer's last name.
++ Include dateOfBirth
++ email:`john.smith@email.com` (string) - This is the customer's email address.
++ phone:`777-444-8888` (string) - This is the customer's phone number.
++ ip:`192.0.126.111` (string) - This is the customer’s IP address.
++ gender:`M` (enum) - This is the customer’s gender.
+    - F
+    - M
++ nationality:`American` (string, optional) - This is the customer’s nationality.
+
+## Profile Base ACH Token
++ merchantCustomerId:`mycustomer1` (string, required) - This is a customer ID that the merchant provides with the request for their own internal customer identification. This value must be unique for each customer belonging to a merchant. In NETBANX this is known as the Ref ID.
++ firstName:`John` (string, optional) - This is the customer's first name.
++ middleName:`James` (string, optional) - This is the customer's middle name.
++ lastName:`Smith` (string, optional) - This is the customer's last name.
++ email:`john.smith@email.com` (string, optional) - This is the customer's email address.
++ phone:`777-444-8888` (string, optional) - This is the customer's phone number.
++ ip:`192.0.126.111` (string, optional) - This is the customer’s IP address.
++ gender:`M` (enum, optional) - This is the customer’s gender.
+    - F
+    - M
++ nationality:`American` (string, optional) - This is the customer’s nationality.
+
+## Profile Base ACH Token Response
++ merchantCustomerId:`mycustomer1` (string) - This is a customer ID that the merchant provides with the request for their own internal customer identification. This value must be unique for each customer belonging to a merchant. In NETBANX this is known as the Ref ID.
++ locale:`en_US` (enum) - This indicates the language of the profile.
+    - en_US
+    - fr_CA
+    - en_GB
++ firstName:`John` (string) - This is the customer's first name.
++ middleName:`James` (string) - This is the customer's middle name.
++ lastName:`Smith` (string) - This is the customer's last name.
++ email:`john.smith@email.com` (string) - This is the customer's email address.
++ phone:`777-444-8888` (string) - This is the customer's phone number.
++ ip:`192.0.126.111` (string) - This is the customer’s IP address.
++ gender:`M` (enum) - This is the customer’s gender.
+    - F
+    - M
++ nationality:`American` (string) - This is the customer’s nationality.
+
+##  Profile Base EFT
++ merchantCustomerId:`mycustomer1` (string, required) - This is a customer ID that the merchant provides with the request for their own internal customer identification. This value must be unique for each customer belonging to a merchant. In NETBANX this is known as the Ref ID.
++ locale:`en_US` (enum, optional) - This indicates the language of the profile. Default is *en_US*.
+    - en_US
+    - fr_CA
+    - en_GB
++ firstName:`John` (string, optional) - This is the customer's first name.
++ lastName:`Smith` (string, optional) - This is the customer's last name.
++ Include dateOfBirth
++ email:`john.smith@email.com` (string, optional) - This is the customer's email address.
++ phone:`777-444-8888` (string, optional) - This is the customer's phone number.
+
+##  Profile Base EFT Response
++ merchantCustomerId:`mycustomer1` (string) - This is a customer ID that the merchant provides with the request for their own internal customer identification. This value must be unique for each customer belonging to a merchant. In NETBANX this is known as the Ref ID.
++ locale:`en_US` (enum) - This indicates the language of the profile.
+    - en_US
+    - fr_CA
+    - en_GB
++ firstName:`John` (string) - This is the customer's first name.
++ lastName:`Smith` (string) - This is the customer's last name.
++ Include dateOfBirth
++ email:`john.smith@email.com` (string) - This is the customer's email address.
++ phone:`777-444-8888` (string) - This is the customer's phone number.
+
+##  Profile Base EFT Token
++ merchantCustomerId:`mycustomer1` (string, required) - This is a customer ID that the merchant provides with the request for their own internal customer identification. This value must be unique for each customer belonging to a merchant. In NETBANX this is known as the Ref ID.
++ firstName:`John` (string, optional) - This is the customer's first name.
++ middleName:`James` (string, optional) - This is the customer's middle name.
++ lastName:`Smith` (string, optional) - This is the customer's last name.
++ email:`john.smith@email.com` (string, optional) - This is the customer's email address.
++ phone:`777-444-8888` (string, optional) - This is the customer's phone number.
++ ip:`192.0.126.111` (string, optional) - This is the customer's IP address.
++ gender:`M` (enum, optional) - This is the customer’s gender.
+    - F
+    - M
++ nationality:`Canadian` (string, optional) - This is the customer’s nationality.
++ cellPhone:`777-555-8888` (string, optional) - This is the customer’s cell phone number.
+
+## Profile for Direct Debit Single Use Token
++ profile (object) - This is some optional information about the customer.
+
+    + Properties
+        + firstName:John (string, optional) - This is the customer's first name.
+        + lastName:Smith (string, optional) - This is the customer's last name.
+        + Include dateOfBirth
+        + email:john.smith@email.com (string, optional) - This is the customer's email address.
+
+## Recipient
++ recipient (object) - This allows [additional data](#recipientobject) to be included with a profile and then used in an [Authorization request using a payment token](#https://developer.paysafe.com/en/cards/api/#/reference/0/authorizations/authorization) in the Card Payments API. Include this object **only if** your Merchant Category Code is **6012** and your registered trading address is in the United Kingdom.
+
+    + Properties
+        + Include dateOfBirth
+        + zip:`CB24 9AD` (string, optional) - This is the recipient's postcode.
+        + lastName:`Smith` (string, optional) - This is the recipient's last Name.
+        + accountNumber:`ABC1234567890` (string, optional) - This is the recipient's account number, e.g., a loan agreement number or customer ID.
+
+## Recipient Response
++ recipient (object) - This is [additional data](#recipientobject) included with a profile which can then used in an [Authorization request using a payment token](#https://developer.paysafe.com/en/cards/api/#/reference/0/authorizations/authorization) in the Card Payments API. 
+
+    + Properties
+        + Include dateOfBirth
+        + zip:`CB24 9AD` (string, optional) - This is the recipient's postcode.
+        + lastName:`Smith` (string, optional) - This is the recipient's last Name.
+        + accountNumber:`ABC123****7890` (string, optional) - This is the recipient's account number, e.g., a loan agreement number or customer ID.
+
+## Response Base
++ id:`a02e52c7-c991-4418-966a-b62989cb0eae` (string, required) - This is the ID returned in the response. In NETBANX this is called the Consumer ID.
+
+## SEPA Bank Account
++ nickName:Sally's Barclays Account (string, optional) - This is an alias for this bank account.
++ accountHolderName:Sally Barnes (string, required) - This is the name of the customer or company that owns the bank account.
++ iban:NL77ABNA0492122466 (string, required) - This is the international bank account number.
++ bic:ABNANL2A (string, optional) - This is the bank identification code.
++ billingAddressId:`60022f38-fd17-4731-909c-923930d0d5d4` (string, required) - This is the address ID returned in response to the request to create an address, which will be associated with this bank account.
++ Include Mandate Reference
++ merchantRefNum:SEPA888 (string, optional) - This is the merchant reference number created by the merchant and submitted as part of the request. This value is only stored by the Paysafe system and has no bearing on the request.
+
+## SEPA Bank Account for Update
++ nickName:Sally's Barclays Account (string, optional) - This is an alias for this bank account.
++ accountHolderName:Sally Barnes (string, required) - This is the name of the customer or company that owns the bank account.
++ iban:NL77ABNA0492122466 (string, required) - This is the international bank account number.
++ bic:ABNANL2A (string, optional) - This is the bank identification code.
++ billingAddressId:`60022f38-fd17-4731-909c-923930d0d5d4` (string, required) - This is the address ID returned in response to the request to create an address, which will be associated with this bank account.
++ merchantRefNum:SEPA888 (string, optional) - This is the merchant reference number created by the merchant and submitted as part of the request. This value is only stored by the Paysafe system and has no bearing on the request.
+
+## SEPA Bank Account Response
++ id:`6a275b7c-6f11-4ed1-ae77-21071724574a` (string) - This is the bank account ID returned in the response.
++ status:ACTIVE (enum) - This is the status of the bank acount request.
+    - ACTIVE
+    - INVALID
+    - INACTIVE
++ nickName:Sally's Barclays Account (string) - This is an alias for this bank account.
++ accountHolderName:Sally Barnes (string) - This is the name of the customer or company that owns the bank account.
++ bic:ABNANL2A (string) - This is the bank identification code.
++ lastDigits:01 (string) - This is the last two digits of the bank account number.
++ billingAddressId:`60022f38-fd17-4731-909c-923930d0d5d4` (string) - This is the address ID returned in response to the request to create an address, which will be associated with this bank account.
++ merchantRefNum:SEPA888 (string) - This is the merchant reference number created by the merchant and submitted as part of the request.
++ paymentToken:D8c4jEzMTM4NDg1 (string) - This is a token that represents the bank account and is returned in the response to the bank account creation request. It **cannot** be used in the place of bank account information in Direct Debit transactions. The *paymentToken* from the [SEPA mandate creation request](#createsepamandaterequest) must be used.
++ Include Mandates for Bank Response
+
+## Single Use Token
++ singleUseToken:abcdefg23d32d2 (string, required) - This is the single-use token returned in response to a single-use token creation request.
+
+## Status Profile
++ status:ACTIVE (enum, required) - This is the status of the profile request.        
+    - ACTIVE
+    - INITIAL
+
+## Status Profile Update
++ status:ACTIVE (enum, optional) - This is the status of the profile request.        
+    - ACTIVE
+    - INITIAL
