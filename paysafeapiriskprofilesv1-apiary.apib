@@ -1,27 +1,25 @@
 FORMAT: 1A
 HOST: https://api.test.paysafe.com/riskprofiles/
 
-# Risk Check API
+# Paysafe Risk Check API
+
+**QUESTIONS**
+- I see field descriptions referring to business owners (e.g., business owner's address). Should this be consumer?
+- The Account Management API uses *yearsAtAddress* (and not *monthsAtAddress*)
+- Max for *phone* element is 15; for other APIs it's 40.
 
 # Release Notes
 
 | Version   | Date          | Details |
 |---        |---            |---      |
-| 1.0       | July 2018     | <ul><li>Deprecated Google Pay endpoint /paywithgooglesingleusetokens. Now use /googlepaysingleusetokens.</li><li>Deprecated Google Pay token *payWithGooglePaymentToken*. Now use *googlePayPaymentToken*.</li></ul>     |
-| 1.0       | February 2018 | <ul><li>Clarified NETBANX terminology</li></ul>     |
-| 1.0       | January 2018  | <ul><li>Changed "Google Payment API" to "Google Pay"</li><li>Updated endpoints for creating Direct Debit single-use tokens</li></ul>|
-| 1.0       | December 2017 | <ul><li>Added Direct Debit single-use tokens</li></ul> |
-| 1.0       | November 2016 | <ul><li>Document release</li></ul> |
+| 1.0       | October 2018  | <ul><li>Document Release</li></ul>     |
 
 # Overview
 
-Securely store customer payment information for a quick and simple checkout experience &ndash; PCI compliance is a breeze.
-  * Allow us to securely store your customers’ sensitive payment information like card and bank account numbers in our Customer Vault &ndash; you never have to see or handle it.
-  * Apply our REST-based API to create and modify Customer Profiles, and use tokens to process transactions.
-  * Maintain multiple payment methods for each of your customers.
-  * Build customer loyalty, and offer a streamlined and speedy checkout experience.
-  
-![](https://developer.paysafe.com/fileadmin/flarecontent/devcentre/Content/Resources/Images/CustomerVaultOverview.png)
+**Rewrite overview content** 
+
+The Paysafe Risk Check API  ... 
+
 
 <a name="apikey" title="Authentication"></a>
 # Authentication
@@ -49,6 +47,8 @@ For additional details, please refer to [http://en.wikipedia.org/wiki/Basic_acce
 
 # URLs 
 
+**NOTE:** The Confluence page for this API has the v1 inverted, so "/v1/riskprofiles/" ... this seems backward from our standard practice, which I have used below.
+
 ##  Test URL
 In order to test your integration with Paysafe, use the following Test URL:
 
@@ -56,7 +56,7 @@ In order to test your integration with Paysafe, use the following Test URL:
 
 For example:
 
-`https://api.test.paysafe.com/customervault/v1/profiles/{PROFILE_ID}`
+`https://api.test.paysafe.com/riskprofiles/v1/`
 
 ## Production URL
 In order to process live requests with Paysafe, use the following Production URL:
@@ -65,10 +65,12 @@ In order to process live requests with Paysafe, use the following Production URL
 
 For example:
 
-`https://api.paysafe.com/customervault/v1/profiles/{PROFILE_ID}`
+`https://api.paysafe.com/riskprofiles/v1/`
 
 <a name="globalinvalidcharacters" title="Global Invalid Characters"></a>
 # Global Invalid Characters
+
+**Verify that this holds for this new API.**
 
 You must not include any of the characters in the following table as values in any of your request parameters. If you do, your request will result in an error.
 
@@ -86,176 +88,47 @@ You must not include any of the characters in the following table as values in a
 
 # API
 
-The Customer Vault API allows merchants to securely store a customer's personal information, including address, payment, and contact information. 
+**NOTE:** The endpoints seem odd. Verify what is before their "/v1/riskprofiles/" in Confluence. E.g., see https://api.test.paysafe.com/cardpayments/v1/accounts/account_id/auths/auth_id in Card Payments API.
+
+The Risk Check API allows merchants to ...
 
 The following request types are supported:
 
-  * [Profiles](#profilesrequest)
-  * [Addresses](#addressesrequest)
-  * [Cards](#cardsrequest)
-  * [ACH Bank Accounts](#achbankaccountsrequest)
-  * [BACS Bank Accounts](#bacsbankaccountsrequest)
-  * [EFT Bank Accounts](#eftbankaccountsrequest)
-  * [SEPA Bank Accounts](#sepabankaccountsrequest)
-  * [Mandates](#mandatesrequest)
-  * [Apple Pay Single-Use Tokens](#applepaysingleusetokens)
-  * [Google Pay Single-Use Tokens](#googlepaysingleusetokens)
-  * [Mobile Device Single-Use Tokens](#singleusetokens)
-  * [ACH Single-Use Tokens](#achsingleusetokens)  
-  * [EFT Single-Use Tokens](#eftsingleusetokens)
-  
-**API Endpoint** 
+**Update hyperlinks once correct sections are created.**
 
-`https://api.paysafe.com/customervault/v1`
+  * [Risk Checks](#profilesrequest)
+  * [Rerun Failed Risk Checks](#addressesrequest)
+  
+**API Endpoints** 
+
+ - `https://api.paysafe.com/riskprofiles/v1`
+ - `https://api.paysafe.com/riskprofiles/v1/risk_profile_id/rerunFailedChecks`
 
 **Resource Patterns**
 
+**FIND OUT IF THERE ARE GETS FOR THESE ENDPOINTS**
+
 |Endpoint URL                                       |Description                            |Action |
 |---                                                |---                                    |---    |
-|/profiles                                          |Create a Customer Profile              |POST   |
-|/profiles/{PROFILE_ID}                             |Look Up a Customer Profile             |GET    |
-|/profiles/{PROFILE_ID}                             |Update a Customer Profile              |PUT    |
-|/profiles/{PROFILE_ID}                             |Delete a Customer Profile              |DELETE |
-|/profiles/{PROFILE_ID}/addresses                   |Create an Address                      |POST   |
-|/profiles/{PROFILE_ID}/addresses/{ADDRESS_ID}      |Look Up an Address                     |GET    |
-|/profiles/{PROFILE_ID}/addresses/{ADDRESS_ID}      |Update an Address                      |PUT    |
-|/profiles/{PROFILE_ID}/addresses/{ADDRESS_ID}      |Delete an Address                      |DELETE |
-|/profiles/{PROFILE_ID}/cards                       |Create a Card                          |POST   |
-|/profiles/{PROFILE_ID}/cards/{CARD_ID}             |Look Up a Card                         |GET    |
-|/profiles/{PROFILE_ID}/cards/{CARD_ID}             |Update a Card                          |PUT    |
-|/profiles/{PROFILE_ID}/cards/{CARD_ID}             |Delete a Card                          |DELETE |
-|/profiles/{PROFILE_ID}/achbankaccounts             |Create an ACH Bank Account             |POST   |
-|/profiles/{PROFILE_ID}/achbankaccounts/{BANK_ACCOUNT_ID}   |Look Up an ACH Bank Account    |GET    |
-|/profiles/{PROFILE_ID}/achbankaccounts/{BANK_ACCOUNT_ID}   |Update an ACH Bank Account     |PUT    |
-|/profiles/{PROFILE_ID}/achbankaccounts/{BANK_ACCOUNT_ID}   |Delete an ACH Bank Account     |DELETE |
-|/profiles/{PROFILE_ID}/bacsbankaccounts            |Create a BACS Bank Account             |POST   |
-|/profiles/{PROFILE_ID}/bacsbankaccounts/{BANK_ACCOUNT_ID}  |Look Up a BACS Bank Account    |GET    |
-|/profiles/{PROFILE_ID}/bacsbankaccounts/{BANK_ACCOUNT_ID}  |Update a BACS Bank Account     |PUT    |
-|/profiles/{PROFILE_ID}/bacsbankaccounts/{BANK_ACCOUNT_ID}  |Delete a BACS Bank Account     |DELETE |
-|/profiles/{PROFILE_ID}/eftbankaccounts             |Create an EFT Bank Account             |POST   |
-|/profiles/{PROFILE_ID}/eftbankaccounts/{BANK_ACCOUNT_ID}   |Look Up an EFT Bank Account    |GET    |
-|/profiles/{PROFILE_ID}/eftbankaccounts/{BANK_ACCOUNT_ID}   |Update an EFT Bank Account     |PUT    |
-|/profiles/{PROFILE_ID}/eftbankaccounts/{BANK_ACCOUNT_ID}   |Delete an EFT Bank Account     |DELETE |
-|/profiles/{PROFILE_ID}/sepabankaccounts            |Create a SEPA Bank Account             |POST   |
-|/profiles/{PROFILE_ID}/sepabankaccounts/{BANK_ACCOUNT_ID}  |Look Up a SEPA Bank Account    |GET    |
-|/profiles/{PROFILE_ID}/sepabankaccounts/{BANK_ACCOUNT_ID}  |Update a SEPA Bank Account     |PUT   |
-|/profiles/{PROFILE_ID}/sepabankaccounts/{BANK_ACCOUNT_ID}  |Delete a SEPA Bank Account     |DELETE |
-|/applepaysingleusetokens                           |Create an Apple Pay Single-Use Token   |POST   |
-|/googlepaysingleusetokens                          |Create a Google Pay Single-Use Token |POST   |
-|/singleusetokens                                   |Create a Mobile Device Single-Use Token|POST   |
-|/achsingleusetokens                                |Create an ACH Single-Use Token         |POST   |
-|/eftsingleusetokens                                |Create an EFT Single-Use Token         |POST   |
-|/profiles/{PROFILE_ID}/bacsbankaccounts/{BANK_ACCOUNT_ID}/mandates |Create a BACS Mandate  |POST   |
-|/profiles/{PROFILE_ID}/sepabankaccounts/{BANK_ACCOUNT_ID}/mandates |Create a SEPA Mandate  |POST   |
-|/profiles/{PROFILE_ID}/mandates/{MANDATE_ID}       |Look Up a Mandate                      |GET    |
-|/profiles/{PROFILE_ID}/mandates/{MANDATE_ID}       |Update a Mandate                       |PUT    |
-|/profiles/{PROFILE_ID}/mandates/{MANDATE_ID}       |Delete a Mandate                       |DELETE |
+|/riskprofiles                                      |Run a Risk Check on a Consumer         |POST   |
+|/riskprofiles/{risk_profile_id}/rerunFailedChecks  |Rerun a Failed Risk Check              |POST   |
+
 
 # Getting Started
 
-You can use the Customer Vault REST API to create profiles, addresses, cards, bank accounts, single-use tokens, and mandates. Click [here](https://developer.paysafe.com/en/rest-api/vault/using-the-api/scenarios/) for some common scenarios for using the Customer Vault.
+You can use the Risk Check API to Click [here](https://developer.paysafe.com/en/rest-api/riskcheck/using-the-api/scenarios/) for some common scenarios for using the Risk Check API.
+
+**MAKE SURE THE LINK ABOVE IS ACCURATE FOR FLARE CONTENT IN DC.**
 
 
 # Testing Instructions
 
-The Paysafe Test environment can be used to test websites or applications. It is important to make sure that your systems are working correctly before going into a live environment. Click [here](https://developer.paysafe.com/en/rest-api/vault/test-and-go-live/testing-instructions/) for details of using the test environment.
+The Paysafe Test environment can be used to test websites or applications. It is important to make sure that your systems are working correctly before going into a live environment. Click [here](https://developer.paysafe.com/en/rest-api/riskcheck/test-and-go-live/testing-instructions/) for details of using the test environment.
+
+**MAKE SURE THE LINK ABOVE IS ACCURATE FOR FLARE CONTENT IN DC.**
 
 <a name="isostandards" title="ISO Standards"></a>
 # ISO Standards
-
-<a name="currencycodes" title="Currency Codes"></a>
-## Currency Codes
-
-**Note:**
-  * The table below lists the currencies in which transaction requests are processed, but note that they may be settled in a different currency. 
-  * Not all currencies are supported by all banks. Contact your account manager for more information about which currencies are supported for your merchant account.
-
-|Currency |Code |
-|--- |--- |
-|Argentine Peso |ARS |
-|Australian Dollar  |AUD |
-|Azerbaijanian Manat    |AZN |
-|Bahraini Dinar |BHD  |
-|Belarusian Ruble   |BYR  |
-|Bolivian Boliviano |BOB  |
-|Bosnia and Herzegovina Convertible Mark |BAM  |
-|Brazilian Real |BRL  |
-|Bulgarian Lev  |BGN  |
-|Canadian Dollar    |CAD  |
-|Chilean Peso   |CLP  |
-|China Yuan Renminbi    |CNY  |
-|Columbian Peso |COP  |
-|Costa Rican Colon  |CRC  |
-|Croatian Kuna  |HRK  |
-|Czech Koruna   |CZK  |
-|Danish Krone   |DKK  |
-|Dominican Peso |DOP  |
-|East Caribbean Dollar  |XCD  |
-|Egyptian Pound |EGP  |
-|Ethiopian Birr |ETB  |
-|Euro   |EUR  |
-|Fiji Dollar    |FJD  |
-|Georgian Lari  |GEL  |
-|Guatemala Quetzal  |GTQ  |
-|Haiti Goude    |HTG  |
-|Honduran Lempira   |HNL  |
-|Hong Kong Dollar   |HKD  |
-|Hungarian Forint   |HUF  |
-|Iceland Krona  |ISK  |
-|Indian Rupee   |INR  |
-|Indonesia Rupiah   |IDR  |
-|Iranian Rial   |IRR  |
-|Jamaican Dollar    |JMD  |
-|Japanese Yen   |JPY  |
-|Jordanian Dinar    |JOD  |
-|Kazakhstan Tenge   |KZT  |
-|Kenyan Shilling    |KES  |
-|Korean Won |KRW  |
-|Kuwaiti Dinar  |KWD  |
-|Latvian Lats   |LVL  |
-|Lebanese Pound |LBP  |
-|Libyan Dinars  |LYD  |
-|Lithuanian Litas   |LTL  |
-|Malawi Kwacha  |MWK  |
-|Malaysian Ringotgit  |MYR  |
-|Mauritius Rupee    |MUR  |
-|Mexican Peso   |MXN  |
-|Moldovan Leu   |MDL  |
-|Moroccan Dirham    |MAD  |
-|New Israeli Shekel |ILS  |
-|New Zealand Dollar |NZD  |
-|Nigerian Naira |NGN  |
-|Norwegian Krone    |NOK  |
-|Omani Rial |OMR  |
-|Pakistan Rupee |PKR  |
-|Panamanian Balboa  |PAB  |
-|Paraguayan Guarani |PYG  |
-|Peruvian Sol   |PEN  |
-|Philippine Peso    |PHP  |
-|Polish Zloty   |PLN  |
-|Pound Sterling |GBP  |
-|Qatari Rial    |QAR  |
-|Romanian New Leu   |RON  |
-|Russian Ruble  |RUB  |
-|Saudi Arabian Riyal    |SAR  |
-|Serbian Dinar  |RSD  |
-|Singapore Dollar   |SGD  |
-|South African Rand |ZAR  |
-|Sri Lanka Rupee    |LKR  |
-|Swedish Krona  |SEK  |
-|Swiss Franc    |CHF  |
-|Syrian Pound   |SYP  |
-|Taiwan New Dollar  |TWD  |
-|Thai Baht  |THB  |
-|Trinidad and Tobago Dollar |TTD  |
-|Tunisian Dinar |TND  |
-|Turkish Lira   |TRY  |
-|Ukranian Hryunia   |UAH  |
-|UAE Dirham |AED  |
-|Uruguay Peso   |UYU  |
-|US Dollar  |USD  |
-|Venezuelan Bolivar |VEF  |
-|Viet Nam Dong  |VND  |
 
 <a name="provincecodes" title="Province Codes"></a>
 ## Province Codes
@@ -601,273 +474,46 @@ The Paysafe Test environment can be used to test websites or applications. It is
 
 # Complex JSON Objects
 
-<a name="achbankaccountobject" title="ACH Bank Account Object"></a>
-## achBankAccount
+<a name="addressobject" title="Address Object"></a>
+## Address
+
 |Element            |Type                       |Description    |
 |---                |---                        |---       |
-|id                 |string<br/>`length<=36`    |This is the ID for the request, returned by Paysafe. It can be used later, e.g., to look up or update the bank account.|
-|nickName           |string<br/>`length<=50`    |This is an alias defined by the customer for the bank account (e.g., "First Bank account").|
-|merchantRefNum     |string<br/>`length<=255`   |This is the merchant reference number created by the merchant and submitted as part of the request. This value is only stored by the Paysafe system and has no bearing on the request.|
-|status             |enum                       |This is the status of the  request. Possible values are:<ul><li>ACTIVE &ndash; The bank account has been created.</li><li>INVALID &ndash; The bank account is invalid.</li><li>INACTIVE &ndash; The bank account has been deleted.</li></ul><br/>**Note:** By default, the bank account is created with the status of ACTIVE.|
-|statusReason       |string<br/>`length<=255`   |If the status is INVALID, this is a description of why the account is invalid (e.g., account closed).|
-|accountNumber      |string<br/>`length=4-17`   |This is the bank account number.|
-|accountHolderName  |string<br/>`length<=22`    ||This is the name of the customer or company that owns the bank account.|
-|routingNumber      |string<br/>`length=9`      ||For USD accounts, this is the 9-digit routing number of the customer’s bank.|
-|accountType        |enum                       ||This is the bank account type. Possible values are:<ul><li>CHECKING</li><li>LOAN</li><li>SAVINGS</li></ul>|
-|lastDigits         |string<br/>`length=2`      |This is the last two digits of the bank account number.|
-|billingAddressId   |string<br/>`length<=36`    |This is the address ID returned in response to the request to create an address, which will be associated with this bank account.|
-|paymentToken       |string<br/>`length<=50`    |This is a token generated by Paysafe that represents the bank account and is returned in the response to the bank account creation request. It can be used in the place of bank account information in Direct Debit transactions.|
-
-```apib
-            {
-                "nickName": "John's RBC Business Bank Account",
-                "accountNumber": "511201",
-                "routingNumber": "123456789",
-                "accountHolderName": "XYZ Business",
-                "billingAddressId": "60022f38-fd17-4731-909c-923930d0d5d4",
-                "accountType": "CHECKING"
-            }
-```
-
-
-<a name="addressesobject" title="Addresses Object"></a>
-## addresses
-|Element            |Type                       |Description    |
-|---                |---                        |---       |
-|id                 |string<br/>`length<=36`    |This is the ID for the request.|
-|nickName           |string<br/>`length<=50`    |This is an alias defined by the customer for this address (e.g., "home address").|
-|street             |string<br/>`length<=50`    |This is the first line of the customer's street address.|
-|street2            |string<br/>`length<=50`    |This is the second line of the customer's street address, if required (e.g., apartment number).|
-|city               |string<br/>`length<=40`    |This is the city where the address is located.|
+|apartment          |string<br/>`length<=50`    |This is the consumer's apartment number, if applicable.|
+|street             |string<br/>`length<=255`   |This is the first line of the consumer's street address.|
+|street2            |string<br/>`length<=255`   |This is the second line of the consumer's street address, if required.|
+|city               |string<br/>`length<=255`   |This is the city where the address is located.|
 |country            |string<br/>`length=2`      |This is the country where the address is located. See [Country Codes](#countrycodes).|
-|state              |string<br/>`length<=40`    |This is the state/province/region in which the customer lives.<br/>For Canada see [Province Codes](#provincecodes). For the United States see [State Codes](#statecodes). Other countries have no restrictions. |
-|zip                |string<br/>`length<=10`    |This is the zip, postal, or post code of the customer's address.|
-|recipientName      |string<br/>`length<=255`   |This is the name of the recipient at this address, if it is different from the name in the profile.|
-|phone              |string<br/>`length<=40`    |This is the phone number to contact the recipient at this address, if it is different from the phone number in the profile.|
-|status             |enum                       |This is the status of the address. Possible values are:<ul><li>ACTIVE</li></ul>|
-|defaultShippingAddressIndicator|boolean        |Flag to mark this address as the default shipping address.|
+|state              |string<br/>`length=2`      |This is the state/province/region in which the consumer lives.<br/>For Canada see [Province Codes](#provincecodes). For the United States see [State Codes](#statecodes). Other countries have no restrictions. |
+|zip                |string<br/>`length<=10`    |This is the zip, postal, or post code of the consumer's address.|
+|phone              |string<br/>`length<=15`    |This is the consumer's phone number.|
+|monthsAtAddress    |number                     |This is the number of months the consumer has been living at this address.|
 
 ```apib
             {
-              "nickName":"home",
               "street":"100 Queen Street West",
               "street2":"Unit 201",
               "city":"Toronto",
               "country":"CA",
               "state":"ON",
               "zip":"M5H 2N2",
-              "recipientName":"Jane Doe",
-              "phone":"647-788-3901",
-              "defaultShippingAddressIndicator": true
+              "phone":"647-788-3901"
             }
 ```
 
-<a name="applepaypaymenttokenobject" title="Apple Pay Payment Token Object"></a>
-## applePayPaymentToken
-
-This is the payment data object generated from the iOS device for Apple Pay and used in the request to [create an Apple Pay single-use token](#applepaysingleusetokenrequest).
-
-|Element            |Type                       |Description    |
-|---                |---                        |---       |
-|data               |string<br/>`length<=4000`  |This is the encrypted payment data.|
-|header             |[header](#headerobject)    |This is additional version-dependent information used to decrypt and verify the payment.|
-|signature          |string<br/>`length<=4000`  |This is the signature of the payment and header data.|
-|version            |string<br/>`length<=36`    |This is version information about the payments token. Value is "EC_v1".|
-
-```apib
-            {
-                "applePayPaymentToken": {
-                    "version": "EC_v1",
-                    "data": "<passkit_encrypted_payment_data>",
-                    "signature": "<signature_for_payment_and_header_data>",
-                    "header": {
-                        "transactionId": "b53e22ef6669ce7f50951cfd6821908f4e679f050f5a551a1b5f6202253136ae",
-                        "ephemeralPublicKey": "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEB39YqvWZG0NOYjbkL5D61Mxip6uw23Q7m8gWgxL41k4fs0BgJ+MFcIGYOH86kAGL/wjiftDahRkUnzOGls2hzw==",
-                        "publicKeyHash": "O5gJ/P5sQ7ufMZQXA7ccLoOkJ13VNknbu+4K0TaCQXE="
-                    }
-                }
-            }
-```
-
-<a name="applepaysingleusetokenobject" title="Apple Pay Single-Use Token Object"></a>
-## applepaysingleusetoken
-|Element                |Type                        |Description    |
-|---                    |---                        |---       |
-|applePayPaymentToken   |[applePayPaymentToken](#applepaypaymenttokenobject)    | This is the payment data object generated from the iOS device for Apple Pay.|
-|card                   |[card](#cardsobject)       |These are the details of the virtual card.|
-|transaction            |[transaction](#transactionobject)  | These are the Apple Pay transaction details.|
-|paymentToken           |string<br/>`length<=50`    |This is the single-use payment token, returned in the response, to use in the authorization or purchase request in the [Card Payments API](https://developer.paysafe.com/en/cards/api/#/reference/0/authorizations/authorization). |
-|timeToLiveSeconds      |number                     |This is the period of time the single-use token is valid before expiration, in seconds, returned in the response.|
-
-```apib
-            {
-              "paymentToken" : "ABC4AFQQBC5UR5H",
-              "timeToLiveSeconds" : 899,
-              "applePayPaymentToken": {
-                "version": "EC_v1",
-                "signature": "<signature_for_payment_and_header_data>",
-                "header": {
-                  "transactionId": "b53e22ef6669ce7f50951cfd6821908f4e679f050f5a551a1b5f6202253136ae",
-                  "publicKeyHash": "O5gJ/P5sQ7ufMZQXA7ccLoOkJ13VNknbu+4K0TaCQXE="
-                  }
-                },
-              "card": {
-                "lastDigits": "1111",
-                "holderName": "Joe Smith"
-              },
-              "transaction": {
-                "amount": 1000,
-                "currencyCode": "USD"
-              }
-            }
-```
-
-<a name="bacsbankaccountobject" title="BACS Bank Account Object"></a>
-## bacsBankAccount
-|Element            |Type                       |Description    |
-|---                |---                        |---       |
-|id                 |string<br/>`length<=36`    |This is the ID for the request, returned by Paysafe. It can be used later, e.g., to look up or update the bank account.|
-|nickName           |string<br/>`length<=50`    |This is an alias defined by the customer for the bank account (e.g., "Sally's Barclays Account").|
-|merchantRefNum     |string<br/>`length<=255`   |This is the merchant reference number created by the merchant and submitted as part of the request. This value is only stored by the Paysafe system and has no bearing on the request.|
-|status             |enum                       |This is the status of the  request. Possible values are:<ul><li>ACTIVE &ndash; The bank account has been created.</li><li>INVALID &ndash; The bank account is invalid.</li><li>INACTIVE &ndash; The bank account has been deleted.</li></ul><br/>**Note:** By default, the bank account is created with the status of ACTIVE.|
-|statusReason       |string<br/>`length<=255`   |If the status is INVALID, this is a description of why the account is invalid (e.g., account closed).|
-|accountNumber      |string<br/>`length=8`      |This is the bank account number.|
-|accountHolderName  |string<br/>`length<=18`    |This is the name of the customer or company that owns the bank account.|
-|sortCode           |string<br/>`length=6`      |This is the 6-digit sort code that identifies the financial institution and branch of the customer’s bank.|
-|lastDigits         |string<br/>`length=2`      |This is the last two digits of the bank account number.|
-|billingAddressId   |string<br/>`length<=36`    |This is the address ID returned in response to the request to create an address, which will be associated with this bank account.|
-|paymentToken       |string<br/>`length<=50`    |This is a token generated by Paysafe that represents the bank account and is returned in the response to the bank account creation request. It can be used in the place of bank account information in Direct Debit transactions.|
-|mandates           |list                       |This is one or more mandates associated with the bank account.
-
-```apib
-            {
-                "nickName": "S sort co",
-                "accountHolderName": "Sally Barnes",
-                "accountNumber": "51120172",
-                "sortCode": "086081",
-                "billingAddressId": "60022f38-fd17-4731-909c-923930d0d5d4",
-                "mandates": [ {
-                  "reference": "ABCDEFGHIJ"
-                } ]
-            }
-```
-
-<a name="billingaddressobject" title="Billing Address Object"></a>
-## billingAddress
-|Element            |Type                       |Description                        |
-|---                |---                        |---       |
-|nickName           |string<br/>`length<=50`    |This is an alias defined by the customer for this address (e.g., "home address").|
-|street             |string<br/>`length<=50`    |This is the first line of the customer's street address.|
-|street2            |string<br/>`length<=50`    |This is the second line of the customer's street address, if required (e.g., apartment number).|
-|city               |string<br/>`length<=40`    |This is the city where the address is located.|
-|state              |string<br/>`length<=40`    |This is the state/province/region in which the customer lives.<br/>For Canada see [Province Codes](#provincecodes). For the United States see [State Codes](#statecodes). Other countries have no restrictions.|
-|zip                |string<br/>`length<=10`    |This is the zip, postal, or post code of the customer's address.|
-|country            |string<br/>`length=2`      |This is the country where the address is located. See [Country Codes](#countrycodes).|
-
-```apib
-            {
-              "nickName":"home",
-              "street":"100 Queen Street West",
-              "street2":"Unit 201",
-              "city":"Toronto",
-              "state":"ON",
-              "zip":"M5H 2N2",
-              "country":"CA"
-            }
-```
-
-<a name="cardexpiryobject" title="Card Expiry Object"></a>
-## cardExpiry
-|Element            |Type                       |Description    |
-|---                |---                        |---            |
-|month              |number<br/>`length=2`      |This is the month the card expires.|
-|year               |number<br/>`length=4`      |This is the year the card expires.|
-
-```apib
-            {
-              "cardExpiry":{
-                "month":"12",
-                "year":"2019"
-              }
-            }
-```
-
-<a name="cardsobject" title="Cards Object"></a>
-## cards
+<a name="dateobject" title="Date Object"></a>
+## Date
 |Element            |Type                           |Description    |
 |---                |---                            |---            |
-|id                 |string<br/>`length<=36`        |This is the card ID returned by Paysafe that can be used later to look up or update a card on the profile.|
-|nickName           |string<br/>`length<=50`        |This is an alias defined by the customer for this card (e.g., "corporate card").|
-|merchantRefNum     |string<br/>`length<=255`       |This is the merchant’s own card identification, which can be included in the request if desired. This value is only stored by the Paysafe system and has no bearing on the request.|
-|holderName         |string<br/>`length<=160`       |This is the name of the card holder.|
-|cardNum            |string<br/>`length=8-20`       |This is the card number.|
-|cardBin            |string<br/>`length<=6`         |This is the card BIN (typically the first 6 digits).|
-|lastDigits         |string<br/>`length<=4`         |This is the last digits of the card number.|
-|cardExpiry         |[cardexpiry](#cardexpiryobject)    |   |
-|cardType           |enum                           |This is the type of card associated with the profile. Possible values are:<ul><li>AM = American Express</li><li>DC = Diners Club</li><li>DI = Discover</li><li>MC = Mastercard</li><li>VI =Visa</li></ul><br/>This value is determined by the system and returned in the response.|
-|billingAddress     |[billingAddress](#billingaddressobject) |   |
-|billingAddressId   |string<br/>`length<=36`        |This is the ID returned in response to the creation of the address that will be associated with this card. **Note:** Although the *billingAddressID* parameter is optional, it is recommended that you include it when you create the card because Authorization or Purchase requests in the [Card Payments API](https://developer.paysafe.com/en/payments/cards/api/#/introduction/overview) that use the resulting payment token will fail AVS checks unless there is a billing address associated with it. If you do not include it when creating the card, you should then update the card with the *billingAddressId* at a later time before using it for transaction requests.|
-|defaultCardIndicator   |boolean                    |This indicates whether this is the default card for this profile, and is returned in the response. Possible values are:<ul><li>true</li><li>false</li></ul>|
-|paymentToken       |string<br/>`length<=50`        |This is a token generated by Paysafe that represents the card and is returned in the response to the card creation request. It can be used for subsequent payments in our payment APIs.|
-|singleUseToken     |string<br/>`length<=36`        |This is the paymentToken returned in the response to a single-use token creation request. You can use this token to create a card to be stored in a customer profile.|
-|status             |enum                           |This is the status of the card. Possible values are:<ul><li>ACTIVE</li></ul>
+|year               |number<br/>`length=4 min=1900` |This is the date year.|
+|month              |number<br/>`length=2 max=12`   |This is the date month.|
+|day                |number<br/>`length=2 max=31`   |This is the date day.|
 
 ```apib
             {
-              "nickName" : "John's corporate Visa",
-              "holderName" : "MR. JOHN SMITH",
-              "cardNum" : "4111111111111111",
-              "cardExpiry" : {
-                "month" : 12,
-                "year" : 2019
-              }
-            }
-```
-
-
-<a name="dateofbirthobject" title="Date of Birth Object"></a>
-## dateOfBirth
-|Element            |Type                           |Description    |
-|---                |---                            |---            |
-|year               |number<br/>`length=4 min=1900` |This is the year of birth.|
-|month              |number<br/>`length=2 max=12`   |This is the month of birth.|
-|day                |number<br/>`length=2 max=31`   |This is the day of birth.|
-
-```apib
-            { 
-               "dateOfBirth": {
-                  "year": 1980,
-                  "month": 12,
-                  "day": 25
-                }
-            }
-```
-
-<a name="eftbankaccountobject" title="EFT Bank Account Object"></a>
-## eftBankAccount
-|Element            |Type                       |Description                        |
-|---                |---                        |---       |
-|id                 |string<br/>`length<=36`    |This is the ID for the request, returned by Paysafe. It can be used later, e.g., to look up or update the bank account.|
-|nickName           |string<br/>`length<=50`    |This is an alias defined by the customer for the bank account (e.g., "CIBC Account").|
-|merchantRefNum     |string<br/>`length<=255`   |This is the merchant reference number created by the merchant and submitted as part of the request. This value is only stored by the Paysafe system and has no bearing on the request.|
-|status             |enum                       |This is the status of the  request. Possible values are:<ul><li>ACTIVE &ndash; The bank account has been created.</li><li>INVALID &ndash; The bank account is invalid.</li><li>INACTIVE &ndash; The bank account has been deleted.</li></ul><br/>**Note:** By default, the bank account is created with the status of ACTIVE.|
-|statusReason       |string<br/>`length<=255`   |If the status is INVALID, this is a description of why the account is invalid (e.g., account closed).|
-|accountNumber      |string<br/>`length=4-12`   |This is the bank account number.|
-|accountHolderName  |string<br/>`length<=30`    |This is the name of the customer or company that owns the bank account.|
-|transitNumber      |string<br/>`length=5`      |This is the 5-digit transit number of the customer's bank branch.|
-|institutionId      |string<br/>`length=3`      |This is the 3-digit institution ID of the customer’s bank branch.
-|lastDigits         |string<br/>`length=2`      |This is the last two digits of the bank account number.|
-|billingAddressId   |string<br/>`length<=36`    |This is the address ID returned in response to the request to create an address, which will be associated with this bank account.|
-|paymentToken       |string<br/>`length<=50`    |This is a token generated by Paysafe that represents the bank account and is returned in the response to the bank account creation request. It can be used in the place of bank account information in Direct Debit transactions.|
-
-```apib
-            {
-                "nickName" : "Sally's Bank of Montreal Account",
-                "accountHolderName": "Sally",
-                "accountNumber" : "511201",
-                "transitNumber" : "25039",
-                "institutionId" : "001",
-                "billingAddressId": "60022f38-fd17-4731-909c-923930d0d5d4",
+                "year": 1980,
+                "month": 12,
+                "day": 25
             }
 ```
 
