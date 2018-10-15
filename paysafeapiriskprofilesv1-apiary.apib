@@ -7,6 +7,8 @@ HOST: https://api.test.paysafe.com/riskprofiles/
 - I see field descriptions referring to business owners (e.g., business owner's address). Should this be consumer?
 - The Account Management API uses *yearsAtAddress* (and not *monthsAtAddress*)
 - Max for *phone* element is 15; for other APIs it's 40.
+- in the AML Assist response, what is the "credit file" that is being referred to?
+- for AML, have to explain difference between a single source and a dual source being hit.
 
 # Release Notes
 
@@ -474,8 +476,8 @@ The Paysafe Test environment can be used to test websites or applications. It is
 
 # Complex JSON Objects
 
-<a name="addressobject" title="Address Object"></a>
-## Address
+<a name="currentaddressobject" title="currentAddress Object"></a>
+## currentAddress
 
 |Element            |Type                       |Description    |
 |---                |---                        |---       |
@@ -497,9 +499,59 @@ The Paysafe Test environment can be used to test websites or applications. It is
               "country":"CA",
               "state":"ON",
               "zip":"M5H 2N2",
-              "phone":"647-788-3901"
+              "phone":"647-788-3901",
+              "monthsAtAddress":"50"
             }
 ```
+
+<a name="amlassistobject" title="amlassist Object"></a>
+## amlassist
+|Element            |Type                               |Description    |
+|---                |---                                |---            |
+|id                 |string <br/>`length<=36`           |This is the *amlasist* ID generated for the request, returned in the response.|
+|status             |enum                               |This is the risk decision. See the [amlassist Decision Matrix Table](#amlassisttable) for details. |
+|response            |[response](#amlassistresponseobject)    |   |
+
+
+<a name="amlassisttable" title="AML Assist Decision Matrix Table"></a>
+### AML Assist Decision Matrix Table
+|Single Source          |Single Source Decision     | Dual Source           |Dual Source Decision   |Final Result |
+|---                    |---                        |---                    |---                    |---            |
+|Credit file found      |Fail                       |Trade info found       |Fail                   |FAIL           |
+|Credit file found      |Fail                       |Trade info found       |Success                |SUCCESS        |
+|Credit file found      |Success                    |Trade info not found   |Fail                   |SUCCESS        |
+|Credit file not found  |Fail                       |Trade info found       |Fail                   |FAIL           |
+|Credit file not found  |Fail                       |Trade info found       |Success                |SUCCESS        |
+|Credit file not found  |Fail                       |Trade info not found   |Fail                   |FAIL   |   
+
+<a name="amlassistresponseobject" title="AML Assist Response Object"></a>
+## AML Assist response
+|Element            |Type                               |Description    |
+|---                |---                                |---            |
+|creditFileNumber   |string                             |This is the credit file number retrieved from AML Assist. |
+|isCreditFileGreaterThanThreeYearsOld   |boolean        |This indicates whether the credit file is greater than three years old.|
+|isSingleSourceHit  |boolean                            |This indicates whether a single source has been hit. |
+|isDualSourceHit                        | boolean       | This indicates whether a dual source has been hit. |
+|isLastNameMatched                      | boolean       | This indicates whether the last name matched. |
+|isFirstNameMatched                     | boolean       | This indicates whether the first name matched. |
+|isMiddleNameMatched                    | boolean       | This indicates whether the middle name matched. |
+|isDateOfBirthMatch                     | boolean       | This indicates whether the date of birth matched.  |
+|isAddressCivicMatch                    | boolean       | This indicates whether the civic number of the address matched. |
+|isAddressStreetNameMatch               | boolean       | This indicates whether the address street name matched. |
+|isAddressCityMatch                     | boolean       | This indicates whether the address city matched. |
+|isAddressPostalCodeMatch               | boolean       | This indicates whether the address postal code matched. |
+|isAddressProvinceMatch                 | boolean       | This indicates whether the address province matched. |
+|creditFileCreationDate                 | [creditFileCreationDate](#dateobject) | This is the date on which credit file was created. |
+|numberOfTrades                         |integer        | This is the number of trades on credit file. Applicable if single source has been hit. |
+| response.singleSourceDecision        | Boolean | Decision obtained from single source. Applicable if single source has been hit.                |
+| response.dualSourceDecision          | Boolean | Decision obtained from dual source. Applicable if dual source has been hit.                    |
+| response.institutionName             | String  | Institution name retrieved from the AML Assist output. Applicable if dual source has been hit. |
+| response.accountNumber               | String  | Account name retrieved from the AML Assist output.Applicable if dual source has been hit.      |
+| response.familyName                  | String  | Family name retrieved from the AML Assist output. Applicable if dual source has been hit.      |
+| response.isNameAndDobMatch           | Boolean | Indicates if Name and DOB match or not. Applicable if dual source has been hit.                |
+| response.isNameAndAddressMatch       | Boolean | Indicates if name and address match or not. Applicable if dual source has been hit.            |
+| response.isNameAndAccountNumberMatch | Boolean | Indicates if Name and Account number match or not. Applicable if dual source has been hit.     |
+| error                                | complex | Error details in case of any errors while doing the vendor check                               |
 
 <a name="dateobject" title="Date Object"></a>
 ## Date
@@ -523,282 +575,65 @@ The Paysafe Test environment can be used to test websites or applications. It is
 |---                |---        |---               |
 |code               |string     |The error code.   |
 |message            |string     |A description of the error. Also shown in the X-Application-Status-Code response header.  |
-|fieldErrors        |string array     |Details of any parameter value errors (optional). One or more field:error pairs, where field is the field name and error is the error in the field.      |
-|links              |string array     |One or more rel/href pairs, where rel is "errorinfo", and href is the Developer Center URL containing a description of the error.|
+|details            |string array |This is the detailed error description, if applicable. |
+|fieldErrors        |string array     |Details of any parameter value errors (optional). One or more field:error pairs, where field is the field name and error is the error in the field. |
 
 ```apib
-"error":{  
+{  
    "code":"5068",
    "message":"Either you submitted a request that is missing a mandatory field or the value of a field does not match the format expected.",
+   "details":[
+     "Illegal unquoted character ((CTRL-CHAR, code 10)): has to be escaped using backslash to be included in string value at  [line: 2, column: 61]"
+     ],
    "fieldErrors":[  
       {  
          "field":"locale",
          "error":"Invalid Locale"
       }
-   ],
-   "links":[  
-      {  
-         "rel":"errorinfo",
-         "href":"https://developer.paysafe.com/en/documentation/customer-vault-api/error-5068"
-      }
    ]
 }
 ```
 
-If you specify an attribute unique to an existing profile, there is also a separate links object &ndash; an array of *rel:href* pairs &ndash; with the following elements:
-
-|Element        |Type       |Description       |
-|---            |---        |---               |
-|rel            |string     |The text "existing_entity"  |
-|href           |string     |The URL to use to look up the existing profile.  |
-
-<a name="headerobject" title="Header Object"></a>
-## header
-|Element            |Type       |Description    |
-|---                |---        |---            |
-|applicationData    |string     |This is a hash of the [applicationData](https://developer.apple.com/library/prerelease/ios/documentation/PassKit/Reference/PKPaymentRequest_Ref/index.html#//apple_ref/occ/instp/PKPaymentRequest/applicationData) property of the original [PKPaymentRequest](https://developer.apple.com/library/prerelease/ios/documentation/PassKit/Reference/PKPaymentRequest_Ref/index.html#//apple_ref/occ/cl/PKPaymentRequest) object. If the value of that property is nil, this key is omitted.|
-|transactionId      |string     |This is the transaction identifier, generated on the device.|
-|ephemeralPublicKey |string     |This is the ephemeral public key bytes (X.509 encoded key bytes, Base64 encoded string).|
-|publicKeyHash      |string     |This is a hash of the x.509 encoded public key bytes of the merchant's certificate as a Base64 encoded string.|
-
-```apib
-            {
-              "header": {
-                        "transactionId": "b53e22ef6669ce7f50951cfd6821908f4e679f050f5a551a1b5f6202253136ae",
-                        "ephemeralPublicKey": "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEB39YqvWZG0NOYjbkL5D61Mxip6uw23Q7m8gWgxL41k4fs0BgJ+MFcIGYOH86kAGL/wjiftDahRkUnzOGls2hzw==",
-                        "publicKeyHash": "O5gJ/P5sQ7ufMZQXA7ccLoOkJ13VNknbu+4K0TaCQXE="
-                }
-            }
-```
-
-<a name="mandatesobject" title="Mandates Object"></a>
-## mandates
+<a name="profileobject" title="Profile Object"></a>
+## Profile
 |Element            |Type                               |Description    |
 |---                |---                                |---            |
-|id                 |string<br/>`length<=36`            |This is the bank account ID returned by Paysafe that can be used later to look up or update a mandate.|
-|reference          |string<br/>`For BACS length<=10`<br/>`For SEPA length<=35` |This is the identifier of the mandate in the banking system. SEPA allowed characters are A-Z0-9 (),-./?. BACS allowed characters are A-Z0-9 .&/- and the reference must begin with A-Z or 0-9.|
-|bankAccountId      |string<br/>`length<=36`            |This is the bank account that this mandate belongs to.|
-|status             |enum                               |This is the mandate status. Possible values are:<ul><li>INITIAL – The mandate has been created but is not ready to be batched</li><li>PENDING – The mandate is ready to be batched</li><li>DECLINED – The mandate was not accepted for batching</li>BATCHED – The mandate has been batched (sent into the bacs system)</li><li>ACTIVE – The mandate has been batch for more than 5 business days and no returns have been received that would invalidate it</li><li>CANCELLED – The mandate has been cancelled</li><li>REJECTED – A return has been received that prevents the mandate from being used in a transaction</li><li>DISPUTED – A return has been received that disputes the mandates validity</li><li>INACTIVE – The mandate has been deleted</li></ul>|
-|paymentToken       |string<br/>`length<=50`            |This is a token generated by Paysafe that represents the mandate and is returned in the response to the mandate creation request. It can be used for payments in our payment APIs.|
-|statusChangeDate   |string                             |The date that the status was last changed|
-|statusReasonCode   |string<br/>`length<=2`             |In the case of a REJECTED or DISPUTED status, the reason code received in a return|
-|statusReason       |string<br/>`length<=255`           |In the case of a REJECTED or DISPUTED status, the text description for why the mandate was returned (e.g. bank account closed)|
-
-```apib
-            {
-              "reference": "SUBSCRIP10"
-            }
-```
-
-<a name="googlepaypaymenttokenobject" title="Google Pay Payment Token Object"></a>
-## googlePayPaymentToken
-
-This is the payment data object generated from the Android device for Google Pay and used in the request to [create a Google Pay single-use token](#googlepaymentapisingleusetokenrequest).
-
-|Element            |Type                       |Description    |
-|---                |---                        |---       |
-|signature          |string                     |This is the signature of the payment data.|
-|protocolVersion    |string                     |This is version information about the payments token.|
-|signedMessage      |string                     |This is a UTF-8 encoded, serialized JSON dictionary with values for *encryptedMessage*, *ephemeralPublicKey*, and *tag*.|
-|ephemeralPublicKey |string<br/>`length<=4000`  |This is the ephemeral public key associated with the private key to encrypt the message.|
-|tag                |string<br/>`length<=4000`  |This is the MAC (media access control) of the *encryptedMessage*, which is used to verify the integrity of the *encryptedMessage*. |
-|authMethod         |string                     |This is a constant for 3D Secure requests. |
-|tdsCryptogram      |string                     |This is the 3D Secure cryptogram.  |
-|tdsEciIndicator    |string                     |This is the 3D Secure ECI indicator. |
-|paymentMethod      |enum                       |This indicates the status of the card. <ul><li>TOKENIZED_CARD &ndash; The card has been tokenized with Android Pay</li><li>CARD_ON_FILE &ndash; The card has been stored by Google </li></ul>|
-|messageId          |string                     |This is a unique ID to identify the message in case it needs to be located later. |
-|messageExpiration  |string                     |This is the length of time, in seconds, the message is valid. |
-
-```apib
-            {
-                "googlePayPaymentToken": {
-                    "signature": "BCTSvnX1fF6b64NPlKwJl1r1dAfF0vAWHoktOS4CwH1BocAjnBHfHvKyX2CSM7jf7Cv1b6YfrQMkY9+hgE0dzgY=",
-                    "protocolVersion":"ECv1",
-                    "signedMessage":"signed_message_from_google_payment_api"
-                }
-            }
-```
-
-<a name="googlepaysingleusetokenobject" title="Google Pay Single-Use Token Object"></a>
-## googlepaysingleusetoken
-|Element                |Type                       |Description    |
-|---                    |---                        |---       |
-|googlePayPaymentToken |[googlePayPaymentToken](#googlepaypaymenttokenobject)    | This is the payment data object generated from the Android device.|
-|card                   |[card](#cardsobject)       | These are the details of the virtual card.|
-|paymentToken           |string<br/>`length<=50`    | This is the single-use payment token to use in the authorization or purchase request in the [Card Payments API](https://developer.paysafe.com/en/cards/api/#/reference/0/authorizations/authorization).|
-|timeToLiveSeconds      |number                     | This is the period of time the single-use token is valid before expiration, in seconds, returned in the response.|
-
-```apib
-                {
-                    "paymentToken": "GTCJskXfjWqo34U",
-                    "timeToLiveSeconds": 899,
-                    "googlePayPaymentToken": {
-                        "ephemeralPublicKey": "BCTSvnX1fF6b64NPlKwJl1r1dAfF0vAWHoktOS4CwH1BocAjnBHfHvKyX2CSM7jf7Cv1b6YfrQMkY9+hgE0dzgY=",
-                        "tag": "8EKZt7vGFjtvuukkWlc5U93h+PBxjB7YKJF/w32Wfk8=",
-                        "authMethod": "3DS",
-                        "tdsCryptogram": "AgAAAAAABk4DWZ4C28yUQAAAAAA=",
-                        "tdsEciIndicator": "07",
-                        "paymentMethod": "TOKENIZED_CARD",
-                        "messageId": "AH2EjtfdYZ6GzEduMx5KnnTyAwfuB7fzoIQD483zShYR7Az29Hwx7_6kS5PlD_1A_zHght_YSl2-FxEsKXWW3fF2ZTJMgbrxBUYvYLOzDnLT3X0dYppVbFpVT0_WyCOmKC9UdrTYWDdl",
-                        "messageExpiration": "1506708174199"
-                    },
-                    "card": {
-                        "status": "ACTIVE",
-                        "cardBin": "411111",
-                        "lastDigits": "8298",
-                        "cardType": "VI"
-                    }
-                }
-```
-
-<a name="profilesobject" title="Profiles Object"></a>
-## profiles
-|Element            |Type                               |Description    |
-|---                |---                                |---            |
-|id                 |string <br/>`length<=36`           |This is the ID returned in the response.|
-|status             |enum                               |This is the status of the customer profile. Possible values are:<br/><ul><li>INITIAL</li><li>ACTIVE</li></ul><br/>By default the system automatically sets the profile status to an ACTIVE state. If you want to prevent the profile from being used for payments, you can set the status to an INITIAL state (e.g., in cases where you first want to validate the customer).|
-|merchantCustomerId |string <br/>`length<=100`          |This is a customer ID that the merchant provides with the request for their own internal customer identification. This value must be unique for each customer belonging to a merchant. In NETBANX this is known as the Ref ID.|
-|locale             |enum                               |This indicates the language of the profile. Possible values are:<ul><li>en_US</li><li>fr_CA</li><li>en_GB</li></ul>
-|firstName          |string <br/>`length<=80`           |This is the customer’s first name. |
-|middleName         |string <br/>`length<=80`           |This is the customer’s middle name. |
-|lastName           |string <br/>`length<=80`           |This is the customer’s last name. |
+|firstName          |string <br/>`length<=80`           |This is the consumer’s first name. |
+|middleName         |string <br/>`length<=80`           |This is the consumer’s middle name. |
+|lastName           |string <br/>`length<=80`           |This is the consumer’s last name. |
+|ssn                |string <br/>`length<=10`           |This is the consumer's Social Security Number. |
+|sin                |string <br/>`length<=9`            |This is the consumer's Social Insurance Number. |
+|ssnLastFour        |string <br/>`length=4`             |This is the last four digits of the consumer's Social Security Number, returned in the response. |
+|sinLastFour        |string <br/>`length=4`             |This is the last four digits of the consumer's Social Insurance Number, returned in the response. |
+|email              |string<br/>`length<=128`           |This is the consumer's email address.|
+|locale             |enum                               |This indicates the language of the profile. Possible values are:<ul><li>en_CA</li><li>fr_CA</li></ul> |
+|currentAddress     |[currentAddress](#addressobject)   |This is the consumer's address. |
 |dateOfBirth        |[dateOfBirth](#dateofbirthobject)  |This is the customer's date of birth.|
-|ip                 |string<br/>`length<=46`            |This is the customer’s IP address.|
-|gender             |enum                               |This is the customer’s gender. Possible values are:<ul><li>M (male)</li><li>F (female)</li></ul>
-|nationality        |string<br/>`length<=30`            |This is the customer’s nationality.|
-|email              |string<br/>`length<=255`           |This is the customer's email address.|
-|phone              |string<br/>`length<=40`            |This is the customer's phone number.|
-|cellPhone          |string<br/>`length<=40`            |This is the customer's cell phone number.|
-|paymentToken       |string><br/>`length<=50`           |This is a token generated by Paysafe that represents the customer and returned in the response to the profile request.|
-|addresses          |[addresses](#addressesobject)      |These are the addresses associated with this profile.|
-|card               |[cards](#cardsobject)              |These are the cards associated with this profile.|
-|achbankaccounts    |[achbankaccounts](#achbankaccountobject)    |These are the ACH bank accounts associated with this profile.|
-|bacsbankaccounts   |[bacsbankaccounts](#bacsbankaccountobject)  |These are the BACS bank accounts associated with this profile.|
-|eftbankaccounts    |[eftbankaccounts](#eftbankaccountobject)    |These are the EFT bank accounts associated with this profile.|
-|sepabankaccounts   |[sepabankaccounts](#sepabankaccountobject)  |These are the SEPA bank accounts associated with this profile.|
-|recipient          |[recipient](#recipientobject)      |This allows additional data to be included with a profile and then used in an Authorization request using a payment token in the Card Payments API.|
-
-```apib
-            {
-              "merchantCustomerId":"mycustomer1",
-              "locale" : "en_US",
-              "firstName" : "John",
-              "lastName" : "Smith",
-              "email" : "john.smith@somedomain.com",
-              "phone" : "713-444-5555"
-             }
-```
-<a name="recipientobject" title="recipient Object"></a>
-## recipient
-
-When you add recipient data to a profile, that data will be used in the authorization request if you use the payment token from a credit card associated with that profile.
-
-The recipient is deemed to be the person or party who has the contractual relationship with the merchant/financial institution. This may be different from the cardholder, e.g., in the case of a parent topping up a child's savings account. Therefore, the fields should not be collected on the same page as cardholder information, but instead be passed in the background from the merchant’s records.
-
-**Note:** You can include *recipient* elements in your [authorization request](#authrequest) **only if** your Merchant Category Code is **6012** and your registered trading address is in the United Kingdom. All fields are optional. However, scheme fines may apply if data is consistently not supplied and chargebacks persist. If you have any questions, contact your account manager. 
-
-|Element                    |Type                       |Description                        |
-|---                        |---                        |---                                |
-|dateOfBirth                |[dateOfBirth](#dateofbirthobject) |This is the recipient's date of birth. |
-|zip                        |string<br/>`length<=10`    |This is the recipient's postcode.<br/>**Note:** The last 3 characters are not sent to the banking network.|
-|lastName                   |string<br/>`length<=255`   |This is the recipient's last name.<br/>**Note:** Only the first 6 characters are sent to the banking network.|
-|accountNumber              |string<br/>`length<=25`    |This is the recipient's account number, e.g., a loan agreement number or customer ID. In the case where the recipient account is a prepaid card, the card number may be sent in full.<br/>**Note:** Only the first 6 and last 4 characters are sent to the banking network and will be masked accordingly within the back office and any other reports, to comply with PCI regulations.|
+|previousAddresses  |[previousAddresses](#addressobject) | This is an array of the consumer's previous addresses. **Note:** If *monthsAtAddress* in the *currentAddress* object is 24 or less, the risk check request will have a greater probability of being successful if a previous address is included.|
 
 ```apib
     {
-    "recipient": {
-        "dateOfBirth": {
-            "day": 29,
-            "month": 1,
-            "year": 2001
-        },
-        "zip": "CB24 9AD",
+        "firstName": "John",
         "lastName": "Smith",
-        "accountNumber": "ABC1234567890"
+        "sin": "123456789",
+        "email": "john.smith@myemail.com",
+        "dateOfBirth": {
+            "year": 1980,
+            "month": 12,
+            "day": 25
+        },
+        "currentAddress": {
+            "street": "100 Queen Street West",
+            "street2": "Unit 201",
+            "city": "Toronto",
+            "country": "CA",
+            "state": "ON",
+            "zip": "M5H 2N2",
+            "phone": "647-788-3901",
+            "monthsAtAddress":"50"
+        },
+        "phone": "713-444-5555"
     }
-    }
-```
-
-<a name="sepabankaccountobject" title="SEPA Bank Account Object"></a>
-## sepaBankAccount
-Element            |Type                        |Description                        |
-|---                |---                        |---       |
-|id                 |string<br/>`length<=36`    |This is the ID for the request, returned by Paysafe. It can be used later, e.g., to look up or update the bank account.|
-|nickName           |string<br/>`length<=50`    |This is an alias defined by the customer for the bank account (e.g., "ABN Account").|
-|merchantRefNum     |string<br/>`length<=255`   |This is the merchant reference number created by the merchant and submitted as part of the request. This value is only stored by the Paysafe system and has no bearing on the request.|
-|status             |enum                       |This is the status of the  request. Possible values are:<ul><li>ACTIVE &ndash; The bank account has been created.</li><li>INVALID &ndash; The bank account is invalid.</li><li>INACTIVE &ndash; The bank account has been deleted.</li></ul><br/>**Note:** By default, the bank account is created with the status of ACTIVE.|
-|statusReason       |string<br/>`length<=255`   |If the status is INVALID, this is a description of why the account is invalid (e.g., account closed).|
-|iban               |string<br/>`length<=34`    |This is the international bank account number.|
-|bic                |string<br/>`length=8-11`   |This is the bank identification code.|
-|accountHolderName  |string<br/>`length<=32`    |This is the name of the customer or company that owns the bank account.|
-|lastDigits         |string<br/>`length=2`      |This is the last two digits of the bank account number.|
-|billingAddressId   |string<br/>`length<=36`    |This is the address ID returned in response to the request to create an address, which will be associated with this bank account.|
-|paymentToken       |string<br/>`length<=50`    |This is a token generated by Paysafe that represents the bank account and is returned in the response to the bank account creation request. It can be used in the place of bank account information in Direct Debit transactions.|
-|mandates           |list                       |This is one or more mandates associated with the bank account.|
-
-```apib
-            {
-                "nickName": "Sally's Account",
-                "accountHolderName": "Sally Barnes",
-                "iban": "NL77ABNA0492122466",
-                "bic": "ABNANL2A",
-                "billingAddressId": "60022f38-fd17-4731-909c-923930d0d5d4",
-                "mandates": [
-                {
-                  "reference": "ABCDEF0987"
-                }
-                ]
-            }
-```
-
-<a name="singleusetokenobject" title="Single-Use Token Object"></a>
-## singleusetoken
-|Element                |Type                      |Description    |
-|---                    |---                       |---       |
-|id                     |string<br/>`length<=36`   ||This is an ID returned by Paysafe.|
-|card                   |[card](#cardsobject)      |These are the details of the card.|
-|billingAddress         |[billingAddress](#billingaddressobject) |This is the billing address associated with the card.|
-|paymentToken           |string<br/>`length<=50`    |This is the single-use payment token for the mobile device.|
-|timeToLiveSeconds      |number                     |This is the period of time the single-use token is valid before expiration, in seconds, returned in the response.|
-
-```apib
-            {
-                "paymentToken": "SCovFNfF0xnGSmZf",
-                "timeToLiveSeconds": 899,
-                "billingAddress": {
-                    "street": "100 Queen Street",
-                    "street2": "201",
-                    "city": "Toronto",
-                    "country": "CA",
-                    "state": "ON",
-                    "zip": "M5H 2N2"
-                },
-                "card": {
-                    "cardBin": "411111",
-                    "lastDigits": "1111",
-                    "cardExpiry": {
-                        "year": 2020,
-                        "month": 12
-                    },
-                    "holderName": "John Smith",
-                    "cardType": "VI"
-                }
-            }
-```
-
-
-<a name="transactionobject" title="Transaction Object"></a>
-## transaction
-|Element            |Type                           |Description    |
-|---                |---                            |---            |
-|amount             |number<br>`max=99999999999`    |This is the amount of the request, in minor units.<br/>For example, to process US $10.99, this value should be 1099. To process 1000 Japanese yen, this value should be 1000. To process 10.139 Tunisian dinar, this value should be 10139.<br/>**Note:** For a currency that has 3 decimal units, our system will half round up the least significant digit. Therefore, a transaction of 10.139 Tunisian dinar would be processed as 10.14.|
-|currencyCode       |string<br/>`length<=3`         |This is the currency of the merchant account, e.g., USD or CAD, returned in the request response.<br/>See [Currency Codes](#currencycodes)|
-
-```apib
-            {
-              "amount": 2500,
-              "currencyCode":"CAD"
-            }
 ```
 
 # Error Summary
