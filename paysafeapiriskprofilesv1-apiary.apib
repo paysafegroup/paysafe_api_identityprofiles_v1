@@ -6,10 +6,9 @@ HOST: https://api.test.paysafe.com/v1/riskprofiles/
 **QUESTIONS**
 - Team will make sure that field types/limits will be consistent with all of our other existing RESTful APIs on the Developer Center.
 - Make sure the placement of the "v1" in the endpoint is consistent with our other APIs, e.g., https://api.test.paysafe.com/accountmanagement/v1/merchants.
-- In the EID Compare response, object has "atomicScore" but example has "atomicScores". Also, table says it is a string but the JSON example looks like it is an object that can have multiple values. THIS IS JUST A RAW VALUE FROM EQUIFAX.
-- I need more information on vendorCheck and workFlowId. E.g., is "eidcompare" the only value allowed for vendorCheck? If a string, what is max value allowed? What values are permitted for workFlowId (besides LOW_RISK)? How does the merchant know which one to use (either vendorCheck or workFlowId)? MERCHANT WILL BE TOLD WHEN THEY ARE ONBOARDED WHICH ONE TO USE, AND WHAT VALUE TO USE.
-- The rerun request is run in the case of an ERROR status.
-- Should we keep OUTSORT? Note that the DECISION comes from Paysafe, as a result of the STATUS values returned by Equifax.
+- Will need max/min values for all parameters eventually. For example, for *monthsAtAddress*, what is max field length?
+- Are there going to be errors specific to this API? E.g., see this page for Card Payments API: https://developer.paysafe.com/en/rest-apis/cards/test-and-go-live/card-errors/ 
+- Should we keep OUTSORT? 
 
 # Release Notes
 
@@ -482,7 +481,7 @@ The Paysafe Test environment can be used to test websites or applications. It is
 |Element            |Type                                   |Description    |
 |---                |---                                    |---            |
 |id                 |string <br/>`length<=36`               |This is the *amlassist* ID generated for the request, returned in the response.|
-|status             |enum                                   |This is the risk decision. See the [amlassist Decision Matrix Table](#amlassisttable) for details. |
+|status             |enum                                   |This is the risk decision from the downstream provider. See the [amlassist Decision Matrix Table](#amlassisttable) for details. |
 |response           |[response](#amlassistresponseobject)   |   |
 |error              |[error](#errorobject)                  |These are error details in case of any errors occurring while doing the vendor check. |
 
@@ -527,7 +526,7 @@ The Paysafe Test environment can be used to test websites or applications. It is
 
 If the downstream provider cannot find a credit file using a single source, it will attempt to find a credit file using a second source.
 
-|Single Source          |Single Source Decision     | Dual Source           |Dual Source Decision   |Final Result |
+|Single Source          |Single Source Decision     | Dual Source           |Dual Source Decision   |Final Status |
 |---                    |---                        |---                    |---                    |---            |
 |Credit file found      |Fail                       |Trade info found       |Fail                   |FAIL           |
 |Credit file found      |Fail                       |Trade info found       |Success                |SUCCESS        |
@@ -662,7 +661,7 @@ This is part of the raw response from the downstream provider.
               "state":"ON",
               "zip":"M5H 2N2",
               "phone":"647-788-3901",
-              "monthsAtAddress":"50"
+              "monthsAtAddress":"20"
             }
 ```
 
@@ -732,7 +731,7 @@ This is the raw response from the downstream provider.
 |assessmentComplete     |[assessmentComplete](#assessmentcompleteobject)   |This is an array of reason codes from Equifax. |
 |atomicScores           |[atomicScores](#atomicscoresobject) |                                |
 |decision               |string   |This is the risk decision returned by Equifax. Possible values are: <ul><li>??</li></ul>                     |
-|score                  |string   |This is the overall risk score computed by Equifax.   |
+|score                  |string   |This is the risk score computed by Equifax.   |
 
 ```apib
     {
@@ -809,7 +808,7 @@ This is the raw response from the downstream provider.
               "state":"ON",
               "zip":"M5H 2N2",
               "phone":"647-788-3901",
-              "monthsAtAddress":"50"
+              "monthsAtAddress":"30"
             }
 ```
 
@@ -849,7 +848,7 @@ This is the raw response from the downstream provider.
             "state": "ON",
             "zip": "M5H 2N2",
             "phone": "647-788-3901",
-            "monthsAtAddress":"50"
+            "monthsAtAddress":"20"
         }
     }
 ```
@@ -1133,7 +1132,7 @@ This is how you submit a risk check request.
                 "vendorCheck": "eidcompare",
                 "providerResponses": {
                     "eidcompare": {
-                        "id": "eidcomapreResId",
+                        "id": "0f1266b9-ce28-4df2-bc3f-d4b746cc1ced",
                         "status": "SUCCESS",
                         "response": {
             
@@ -1188,13 +1187,16 @@ This is how you submit a risk check request.
             }
 
 
-# Rerun Failed Risk Check [/risk_check_id/rerunFailedChecks]
-<a name="rerunriskcheckrequest" title="Rerun Failed Risk Check"></a>
+# Rerun a Risk Check [/risk_check_id/rerunFailedChecks]
+<a name="rerunriskcheckrequest" title="Rerun Risk Check"></a>
 
-## Rerun a Failed Risk Check [POST /{risk_check_id}/rerunFailedChecks]
+## Rerun a Risk Check [POST /{risk_check_id}/rerunFailedChecks]
 <a name="riskcheckrequest" title="Run a Risk Check"></a>
 
-This is how you submit a failed risk check request. 
+This is how you submit a request to rerun a risk check request. 
+
+ - You can rerun a risk check request when the *decision* in the response to the initial request is **ERROR**, which could mean that the initial risk check request could not be completed. 
+ - Do not rerun a risk check request if the *decision* in the response to the initial request is **FAIL**. You will get the same FAIL status if you resubmit it.
 
 + Parameters
 
@@ -1257,7 +1259,7 @@ This is how you submit a failed risk check request.
                 "vendorCheck": "eidcompare",
                 "providerResponses": {
                     "eidcompare": {
-                        "id": "eidcomapreResId",
+                        "id": "0f1266b9-ce28-4df2-bc3f-d4b746cc1ced",
                         "status": "SUCCESS",
                         "response": {
             
@@ -1313,6 +1315,44 @@ This is how you submit a failed risk check request.
 
 # Data Structures
 
+## AML Assist
+
++ `amlAssist` (object) - This includes a response from a downstream provider.
+
+    _Read Only_
+
+    + Properties
+        + `id`: `d4b746cc1ced-ce28-4df2-bc3f-d4b746cc1ced-0f1266b9` (string) - This is the ID generated for the request, returned in the response.
+            _length<=36_
+        + `status`: `SUCCESS` (enum) - This is the risk decision.
+            
+            + Members
+                - SUCCESS
+                - FAIL
+                - ERROR
+        + Include AML Assist Response
+
+## AML Assist Response
+
++ `response` (object) - This is a sample of some of the response parameters [returned by the downstream provider](#amlassistresponseobject).
+
+    + Properties
+        + `creditFileNumber`: `65462` (string)
+        + `creditFileGreaterThanThreeYearsOld`: `true` (boolean)
+        + `isSingleSourceHit`: `true` (boolean)
+
+## Assessment Complete
++ `assessmentComplete` (object)
+
+    + Properties
+        + Include Reason Codes
+
+## Atomic Scores
++ `atomicScores` (object)
+
+    + Properties
+        + `interactiveQueryScore`: `-1`
+
 ## Current Address
 
 + `currentAddress` (object, required)
@@ -1344,6 +1384,33 @@ This is how you submit a failed risk check request.
         _length=2_, _max=12_
     + `day`: `25` (number, required) - This is the date day.
         _length=2_, _max=31_
+
+## EID Compare
+
++ `eidCompare` (object) - This includes a response from a downstream provider.
+
+    _Read Only_
+    
+    + Properties
+        + `id`: `0f1266b9-ce28-4df2-bc3f-d4b746cc1ced` (string) - This is the ID generated for the request, returned in the response.
+            _length<=36_
+        + `status`: `SUCCESS` (enum) - This is the risk decision.
+            
+            + Members
+                - SUCCESS
+                - FAIL
+                - ERROR
+        + Include EID Compare Response
+
+## EID Compare Response
+
++ `response` (object) - This is a response from a downstream provider.
+
+    + Properties
+        + Include Assessment Complete
+        + Include Atomic Scores
+        + `decision`: `Y` (string) - This is a decision from the downstream provider.
+        + `score`: `25` (string) - This is a score from the downstream provider.
 
 ## Previous Addresses
 + `previousAddresses` (array) - This is an array of the consumer's previous addresses. **Note:** If *monthsAtAddress* in the *currentAddress* object is 24 or less, the risk check request will have a greater probability of being successful if a previous address is included.
@@ -1396,13 +1463,26 @@ This is how you submit a failed risk check request.
 + Include Date of Birth
 + Include Previous Addresses
 
+## Provider Responses
++ `providerResponses` (object)
+
+    + Include EID Compare
+    + Include AML Assist
+
+## Reason Codes
++ `reasonCodes` (object)
+
+    + Properties
+        + `description`: `Telephone exchange does not match the FSA (first three characters) of the postal code for Current Address.` (string)
+        + `code`: `08` (number) 
+
 ## Risk Check
 
 + `id`: `25f6dadf-176a-415f-95c9-6ff39ff697ba` (string) - This is the ID returned in the response.
 
     _Read Only_, _length<=36_
 
-+ `decision`: `SUCCESS` (enum) - This is the overall risk check decision.
++ `decision`: `SUCCESS` (enum) - This is the overall risk check decision returned by Paysafe, based on responses by downstream providers.
 
     + Members
         + `SUCCESS`
@@ -1418,9 +1498,7 @@ This is how you submit a failed risk check request.
 + `customerIp`: `1.1.1.1` (string) - This is the consumer's IP address.
     _length<=39_
 + One of
-    + `vendorCheck`: `eidcompare` (string, required) - This is the  You must include either *vendorCheck* or *workFlowId* but not both.
+    + `vendorCheck`: `eidcompare` (string, required) - This is the  You must include either *vendorCheck* or *workFlowId* but not both. Upon onboarding, Paysafe will instruct the merchant on which parameter to use as well as which value to provide for the parameter.
         _length<=80_
-    + `workFlowId`: `LOW_RISK` (enum, required) - This is the You must include either *vendorCheck* or *workFlowId* but not both.
-    
-        + Members
-            + `LOW_RISK`
+    + `workFlowId`: `LOW_RISK` (string, required) - This is the You must include either *vendorCheck* or *workFlowId* but not both. Upon onboarding, Paysafe will instruct the merchant on which parameter to use as well as which value to provide for the parameter.
++ Include Provider Responses
