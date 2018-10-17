@@ -1,16 +1,15 @@
 FORMAT: 1A
-HOST: https://api.test.paysafe.com/riskprofiles/
+HOST: https://api.test.paysafe.com/v1/riskprofiles/
 
 # Paysafe Risk Check API
 
 **QUESTIONS**
-- I see field descriptions referring to business owners (e.g., business owner's address). Should this be consumer?
-- The Account Management API uses *yearsAtAddress* (and not *monthsAtAddress*)
-- Max for *phone* element is 15; for other APIs it's 40.
-- in the AML Assist response, what is the "credit file" that is being referred to?
-- for AML, have to explain difference between a single source and a dual source being hit.
-- in the EID Compare response, object has "atomicScore" but example has "atomicScores". Also, table says it is a string but the JSON example looks like it is an object that can have multiple values.
-- Confluence page has a "providerResponse" object; but code sample has "providerResponses". I assume the code sample is correct.
+- Team will make sure that field types/limits will be consistent with all of our other existing RESTful APIs on the Developer Center.
+- Make sure the placement of the "v1" in the endpoint is consistent with our other APIs, e.g., https://api.test.paysafe.com/accountmanagement/v1/merchants.
+- In the EID Compare response, object has "atomicScore" but example has "atomicScores". Also, table says it is a string but the JSON example looks like it is an object that can have multiple values. THIS IS JUST A RAW VALUE FROM EQUIFAX.
+- I need more information on vendorCheck and workFlowId. E.g., is "eidcompare" the only value allowed for vendorCheck? If a string, what is max value allowed? What values are permitted for workFlowId (besides LOW_RISK)? How does the merchant know which one to use (either vendorCheck or workFlowId)? MERCHANT WILL BE TOLD WHEN THEY ARE ONBOARDED WHICH ONE TO USE, AND WHAT VALUE TO USE.
+- The rerun request is run in the case of an ERROR status.
+- Should we keep OUTSORT? Note that the DECISION comes from Paysafe, as a result of the STATUS values returned by Equifax.
 
 # Release Notes
 
@@ -525,6 +524,9 @@ The Paysafe Test environment can be used to test websites or applications. It is
 
 <a name="amlassisttable" title="AML Assist Decision Matrix Table"></a>
 ### AML Assist Decision Matrix Table
+
+If the downstream provider cannot find a credit file using a single source, it will attempt to find a credit file using a second source.
+
 |Single Source          |Single Source Decision     | Dual Source           |Dual Source Decision   |Final Result |
 |---                    |---                        |---                    |---                    |---            |
 |Credit file found      |Fail                       |Trade info found       |Fail                   |FAIL           |
@@ -536,11 +538,14 @@ The Paysafe Test environment can be used to test websites or applications. It is
 
 <a name="amlassistresponseobject" title="AML Assist Response Object"></a>
 ## AML Assist response
-|Element            |Type                               |Description    |
-|---                |---                                |---            |
-|creditFileNumber   |string                             |This is the credit file number retrieved from AML Assist. |
+
+This is the raw response from the downstream provider.
+
+|Element                                |Type           |Description    |
+|---                                    |---            |---            |
+|creditFileNumber                       |string         |This is the number for the credit file retrieved from AML Assist. |
 |isCreditFileGreaterThanThreeYearsOld   |boolean        |This indicates whether the credit file is greater than three years old.|
-|isSingleSourceHit  |boolean                            |This indicates whether a single source has been hit. |
+|isSingleSourceHit                      |boolean        |This indicates whether a single source has been hit. |
 |isDualSourceHit                        | boolean       | This indicates whether a dual source has been hit. |
 |isLastNameMatched                      | boolean       | This indicates whether the last name matched. |
 |isFirstNameMatched                     | boolean       | This indicates whether the first name matched. |
@@ -621,9 +626,11 @@ The Paysafe Test environment can be used to test websites or applications. It is
 <a name="atomicscoresobject" title="atomicScores Object"></a>
 ## atomicScores
 
-|Element            |Type                       |Description    |
-|---                |---                        |---       |
-|interactiveQueryScore  |string                 |**??** |
+This is part of the raw response from the downstream provider.
+
+|Element                |Type                       |Description    |
+|---                    |---                        |---       |
+|interactiveQueryScore  |string                     |This value comes in the response from the downstream provider. |
 
 ```apib
     {
@@ -717,6 +724,9 @@ The Paysafe Test environment can be used to test websites or applications. It is
 
 <a name="eidcompareresponseobject" title="EID Compare Response Object"></a>
 ## EID Compare response
+
+This is the raw response from the downstream provider.
+
 | Element               | Type    | Description                                                       |
 |-----------------------|---------|-------------------------------------------------------------------|
 |assessmentComplete     |[assessmentComplete](#assessmentcompleteobject)   |This is an array of reason codes from Equifax. |
@@ -774,6 +784,33 @@ The Paysafe Test environment can be used to test websites or applications. It is
       }
    ]
 }
+```
+
+<a name="previousaddressesobject" title="Previous Addresses Object"></a>
+## previousAddresses
+|Element            |Type                       |Description    |
+|---                |---                        |---       |
+|apartment          |string<br/>`length<=50`    |This is the consumer's apartment number, if applicable.|
+|street             |string<br/>`length<=255`   |This is the first line of the consumer's street address.|
+|street2            |string<br/>`length<=255`   |This is the second line of the consumer's street address, if required.|
+|city               |string<br/>`length<=255`   |This is the city where the address is located.|
+|country            |string<br/>`length=2`      |This is the country where the address is located. See [Country Codes](#countrycodes).|
+|state              |string<br/>`length=2`      |This is the state/province/region in which the consumer lives.<br/>For Canada see [Province Codes](#provincecodes). For the United States see [State Codes](#statecodes). Other countries have no restrictions. |
+|zip                |string<br/>`length<=10`    |This is the zip, postal, or post code of the consumer's address.|
+|phone              |string<br/>`length<=15`    |This is the consumer's phone number.|
+|monthsAtAddress    |number                     |This is the number of months the consumer has been living at this address.|
+
+```apib
+            {
+              "street":"100 Queen Street West",
+              "street2":"Unit 201",
+              "city":"Toronto",
+              "country":"CA",
+              "state":"ON",
+              "zip":"M5H 2N2",
+              "phone":"647-788-3901",
+              "monthsAtAddress":"50"
+            }
 ```
 
 <a name="profileobject" title="Profile Object"></a>
@@ -999,10 +1036,10 @@ This call returns a status of READY if the API is available.
                 "status" : "READY"
             }
 
-# Risk Check [/riskprofiles]
+# Risk Check [/]
 <a name="riskcheckrequest" title="Risk Check Request"></a>
 
-## Run a Risk Check [POST /riskprofiles/v1]
+## Run a Risk Check [POST ]
 <a name="riskcheckrequest" title="Run a Risk Check"></a>
 
 This is how you submit a risk check request. 
@@ -1031,9 +1068,18 @@ This is how you submit a risk check request.
                         "state": "ON",
                         "country": "CA",
                         "zip": "M5H 2N2",
-                        "monthsAtAddress": "50",
+                        "monthsAtAddress": "20",
                         "phone": "647-788-3901"
                     },
+                    "previousAddresses": [{
+                        "city": "Calgary",
+                        "state": "AB",
+                        "street": "2124 Westchester street",
+                        "street2": "string",
+                        "zip": "M2H 2G6",
+                        "country": "CA",
+                        "monthsAtAddress": "30"
+                    }],
                     "dateOfBirth": {
                         "day": "25",
                         "month": "12",
@@ -1064,9 +1110,18 @@ This is how you submit a risk check request.
                         "state": "ON",
                         "country": "CA",
                         "zip": "M5H 2N2",
-                        "monthsAtAddress": "50",
+                        "monthsAtAddress": "20",
                         "phone": "647-788-3901"
                     },
+                    "previousAddresses": [{
+                        "city": "Calgary",
+                        "state": "AB",
+                        "street": "2124 Westchester street",
+                        "street2": "string",
+                        "zip": "M2H 2G6",
+                        "country": "CA",
+                        "monthsAtAddress": "30"
+                    }],
                     "dateOfBirth": {
                         "day": "25",
                         "month": "12",
@@ -1075,7 +1130,6 @@ This is how you submit a risk check request.
                     "sinLastFour": "6789"
                 },
                 "customerIp": "1.1.1.1",
-                "workflowId": "LOW_RISK",
                 "vendorCheck": "eidcompare",
                 "providerResponses": {
                     "eidcompare": {
@@ -1134,7 +1188,213 @@ This is how you submit a risk check request.
             }
 
 
+# Rerun Failed Risk Check [/risk_check_id/rerunFailedChecks]
+<a name="rerunriskcheckrequest" title="Rerun Failed Risk Check"></a>
+
+## Rerun a Failed Risk Check [POST /{risk_check_id}/rerunFailedChecks]
+<a name="riskcheckrequest" title="Run a Risk Check"></a>
+
+This is how you submit a failed risk check request. 
+
++ Parameters
+
+    + risk_check_id:`86dcb68d-cbd0-4878-8da7-ffc0e6554513` (string, required) - This is the ID returned in the response to the original Risk Check request.
+
++ Attributes
+    + Include Risk Check
+
++ Request Risk Check (application/json)
+
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
+    + Body
+
+            {
+
+            }
+            
++ Response 200 (application/json)
+
+    + Body
+
+            {
+                "id": "86dcb68d-cbd0-4878-8da7-ffc0e6554513",
+                "decision": "SUCCESS",
+                "merchantRefNum": "KYC_1520461749",
+                "profile": {
+                    "firstName": "John",
+                    "lastName": "Smith",
+                    "email": "john.smith@myemail.com",
+                    "currentAddress": {
+                        "street": "100 Queen Street West",
+                        "street2": "Unit 201",
+                        "city": "Toronto",
+                        "state": "ON",
+                        "country": "CA",
+                        "zip": "M5H 2N2",
+                        "monthsAtAddress": "20",
+                        "phone": "647-788-3901"
+                    },
+                    "previousAddresses": [{
+                        "city": "Calgary",
+                        "state": "AB",
+                        "street": "2124 Westchester street",
+                        "street2": "string",
+                        "zip": "M2H 2G6",
+                        "country": "CA",
+                        "monthsAtAddress": "30"
+                    }],
+                    "dateOfBirth": {
+                        "day": "25",
+                        "month": "12",
+                        "year": "1980"
+                    },
+                    "sinLastFour": "6789"
+                },
+                "customerIp": "1.1.1.1",
+                "vendorCheck": "eidcompare",
+                "providerResponses": {
+                    "eidcompare": {
+                        "id": "eidcomapreResId",
+                        "status": "SUCCESS",
+                        "response": {
+            
+                            "assessmentComplete": {
+                                "reasonCodes": [{
+                                    "description": "Telephone exchange does not match the FSA (first three characters) of the postal code for Current Address",
+                                    "code": "08"
+                                }],
+                                "atomicScores": {
+                                    "interactiveQueryScore": -1
+                                },
+                                "decision": "Y",
+                                "score": 25
+                            }
+                        },
+                        "amlassist": {
+                            "id": "amlassistResId",
+                            "status": "SUCCESS",
+                            "response": {
+                                "creditFileNumber": "65462",
+                                "creditFileGreaterThanThreeYearsOld": "True",
+                                "isSingleSourceHit": "True",
+                                "isDualSourceHit": "False",
+                                "isLastNameMatched": "True",
+                                "isFirstNameMatched": "True",
+                                "isMiddleNameMatched": "True",
+                                "isDateOfBirthMatch": "True",
+                                "isAddressCivicMatch": "True",
+                                "isAddressStreetNameMatch": "True",
+                                "isAddressCityMatch": "True",
+                                "isAddressPostalCodeMatch": "True",
+                                "isAddressProvinceMatch": "True",
+                                "creditFileCreationDate": {
+                                    "day": "12",
+                                    "month": "10",
+                                    "year": "2010"
+                                },
+                                "numberOfTrades": "23",
+                                "familyName": "Roz",
+                                "singleSourceDecision": "True",
+                                "dualSourceDecision": null,
+                                "institutionName": "institute",
+                                "accountNumber": "45487852",
+                                "isNameAndDobMatch": "True",
+                                "isNameAndAddressMatch": "True",
+                                "isNameAndAccountNumberMatch": "True"
+            
+                            }
+                        }
+                    }
+                }
+            }
+
 # Data Structures
+
+## Current Address
+
++ `currentAddress` (object, required)
+    + `apartment`: `11` (string) -  This is the consumer's apartment number, if applicable.
+        _length<=50_
+    + `street`: `100 Queen Street West` - (string, required) - This is the first line of the consumer's street address.
+        _length<=255_
+    + `street2`: `Building B` (string) - This is the second line of the consumer's street address, if required.
+        _length<=255_
+    + `city`: `Toronto` (string, required) - This is the city where the address is located.
+        _length<=255_
+    + `country`: `CA` (string, required) - This is the country where the address is located. See [Country Codes](#countrycodes).
+        _length=2_
+    + `state`: `ON` (string, required) - This is the state/province/region in which the consumer lives. For Canada see [Province Codes](#provincecodes). For the United States see [State Codes](#statecodes). 
+        _length=2_
+    + `zip`: `M5H 2N2` (string, required) - This is the zip or postal code of the consumer's address.
+        _length<=10_
+    + `phone`: `647-788-3901` (string) - This is the consumer's phone number.
+        _length<=15_
+    + `monthsAtAddress`: `50` (string) - This is the number of months the consumer has been living at this address.
+        _length<=????_
+
+## Date of Birth
+
++ `dateOfBirth` (object, required)
+    + `year`: `1980` (number, required) - This is the date year.
+        _length=4_, _min=1900_
+    + `month`: `12` (number, required) - This is the date month.
+        _length=2_, _max=12_
+    + `day`: `25` (number, required) - This is the date day.
+        _length=2_, _max=31_
+
+## Previous Addresses
++ `previousAddresses` (array) - This is an array of the consumer's previous addresses. **Note:** If *monthsAtAddress* in the *currentAddress* object is 24 or less, the risk check request will have a greater probability of being successful if a previous address is included.
+    + (object)
+        + Properties
+            + `apartment`: `11` (string) -  This is the consumer's apartment number, if applicable.
+                _length<=50_
+            + `street`: `100 Queen Street West` - (string, required) - This is the first line of the consumer's street address.
+                _length<=255_
+            + `street2`: `Building B` (string) - This is the second line of the consumer's street address, if required.
+                _length<=255_
+            + `city`: `Toronto` (string, required) - This is the city where the address is located.
+                _length<=255_
+            + `country`: `CA` (string, required) - This is the country where the address is located. See [Country Codes](#countrycodes).
+                _length=2_
+            + `state`: `ON` (string, required) - This is the state/province/region in which the consumer lives. For Canada see [Province Codes](#provincecodes). For the United States see [State Codes](#statecodes). 
+                _length=2_
+            + `zip`: `M5H 2N2` (string, required) - This is the zip or postal code of the consumer's address.
+                _length<=10_
+            + `phone`: `647-788-3901` (string) - This is the consumer's phone number.
+                _length<=15_
+            + `monthsAtAddress`: `50` (string) - This is the number of months the consumer has been living at this address.
+                _length<=????_
+
+## Profile
++ `firstName`: `John` (string, required) - This is the consumer’s first name. 
+    _length<=80_
++ `middleName`: `James` (string) - This is the consumer’s middle name.
+    _length<=80_
++ `lastName`: `Smith` (string, required) - This is the consumer’s last name.
+    _length<=80_
++ One of
+    + `ssn`: `123456789` (string) - This is the consumer's Social Security Number.
+        _length<=10_    
+    + `sin`: `123456789` (string) - This is the consumer's Social Insurance number
+        _length<=9_
++ `email`: `johnsmith@myemail.com` (string) - This is the consumer's email address.
+    _length<=128_
++ One of
+    + `ssnLastFour`: `6789` (string) - This is the last four digits of the consumer's Social Security Number, returned in the response.
+        _Read Only_, _length=4_
+    + `sinLastFour`: `6789` (string) - This is the last four digits of the consumer's Social Insurance Number, returned in the response.
+        _Read Only_, _length=4_        
++ `locale`: `en_CA` (enum) - This indicates the language of the profile.
+
+    + Members
+        + `en_CA`
+        + `fr_CA`
++ Include Current Address
++ Include Date of Birth
++ Include Previous Addresses
 
 ## Risk Check
 
@@ -1154,6 +1414,13 @@ This is how you submit a risk check request.
 
     _length<=255_
 
-+ `amount`: `100` (number, required) - This is the amount of the request, in minor units.
-
-    _max=99999999999_
++ Include Profile
++ `customerIp`: `1.1.1.1` (string) - This is the consumer's IP address.
+    _length<=39_
++ One of
+    + `vendorCheck`: `eidcompare` (string, required) - This is the  You must include either *vendorCheck* or *workFlowId* but not both.
+        _length<=80_
+    + `workFlowId`: `LOW_RISK` (enum, required) - This is the You must include either *vendorCheck* or *workFlowId* but not both.
+    
+        + Members
+            + `LOW_RISK`
