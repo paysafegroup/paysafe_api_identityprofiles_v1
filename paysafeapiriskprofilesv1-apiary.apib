@@ -4,11 +4,9 @@ HOST: https://api.test.paysafe.com/v1/riskprofiles/
 # Paysafe Risk Check API
 
 **QUESTIONS**
-- Team will make sure that field types/limits will be consistent with all of our other existing RESTful APIs on the Developer Center.
 - Make sure the placement of the "v1" in the endpoint is consistent with our other APIs, e.g., https://api.test.paysafe.com/accountmanagement/v1/merchants.
-- Will need max/min values for all parameters eventually. For example, for *monthsAtAddress*, what is max field length?
-- Are there going to be errors specific to this API? E.g., see this page for Card Payments API: https://developer.paysafe.com/en/rest-apis/cards/test-and-go-live/card-errors/ 
-- Should we keep OUTSORT? 
+- Will need max/min values for all parameters eventually.
+- Errors to come. 
 
 # Release Notes
 
@@ -650,7 +648,7 @@ This is part of the raw response from the downstream provider.
 |state              |string<br/>`length=2`      |This is the state/province/region in which the consumer lives.<br/>For Canada see [Province Codes](#provincecodes). For the United States see [State Codes](#statecodes). Other countries have no restrictions. |
 |zip                |string<br/>`length<=10`    |This is the zip, postal, or post code of the consumer's address.|
 |phone              |string<br/>`length<=15`    |This is the consumer's phone number.|
-|monthsAtAddress    |number                     |This is the number of months the consumer has been living at this address.|
+|monthsAtAddress    |number<br/>`length<=1200`  |This is the number of months the consumer has been living at this address.|
 
 ```apib
             {
@@ -797,7 +795,7 @@ This is the raw response from the downstream provider.
 |state              |string<br/>`length=2`      |This is the state/province/region in which the consumer lives.<br/>For Canada see [Province Codes](#provincecodes). For the United States see [State Codes](#statecodes). Other countries have no restrictions. |
 |zip                |string<br/>`length<=10`    |This is the zip, postal, or post code of the consumer's address.|
 |phone              |string<br/>`length<=15`    |This is the consumer's phone number.|
-|monthsAtAddress    |number                     |This is the number of months the consumer has been living at this address.|
+|monthsAtAddress    |number<br/>`length<=1200`  |This is the number of months the consumer has been living at this address.|
 
 ```apib
             {
@@ -1335,6 +1333,7 @@ This is how you submit a request to rerun a risk check request.
 ## AML Assist Response
 
 + `response` (object) - This is a sample of some of the response parameters [returned by the downstream provider](#amlassistresponseobject).
+    _Read Only_
 
     + Properties
         + `creditFileNumber`: `65462` (string)
@@ -1343,12 +1342,14 @@ This is how you submit a request to rerun a risk check request.
 
 ## Assessment Complete
 + `assessmentComplete` (object)
+    _Read Only_
 
     + Properties
         + Include Reason Codes
 
 ## Atomic Scores
 + `atomicScores` (object)
+    _Read Only_
 
     + Properties
         + `interactiveQueryScore`: `-1`
@@ -1373,7 +1374,7 @@ This is how you submit a request to rerun a risk check request.
     + `phone`: `647-788-3901` (string) - This is the consumer's phone number.
         _length<=15_
     + `monthsAtAddress`: `50` (string) - This is the number of months the consumer has been living at this address.
-        _length<=????_
+        _length<=1200_
 
 ## Date of Birth
 
@@ -1433,7 +1434,7 @@ This is how you submit a request to rerun a risk check request.
             + `phone`: `647-788-3901` (string) - This is the consumer's phone number.
                 _length<=15_
             + `monthsAtAddress`: `50` (string) - This is the number of months the consumer has been living at this address.
-                _length<=????_
+                _length<=1200_
 
 ## Profile
 + `firstName`: `John` (string, required) - This is the consumer’s first name. 
@@ -1483,6 +1484,7 @@ This is how you submit a request to rerun a risk check request.
     _Read Only_, _length<=36_
 
 + `decision`: `SUCCESS` (enum) - This is the overall risk check decision returned by Paysafe, based on responses by downstream providers.
+    _Read Only_
 
     + Members
         + `SUCCESS`
