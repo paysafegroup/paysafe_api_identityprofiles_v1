@@ -4,15 +4,14 @@ HOST: https://api.test.paysafe.com/v1/riskprofiles/
 # Paysafe Risk Check API
 
 **QUESTIONS**
-- Make sure the placement of the "v1" in the endpoint is consistent with our other APIs, e.g., https://api.test.paysafe.com/accountmanagement/v1/merchants.
-- Will need max/min values for all parameters eventually.
-- Errors to come. 
+- To date, no API key needed for requests
+- Cannot reach *monitor* endpoint for either curl -X GET https://api.test.paysafe.com/riskprofiles/monitor or curl -X GET https://api.test.paysafe.com/v1/riskprofiles/monitor
 
 # Release Notes
 
-| Version   | Date          | Details |
-|---        |---            |---      |
-| 1.0       | October 2018  | <ul><li>Document Release</li></ul>     |
+| Version   | Date           | Details |
+|---        |---             |---      |
+| 1.0       | November 2018  | <ul><li>Document Release</li></ul>     |
 
 # Overview
 
@@ -88,16 +87,12 @@ You must not include any of the characters in the following table as values in a
 
 # API
 
-**NOTE:** The endpoints seem odd. Verify what is before their "/v1/riskprofiles/" in Confluence. E.g., see https://api.test.paysafe.com/cardpayments/v1/accounts/account_id/auths/auth_id in Card Payments API.
-
 The Risk Check API allows merchants to ...
 
 The following request types are supported:
 
-**Update hyperlinks once correct sections are created.**
-
-  * [Risk Checks](#profilesrequest)
-  * [Rerun Failed Risk Checks](#addressesrequest)
+  * [Risk Checks](#riskcheckrequest)
+  * [Rerun Failed Risk Checks](#rerunriskcheckrequest)
   
 **API Endpoints** 
 
@@ -105,8 +100,6 @@ The following request types are supported:
  - `https://api.paysafe.com/riskprofiles/v1/risk_profile_id/rerunFailedChecks`
 
 **Resource Patterns**
-
-**FIND OUT IF THERE ARE GETS FOR THESE ENDPOINTS**
 
 |Endpoint URL                                       |Description                            |Action |
 |---                                                |---                                    |---    |
@@ -116,14 +109,14 @@ The following request types are supported:
 
 # Getting Started
 
-You can use the Risk Check API to Click [here](https://developer.paysafe.com/en/rest-api/riskcheck/using-the-api/scenarios/) for some common scenarios for using the Risk Check API.
+You can use the Risk Check API to Click [here](https://developer.paysafe.com/en/rest-apis/riskcheck/using-the-api/scenarios/) for some common scenarios for using the Risk Check API.
 
 **MAKE SURE THE LINK ABOVE IS ACCURATE FOR FLARE CONTENT IN DC.**
 
 
 # Testing Instructions
 
-The Paysafe Test environment can be used to test websites or applications. It is important to make sure that your systems are working correctly before going into a live environment. Click [here](https://developer.paysafe.com/en/rest-api/riskcheck/test-and-go-live/testing-instructions/) for details of using the test environment.
+The Paysafe Test environment can be used to test websites or applications. It is important to make sure that your systems are working correctly before going into a live environment. Click [here](https://developer.paysafe.com/en/rest-apis/riskcheck/test-and-go-live/testing-instructions/) for details of using the test environment.
 
 **MAKE SURE THE LINK ABOVE IS ACCURATE FOR FLARE CONTENT IN DC.**
 
@@ -514,7 +507,10 @@ The Paysafe Test environment can be used to test websites or applications. It is
             "accountNumber": "45487852",
             "isNameAndDobMatch": "True",
             "isNameAndAddressMatch": "True",
-            "isNameAndAccountNumberMatch": "True"
+            "isNameAndAccountNumberMatch": "True",
+            "bureauName": "Equifax Canada",
+            "originOfCreditFile": "CANADA",
+            "dateOfRequest": "2018/10/29 12:00 AM UTC"
         }
     }
 ```
@@ -563,6 +559,9 @@ This is the raw response from the downstream provider.
 |isNameAndDobMatch                      | boolean       | This indicates whether the name and date of birth match. Applicable if dual source has been hit.|
 |isNameAndAddressMatch                  | boolean       | This indicates whether the name and address match. Applicable if dual source has been hit. |
 |isNameAndAccountNumberMatch            | boolean       | This indicates whether the name and account number match. Applicable if dual source has been hit.|
+|bureauName                             | string        | This indicates which bureau the credit file belongs to. |
+|originOfCreditFile                     | string        | This indicates the country of origin of this credit file. |
+|dateOfRequest                          | string        | This indicates the date the credit file was requested. |
 
 ```apib
     {
@@ -592,7 +591,10 @@ This is the raw response from the downstream provider.
         "accountNumber": "45487852",
         "isNameAndDobMatch": "True",
         "isNameAndAddressMatch": "True",
-        "isNameAndAccountNumberMatch": "True"
+        "isNameAndAccountNumberMatch": "True",
+        "bureauName": "Equifax Canada",
+        "originOfCreditFile": "CANADA",
+        "dateOfRequest": "2018/10/29 12:00 AM UTC"
     }
 ```
 
@@ -641,8 +643,8 @@ This is part of the raw response from the downstream provider.
 |Element            |Type                       |Description    |
 |---                |---                        |---       |
 |apartment          |string<br/>`length<=50`    |This is the consumer's apartment number, if applicable.|
-|street             |string<br/>`length<=255`   |This is the first line of the consumer's street address.|
-|street2            |string<br/>`length<=255`   |This is the second line of the consumer's street address, if required.|
+|street             |string<br/>`length<=60`    |This is the first line of the consumer's street address.|
+|street2            |string<br/>`length<=60`    |This is the second line of the consumer's street address, if required.|
 |city               |string<br/>`length<=255`   |This is the city where the address is located.|
 |country            |string<br/>`length=2`      |This is the country where the address is located. See [Country Codes](#countrycodes).|
 |state              |string<br/>`length=2`      |This is the state/province/region in which the consumer lives.<br/>For Canada see [Province Codes](#provincecodes). For the United States see [State Codes](#statecodes). Other countries have no restrictions. |
@@ -684,7 +686,7 @@ This is part of the raw response from the downstream provider.
 ## eidcompare
 | Element                   | Type                                      | Description                                                       |
 |---------------------------|---------                                  |-------------------------------------------------------------------|
-|id                         |string <br/>`length<=36`                   |This is the *eidcompare* ID generated for the request, returned in the response. |
+|id                         |string <br/>`length<=36`                   |This is the *eidCompare* ID generated for the request, returned in the response. |
 |status                     |enum                                       |This is the risk decision. Possible values are: <ul><li>SUCCESS</li><li>FAIL</li><li>ERROR</li></ul> |
 |response                   |[response](#eidcompareresponseobject)      |   |
 |error                      |[error](#errorobject)                      |These are error details in case of any errors occurring while doing the vendor check. |
@@ -728,7 +730,7 @@ This is the raw response from the downstream provider.
 |-----------------------|---------|-------------------------------------------------------------------|
 |assessmentComplete     |[assessmentComplete](#assessmentcompleteobject)   |This is an array of reason codes from Equifax. |
 |atomicScores           |[atomicScores](#atomicscoresobject) |                                |
-|decision               |string   |This is the risk decision returned by Equifax. Possible values are: <ul><li>??</li></ul>                     |
+|decision               |string   |This is the risk decision returned by Equifax. |
 |score                  |string   |This is the risk score computed by Equifax.   |
 
 ```apib
@@ -785,11 +787,14 @@ This is the raw response from the downstream provider.
 
 <a name="previousaddressesobject" title="Previous Addresses Object"></a>
 ## previousAddresses
+
+**Note:** If *monthsAtAddress* in the [*currentAddress* object](#currentaddressobject) is 24 or less, the risk check request will have a greater probability of being successful if a previous address is included.
+
 |Element            |Type                       |Description    |
 |---                |---                        |---       |
 |apartment          |string<br/>`length<=50`    |This is the consumer's apartment number, if applicable.|
-|street             |string<br/>`length<=255`   |This is the first line of the consumer's street address.|
-|street2            |string<br/>`length<=255`   |This is the second line of the consumer's street address, if required.|
+|street             |string<br/>`length<=60`    |This is the first line of the consumer's street address.|
+|street2            |string<br/>`length<=60`    |This is the second line of the consumer's street address, if required.|
 |city               |string<br/>`length<=255`   |This is the city where the address is located.|
 |country            |string<br/>`length=2`      |This is the country where the address is located. See [Country Codes](#countrycodes).|
 |state              |string<br/>`length=2`      |This is the state/province/region in which the consumer lives.<br/>For Canada see [Province Codes](#provincecodes). For the United States see [State Codes](#statecodes). Other countries have no restrictions. |
@@ -814,9 +819,9 @@ This is the raw response from the downstream provider.
 ## profile
 |Element            |Type                               |Description    |
 |---                |---                                |---            |
-|firstName          |string <br/>`length<=80`           |This is the consumer’s first name. |
-|middleName         |string <br/>`length<=80`           |This is the consumer’s middle name. |
-|lastName           |string <br/>`length<=80`           |This is the consumer’s last name. |
+|firstName          |string <br/>`length<=15`           |This is the consumer’s first name. |
+|middleName         |string <br/>`length<=15`           |This is the consumer’s middle name. |
+|lastName           |string <br/>`length<=25`           |This is the consumer’s last name. |
 |ssn                |string <br/>`length<=10`           |This is the consumer's Social Security Number. |
 |sin                |string <br/>`length<=9`            |This is the consumer's Social Insurance Number. |
 |ssnLastFour        |string <br/>`length=4`             |This is the last four digits of the consumer's Social Security Number, returned in the response. |
@@ -856,12 +861,12 @@ This is the raw response from the downstream provider.
 | Element               | Type    | Description                                                       |
 |-----------------------|---------|-------------------------------------------------------------------|
 |amlassist              |[amlassist](#amlassistobject) |                   |
-|eidcompare             |[eidcompare](eidcompareobject)|  |
+|eidCompare             |[eidcompare](eidcompareobject)|  |
 
 ```apib
     {
         "providerResponses": {
-            "eidcompare": {
+            "eidCompare": {
                 "id": "0f1266b9-ce28-4df2-bc3f-d4b746cc1ced",
                 "status": "SUCCESS",
                 "response": {
@@ -916,7 +921,10 @@ This is the raw response from the downstream provider.
                         "accountNumber": "45487852",
                         "isNameAndDobMatch": "True",
                         "isNameAndAddressMatch": "True",
-                        "isNameAndAccountNumberMatch": "True"
+                        "isNameAndAccountNumberMatch": "True",
+                        "bureauName": "Equifax Canada",
+                        "originOfCreditFile": "CANADA",
+                        "dateOfRequest": "2018/10/29 12:00 AM UTC"
                     }
                 }
             }
@@ -991,12 +999,16 @@ This is the raw response from the downstream provider.
 |400                    |5502           |Either the payment token is invalid or the corresponding profile or bank account is not active.|
 
 <a name="riskcheckerrors" title="Risk Check Errors"></a>
-## Customer Vault Errors
-|HTTP Status Code       |Error Code |Description|
-|---                    |---        |---|
-|409                    |           |  |
+## Risk Check Errors
 
-**ERROR CODES TO COME FROM DEVELOPERS**
+**NOTE THAT THIS LIST HAS STILL TO BE UPDATED AND VERIFIED**
+
+|HTTP Status Code   |Error Code |Description|
+|---                |---        |---|
+|???                | 6007      | Gateway internal error.  |
+|???                | 6008      | Gateway responded with an error. |
+|???                | 6009      | Gateway timed out. |
+|???                | 6010      | No credit file available for given input. |
 
 
 # Using the example API calls (Console Window)
@@ -1054,6 +1066,7 @@ This is how you submit a risk check request.
 
             {
                 "merchantRefNum": "KYC_1520461749",
+                "accountId": "PMLEID100",
                 "profile": {
                     "firstName": "John",
                     "lastName": "Smith",
@@ -1085,7 +1098,7 @@ This is how you submit a risk check request.
                     "sin": "123456789"
                 },
                 "customerIp": "1.1.1.1",
-                "vendorCheck": "eidcompare"
+                "vendorCheck": "EID_COMPARE"
             }
             
 + Response 200 (application/json)
@@ -1096,6 +1109,7 @@ This is how you submit a risk check request.
                 "id": "86dcb68d-cbd0-4878-8da7-ffc0e6554513",
                 "decision": "SUCCESS",
                 "merchantRefNum": "KYC_1520461749",
+                "accountId": "PMLEID100",
                 "profile": {
                     "firstName": "John",
                     "lastName": "Smith",
@@ -1127,9 +1141,9 @@ This is how you submit a risk check request.
                     "sinLastFour": "6789"
                 },
                 "customerIp": "1.1.1.1",
-                "vendorCheck": "eidcompare",
+                "vendorCheck": "EID_COMPARE",
                 "providerResponses": {
-                    "eidcompare": {
+                    "eidCompare": {
                         "id": "0f1266b9-ce28-4df2-bc3f-d4b746cc1ced",
                         "status": "SUCCESS",
                         "response": {
@@ -1176,7 +1190,10 @@ This is how you submit a risk check request.
                                 "accountNumber": "45487852",
                                 "isNameAndDobMatch": "True",
                                 "isNameAndAddressMatch": "True",
-                                "isNameAndAccountNumberMatch": "True"
+                                "isNameAndAccountNumberMatch": "True",
+                                "bureauName": "Equifax Canada",
+                                "originOfCreditFile": "CANADA",
+                                "dateOfRequest": "2018/10/29 12:00 AM UTC"
             
                             }
                         }
@@ -1191,7 +1208,9 @@ This is how you submit a risk check request.
 ## Rerun a Risk Check [POST /{risk_check_id}/rerunFailedChecks]
 <a name="riskcheckrequest" title="Run a Risk Check"></a>
 
-This is how you submit a request to rerun a risk check request. 
+This is how you submit a request to rerun a risk check request.
+
+**Note:** The only parameter to include in the request to rerun a risk check is *accountId*. 
 
  - You can rerun a risk check request when the *decision* in the response to the initial request is **ERROR**, which could mean that the initial risk check request could not be completed. 
  - Do not rerun a risk check request if the *decision* in the response to the initial request is **FAIL**. You will get the same FAIL status if you resubmit it.
@@ -1201,9 +1220,9 @@ This is how you submit a request to rerun a risk check request.
     + risk_check_id:`86dcb68d-cbd0-4878-8da7-ffc0e6554513` (string, required) - This is the ID returned in the response to the original Risk Check request.
 
 + Attributes
-    + Include Risk Check
+    + Include Risk Check Rerun
 
-+ Request Risk Check (application/json)
++ Request Rerun Risk Check (application/json)
 
     + Headers
     
@@ -1212,7 +1231,7 @@ This is how you submit a request to rerun a risk check request.
     + Body
 
             {
-
+                "accountId": "PMLEID100"
             }
             
 + Response 200 (application/json)
@@ -1223,6 +1242,7 @@ This is how you submit a request to rerun a risk check request.
                 "id": "86dcb68d-cbd0-4878-8da7-ffc0e6554513",
                 "decision": "SUCCESS",
                 "merchantRefNum": "KYC_1520461749",
+                "accountId": "PMLEID100", 
                 "profile": {
                     "firstName": "John",
                     "lastName": "Smith",
@@ -1254,9 +1274,9 @@ This is how you submit a request to rerun a risk check request.
                     "sinLastFour": "6789"
                 },
                 "customerIp": "1.1.1.1",
-                "vendorCheck": "eidcompare",
+                "vendorCheck": "EID_COMPARE",
                 "providerResponses": {
-                    "eidcompare": {
+                    "eidCompare": {
                         "id": "0f1266b9-ce28-4df2-bc3f-d4b746cc1ced",
                         "status": "SUCCESS",
                         "response": {
@@ -1303,7 +1323,10 @@ This is how you submit a request to rerun a risk check request.
                                 "accountNumber": "45487852",
                                 "isNameAndDobMatch": "True",
                                 "isNameAndAddressMatch": "True",
-                                "isNameAndAccountNumberMatch": "True"
+                                "isNameAndAccountNumberMatch": "True",
+                                "bureauName": "Equifax Canada",
+                                "originOfCreditFile": "CANADA",
+                                "dateOfRequest": "2018/10/29 12:00 AM UTC"
             
                             }
                         }
@@ -1360,9 +1383,9 @@ This is how you submit a request to rerun a risk check request.
     + `apartment`: `11` (string) -  This is the consumer's apartment number, if applicable.
         _length<=50_
     + `street`: `100 Queen Street West` - (string, required) - This is the first line of the consumer's street address.
-        _length<=255_
+        _length<=60_
     + `street2`: `Building B` (string) - This is the second line of the consumer's street address, if required.
-        _length<=255_
+        _length<=60_
     + `city`: `Toronto` (string, required) - This is the city where the address is located.
         _length<=255_
     + `country`: `CA` (string, required) - This is the country where the address is located. See [Country Codes](#countrycodes).
@@ -1438,11 +1461,11 @@ This is how you submit a request to rerun a risk check request.
 
 ## Profile
 + `firstName`: `John` (string, required) - This is the consumer’s first name. 
-    _length<=80_
+    _length<=15_
 + `middleName`: `James` (string) - This is the consumer’s middle name.
-    _length<=80_
+    _length<=15_
 + `lastName`: `Smith` (string, required) - This is the consumer’s last name.
-    _length<=80_
+    _length<=25_
 + One of
     + `ssn`: `123456789` (string) - This is the consumer's Social Security Number.
         _length<=10_    
@@ -1496,11 +1519,43 @@ This is how you submit a request to rerun a risk check request.
 
     _length<=255_
 
++ `accountId`: `PMLEID100` (string, required) - This is the merchant's account ID, provided to the merchant by Paysafe.
+    _length<=20_
 + Include Profile
 + `customerIp`: `1.1.1.1` (string) - This is the consumer's IP address.
     _length<=39_
 + One of
-    + `vendorCheck`: `eidcompare` (string, required) - This is the  You must include either *vendorCheck* or *workFlowId* but not both. Upon onboarding, Paysafe will instruct the merchant on which parameter to use as well as which value to provide for the parameter.
+    + `vendorCheck`: `EID_COMPARE` (string, required) - This is the  You must include either *vendorCheck* or *workflowId* but not both. Upon onboarding, Paysafe will instruct the merchant on which parameter to use as well as which value to provide for the parameter.
         _length<=80_
-    + `workFlowId`: `LOW_RISK` (string, required) - This is the You must include either *vendorCheck* or *workFlowId* but not both. Upon onboarding, Paysafe will instruct the merchant on which parameter to use as well as which value to provide for the parameter.
+    + `workflowId`: `LOW_RISK` (string, required) - This is the You must include either *vendorCheck* or *workflowId* but not both. Upon onboarding, Paysafe will instruct the merchant on which parameter to use as well as which value to provide for the parameter.
++ Include Provider Responses
+
+## Risk Check Rerun
+
++ `id`: `25f6dadf-176a-415f-95c9-6ff39ff697ba` (string) - This is the ID returned in the response.
+
+    _Read Only_, _length<=36_
+
++ `decision`: `SUCCESS` (enum) - This is the overall risk check decision returned by Paysafe, based on responses by downstream providers.
+    _Read Only_
+
+    + Members
+        + `SUCCESS`
+        + `FAIL`
+        + `ERROR`
+        + `OUTSORT`
+
++ `merchantRefNum`: `P1234` (string) - This is the merchant reference number created by the merchant and submitted as part of the request.
+
+    _length<=255_
+
++ `accountId`: `PMLEID100` (string, required) - This is the merchant's account ID, provided to the merchant by Paysafe.
+    _length<=20_
++ Include Profile
++ `customerIp`: `1.1.1.1` (string) - This is the consumer's IP address.
+    _length<=39_
++ One of
+    + `vendorCheck`: `EID_COMPARE` (string) - This is the  You must include either *vendorCheck* or *workflowId* but not both. Upon onboarding, Paysafe will instruct the merchant on which parameter to use as well as which value to provide for the parameter.
+        _length<=80_
+    + `workflowId`: `LOW_RISK` (string) - This is the You must include either *vendorCheck* or *workflowId* but not both. Upon onboarding, Paysafe will instruct the merchant on which parameter to use as well as which value to provide for the parameter.
 + Include Provider Responses
