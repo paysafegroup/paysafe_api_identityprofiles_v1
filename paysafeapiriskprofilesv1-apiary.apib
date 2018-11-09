@@ -15,13 +15,123 @@ HOST: https://api.test.paysafe.com/v1/riskprofiles/
 
 # Overview
 
-**Rewrite overview content** 
+**REWRITE OVERVIEW CONTENT ... SAME AS IN FLARE** 
 
-The Paysafe Risk Check API  ... 
+The Paysafe Risk Check API allows merchants to perform KYC (know your customer) risk checks on their consumers with a single request to the Paysafe Risk Check API.
+  
+  1. You gather some minimal information about the consumer.
+  2. Submit a Risk Check request to Paysafe &ndash; [required parameters are listed here](#riskcheckrequest). The request will look something like this:
+
+    ```apib
+    POST https://api.test.paysafe.com/v1/riskprofiles
+            {
+                "merchantRefNum": "KYC_1520461749",
+                "accountId": "PMLEID100",
+                "profile": {
+                    "firstName": "John",
+                    "lastName": "Smith",
+                    "email": "john.smith@myemail.com",
+                    "currentAddress": {
+                        "street": "100 Queen Street West",
+                        "street2": "Unit 201",
+                        "city": "Toronto",
+                        "state": "ON",
+                        "country": "CA",
+                        "zip": "M5H 2N2",
+                        "monthsAtAddress": "50",
+                        "phone": "647-788-3901"
+                    },
+                    "dateOfBirth": {
+                        "day": "25",
+                        "month": "12",
+                        "year": "1980"
+                    },
+                    "sin": "123456789"
+                },
+                "customerIp": "1.1.1.1",
+                "vendorCheck": "EID_COMPARE"
+            }
+    ```
+  3. Paysafe sends your request to downstream providers, which are determined by the *vendorCheck* and *workflowId* parameters used in the request. When you sign on, Paysafe will instruct you on which parameter to use and what value to provide for it in the request. 
+  4. The response from Paysafe will look something like the example below. Note that this example has been truncated. 
+
+    ```apib
+            {
+                "id": "86dcb68d-cbd0-4878-8da7-ffc0e6554513",
+                "decision": "SUCCESS",
+                "merchantRefNum": "KYC_1520461749",
+                "accountId": "PMLEID100",
+                "profile": {
+                    "firstName": "John",
+                    "lastName": "Smith",
+                    "email": "john.smith@myemail.com",
+                    "currentAddress": {
+                        "street": "100 Queen Street West",
+                        "street2": "Unit 201",
+                        "city": "Toronto",
+                        "state": "ON",
+                        "country": "CA",
+                        "zip": "M5H 2N2",
+                        "monthsAtAddress": "20",
+                        "phone": "647-788-3901"
+                    },
+                    "dateOfBirth": {
+                        "day": "25",
+                        "month": "12",
+                        "year": "1980"
+                    },
+                    "sinLastFour": "6789"
+                },
+                "customerIp": "1.1.1.1",
+                "vendorCheck": "EID_COMPARE",
+                "providerResponses": {
+                    "eidCompare": {
+                        "id": "0f1266b9-ce28-4df2-bc3f-d4b746cc1ced",
+                        "status": "SUCCESS",
+                        "response": {
+                            "assessmentComplete": {
+                                "reasonCodes": [{
+                                    "description": "Telephone exchange does not match the FSA (first three characters) of the postal code for Current Address",
+                                    "code": "08"
+                                }],
+                                "atomicScores": {
+                                    "interactiveQueryScore": -1
+                                },
+                                "decision": "Y",
+                                "score": 25
+                            }
+                        },
+                        "amlassist": {
+                            "id": "amlassistResId",
+                            "status": "SUCCESS",
+                            "response": {
+                                "creditFileNumber": "65462",
+                                "creditFileGreaterThanThreeYearsOld": "True",
+                                ...
+                                "dateOfRequest": "2018/10/29 12:00 AM UTC"
+                            }
+                        }
+                    }
+                }
+            }
+    ```
+  5. In this response, you can see that the *decision* parameter returned has a value of **SUCCESS**. This means the consumer has successfully passed the KYC risk check.
+
+  6. If you receive a value of **ERROR** in the response's *decision* parameter, you can [rerun the risk check request](#rerunriskcheckrequest) to the *rerunFailedChecks* endpoint using the *id* returned in the response. For example, the *id* returned above is *86dcb68d-cbd0-4878-8da7-ffc0e6554513*.
+
+    ```apib
+    POST https://api.test.paysafe.com/v1/riskprofiles/86dcb68d-cbd0-4878-8da7-ffc0e6554513/rerunFailedChecks
+            {
+                "accountId": "PMLEID100"
+            }
+    ```
+Text.
 
 
 <a name="apikey" title="Authentication"></a>
 # Authentication
+
+**THIS SECTION WILL HAVE TO BE REMOVED IF NOT API KEY IS REQUIRED**
 
 In order for you to use the Paysafe REST API, Paysafe must first set you up on their system and provide you with an API key. Your API key looks something like this:
 
@@ -116,9 +226,13 @@ You can use the Risk Check API to Click [here](https://developer.paysafe.com/en/
 
 # Testing Instructions
 
-The Paysafe Test environment can be used to test websites or applications. It is important to make sure that your systems are working correctly before going into a live environment. Click [here](https://developer.paysafe.com/en/rest-apis/riskcheck/test-and-go-live/testing-instructions/) for details of using the test environment.
+The Paysafe Test environment can be used to test applications without running transactions through the Production (live) system. Requests processed in the Test environment are not sent to live downstream providers, but through a simulator. Depending on the information provided with the transaction request, the simulator returns either a successful (approved) or failed (declined) response.
 
-**MAKE SURE THE LINK ABOVE IS ACCURATE FOR FLARE CONTENT IN DC.**
+With the Paysafe API you can test the following:
+
+* Verify support for all the operation types that you require.
+* Review all common errors as well as errors that may occur for each operation, and ensure your application can handle them.
+* Verify the lengths and format for all attributes you send.
 
 <a name="isostandards" title="ISO Standards"></a>
 # ISO Standards
@@ -1005,10 +1119,10 @@ This is the raw response from the downstream provider.
 
 |HTTP Status Code   |Error Code |Description|
 |---                |---        |---|
-|???                | 6007      | Gateway internal error.  |
-|???                | 6008      | Gateway responded with an error. |
-|???                | 6009      | Gateway timed out. |
-|???                | 6010      | No credit file available for given input. |
+|500                | 6007      | Gateway internal error.  |
+|502                | 6008      | Gateway responded with an error. |
+|504                | 6009      | Gateway timed out. |
+|404                | 6010      | No credit file available for given input. |
 
 
 # Using the example API calls (Console Window)
