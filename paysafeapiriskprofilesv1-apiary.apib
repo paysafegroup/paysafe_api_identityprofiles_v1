@@ -6,6 +6,9 @@ HOST: https://api.test.paysafe.com/v1/riskprofiles/
 **QUESTIONS**
 - To date, no API key needed for requests
 - Cannot reach *monitor* endpoint for either curl -X GET https://api.test.paysafe.com/riskprofiles/monitor or curl -X GET https://api.test.paysafe.com/v1/riskprofiles/monitor
+- Need to provide guidance to the merchant when Paysafe's *decision* is OUTSORT.
+- Are there any hard-coded values the merchant needs in order to be able to run the Risk Check request in the Test environment, e.g, accountId or value for vendorCheck?
+- Not sure about using camelcase in endpoint for rerunning a risk check (rerunFailedChecks) ... see, e.g., https://developer.paysafe.com/en/vault/api/#/reference/0/ach-bank-accounts/update-an-ach-bank-account, where "achbankaccounts" is used.
 
 # Release Notes
 
@@ -15,12 +18,12 @@ HOST: https://api.test.paysafe.com/v1/riskprofiles/
 
 # Overview
 
-**REWRITE OVERVIEW CONTENT ... SAME AS IN FLARE** 
-
 The Paysafe Risk Check API allows merchants to perform KYC (know your customer) risk checks on their consumers with a single request to the Paysafe Risk Check API.
+
+The API is easy to use, and once you get a successful KYC response from Paysafe, you can board your consumer with confidence. Here's an overview of the process.
   
   1. You gather some minimal information about the consumer.
-  2. Submit a Risk Check request to Paysafe &ndash; [required parameters are listed here](#riskcheckrequest). The request will look something like this:
+  2. Submit a Risk Check request to Paysafe &ndash; [required parameters are listed here](#riskcheckrequest). The request will look something like this, but you don't need all the information in this example:
 
     ```apib
     POST https://api.test.paysafe.com/v1/riskprofiles
@@ -52,7 +55,7 @@ The Paysafe Risk Check API allows merchants to perform KYC (know your customer) 
                 "vendorCheck": "EID_COMPARE"
             }
     ```
-  3. Paysafe sends your request to downstream providers, which are determined by the *vendorCheck* and *workflowId* parameters used in the request. When you sign on, Paysafe will instruct you on which parameter to use and what value to provide for it in the request. 
+  3. Paysafe sends your request to downstream providers, which are determined by the *vendorCheck* or *workflowId* parameter used in the request. **Note:** When you sign on, Paysafe will instruct you on which parameter to use and what value to provide for it in the request. 
   4. The response from Paysafe will look something like the example below. Note that this example has been truncated. 
 
     ```apib
@@ -72,7 +75,7 @@ The Paysafe Risk Check API allows merchants to perform KYC (know your customer) 
                         "state": "ON",
                         "country": "CA",
                         "zip": "M5H 2N2",
-                        "monthsAtAddress": "20",
+                        "monthsAtAddress": "50",
                         "phone": "647-788-3901"
                     },
                     "dateOfBirth": {
@@ -100,27 +103,17 @@ The Paysafe Risk Check API allows merchants to perform KYC (know your customer) 
                                 "decision": "Y",
                                 "score": 25
                             }
-                        },
-                        "amlassist": {
-                            "id": "amlassistResId",
-                            "status": "SUCCESS",
-                            "response": {
-                                "creditFileNumber": "65462",
-                                "creditFileGreaterThanThreeYearsOld": "True",
-                                ...
-                                "dateOfRequest": "2018/10/29 12:00 AM UTC"
-                            }
                         }
                     }
                 }
             }
     ```
-  5. In this response, you can see that the *decision* parameter returned has a value of **SUCCESS**. This means the consumer has successfully passed the KYC risk check.
+  5. In this response, you can see that the *decision* parameter returned (the second parameter) has a value of **SUCCESS**. This means the consumer has successfully passed the KYC risk check.
 
-  6. If you receive a value of **ERROR** in the response's *decision* parameter, you can [rerun the risk check request](#rerunriskcheckrequest) to the *rerunFailedChecks* endpoint using the *id* returned in the response. For example, the *id* returned above is *86dcb68d-cbd0-4878-8da7-ffc0e6554513*.
+  6. If you receive a value of **ERROR** in the response's *decision* parameter, you can [rerun the risk check request](#rerunriskcheckrequest) to the *rerunfailedchecks* endpoint using the *id* returned in the response. For example, the *id* returned above is *86dcb68d-cbd0-4878-8da7-ffc0e6554513*.
 
     ```apib
-    POST https://api.test.paysafe.com/v1/riskprofiles/86dcb68d-cbd0-4878-8da7-ffc0e6554513/rerunFailedChecks
+    POST https://api.test.paysafe.com/v1/riskprofiles/86dcb68d-cbd0-4878-8da7-ffc0e6554513/rerunfailedchecks
             {
                 "accountId": "PMLEID100"
             }
@@ -131,7 +124,7 @@ Text.
 <a name="apikey" title="Authentication"></a>
 # Authentication
 
-**THIS SECTION WILL HAVE TO BE REMOVED IF NOT API KEY IS REQUIRED**
+**THIS SECTION WILL HAVE TO BE REMOVED IF NO API KEY IS REQUIRED**
 
 In order for you to use the Paysafe REST API, Paysafe must first set you up on their system and provide you with an API key. Your API key looks something like this:
 
@@ -207,14 +200,14 @@ The following request types are supported:
 **API Endpoints** 
 
  - `https://api.paysafe.com/riskprofiles/v1`
- - `https://api.paysafe.com/riskprofiles/v1/risk_profile_id/rerunFailedChecks`
+ - `https://api.paysafe.com/riskprofiles/v1/risk_profile_id/rerunfailedchecks`
 
 **Resource Patterns**
 
 |Endpoint URL                                       |Description                            |Action |
 |---                                                |---                                    |---    |
 |/riskprofiles                                      |Run a Risk Check on a Consumer         |POST   |
-|/riskprofiles/{risk_profile_id}/rerunFailedChecks  |Rerun a Failed Risk Check              |POST   |
+|/riskprofiles/{risk_profile_id}/rerunfailedchecks  |Rerun a Failed Risk Check              |POST   |
 
 
 # Getting Started
@@ -1165,12 +1158,15 @@ This call returns a status of READY if the API is available.
 ## Run a Risk Check [POST ]
 <a name="riskcheckrequest" title="Run a Risk Check"></a>
 
-This is how you submit a risk check request. 
+Click on **Run a Risk Check** above to see two examples of a Risk Check request:
+
+ * Risk check using *vendorCheck*
+ * Risk check using *workflowId*
 
 + Attributes
     + Include Risk Check
 
-+ Request Risk Check (application/json)
++ Request Risk Check Using vendorCheck (application/json)
 
     + Headers
     
@@ -1273,6 +1269,114 @@ This is how you submit a risk check request.
                                 "decision": "Y",
                                 "score": 25
                             }
+                        }
+                    }
+                }
+            }
+
++ Request Risk Check Using workflowId (application/json)
+
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
+    + Body
+
+            {
+                "merchantRefNum": "KYC_1520461749",
+                "accountId": "PMLEID100",
+                "profile": {
+                    "firstName": "John",
+                    "lastName": "Smith",
+                    "email": "john.smith@myemail.com",
+                    "currentAddress": {
+                        "street": "100 Queen Street West",
+                        "street2": "Unit 201",
+                        "city": "Toronto",
+                        "state": "ON",
+                        "country": "CA",
+                        "zip": "M5H 2N2",
+                        "monthsAtAddress": "20",
+                        "phone": "647-788-3901"
+                    },
+                    "previousAddresses": [{
+                        "city": "Calgary",
+                        "state": "AB",
+                        "street": "2124 Westchester street",
+                        "street2": "string",
+                        "zip": "M2H 2G6",
+                        "country": "CA",
+                        "monthsAtAddress": "30"
+                    }],
+                    "dateOfBirth": {
+                        "day": "25",
+                        "month": "12",
+                        "year": "1980"
+                    },
+                    "sin": "123456789"
+                },
+                "customerIp": "1.1.1.1",
+                "workflowId": "LOW_RISK"
+            }
+            
++ Response 200 (application/json)
+
+    + Body
+
+            {
+                "id": "86dcb68d-cbd0-4878-8da7-ffc0e6554513",
+                "decision": "SUCCESS",
+                "merchantRefNum": "KYC_1520461749",
+                "accountId": "PMLEID100",
+                "profile": {
+                    "firstName": "John",
+                    "lastName": "Smith",
+                    "email": "john.smith@myemail.com",
+                    "currentAddress": {
+                        "street": "100 Queen Street West",
+                        "street2": "Unit 201",
+                        "city": "Toronto",
+                        "state": "ON",
+                        "country": "CA",
+                        "zip": "M5H 2N2",
+                        "monthsAtAddress": "20",
+                        "phone": "647-788-3901"
+                    },
+                    "previousAddresses": [{
+                        "city": "Calgary",
+                        "state": "AB",
+                        "street": "2124 Westchester street",
+                        "street2": "string",
+                        "zip": "M2H 2G6",
+                        "country": "CA",
+                        "monthsAtAddress": "30"
+                    }],
+                    "dateOfBirth": {
+                        "day": "25",
+                        "month": "12",
+                        "year": "1980"
+                    },
+                    "sinLastFour": "6789"
+                },
+                "customerIp": "1.1.1.1",
+                "workflowId": "LOW_RISK",
+                "providerResponses": {
+                    "eidCompare": {
+                        "id": "0f1266b9-ce28-4df2-bc3f-d4b746cc1ced",
+                        "status": "SUCCESS",
+                        "response": {
+            
+                            "assessmentComplete": {
+                                "reasonCodes": [{
+                                    "description": "Telephone exchange does not match the FSA (first three characters) of the postal code for Current Address",
+                                    "code": "08"
+                                }],
+                                "atomicScores": {
+                                    "interactiveQueryScore": -1
+                                },
+                                "decision": "Y",
+                                "score": 25
+                            }
                         },
                         "amlassist": {
                             "id": "amlassistResId",
@@ -1316,10 +1420,10 @@ This is how you submit a risk check request.
             }
 
 
-# Rerun a Risk Check [/risk_check_id/rerunFailedChecks]
+# Rerun a Risk Check [/risk_check_id/rerunfailedchecks]
 <a name="rerunriskcheckrequest" title="Rerun Risk Check"></a>
 
-## Rerun a Risk Check [POST /{risk_check_id}/rerunFailedChecks]
+## Rerun a Risk Check [POST /{risk_check_id}/rerunfailedchecks]
 <a name="riskcheckrequest" title="Run a Risk Check"></a>
 
 This is how you submit a request to rerun a risk check request.
@@ -1327,7 +1431,7 @@ This is how you submit a request to rerun a risk check request.
 **Note:** The only parameter to include in the request to rerun a risk check is *accountId*. 
 
  - You can rerun a risk check request when the *decision* in the response to the initial request is **ERROR**, which could mean that the initial risk check request could not be completed. 
- - Do not rerun a risk check request if the *decision* in the response to the initial request is **FAIL**. You will get the same FAIL status if you resubmit it.
+ - Do not rerun a risk check request if the *decision* in the response to the initial request is **FAIL**. You will get the same FAIL decision if you resubmit it.
 
 + Parameters
 
@@ -1341,11 +1445,11 @@ This is how you submit a request to rerun a risk check request.
     + Headers
     
             Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
-
+    
     + Body
 
             {
-                "accountId": "PMLEID100"
+                
             }
             
 + Response 200 (application/json)
@@ -1513,6 +1617,28 @@ This is how you submit a request to rerun a risk check request.
     + `monthsAtAddress`: `50` (string) - This is the number of months the consumer has been living at this address.
         _length<=1200_
 
+## Current Address Rerun
+
++ `currentAddress` (object)
+    + `apartment`: `11` (string) -  This is the consumer's apartment number, if applicable.
+        _Read Only_, _length<=50_
+    + `street`: `100 Queen Street West` - (string) - This is the first line of the consumer's street address.
+        _Read Only_, _length<=60_
+    + `street2`: `Building B` (string) - This is the second line of the consumer's street address, if required.
+        _Read Only_, _length<=60_
+    + `city`: `Toronto` (string) - This is the city where the address is located.
+        _Read Only_, _length<=255_
+    + `country`: `CA` (string) - This is the country where the address is located. See [Country Codes](#countrycodes).
+        _Read Only_, _length=2_
+    + `state`: `ON` (string) - This is the state/province/region in which the consumer lives. For Canada see [Province Codes](#provincecodes). For the United States see [State Codes](#statecodes). 
+        _Read Only_, _length=2_
+    + `zip`: `M5H 2N2` (string) - This is the zip or postal code of the consumer's address.
+        _Read Only_, _length<=10_
+    + `phone`: `647-788-3901` (string) - This is the consumer's phone number.
+        _Read Only_, _length<=15_
+    + `monthsAtAddress`: `50` (string) - This is the number of months the consumer has been living at this address.
+        _Read Only_, _length<=1200_
+
 ## Date of Birth
 
 + `dateOfBirth` (object, required)
@@ -1522,6 +1648,16 @@ This is how you submit a request to rerun a risk check request.
         _length=2_, _max=12_
     + `day`: `25` (number, required) - This is the date day.
         _length=2_, _max=31_
+
+## Date of Birth Rerun
+
++ `dateOfBirth` (object)
+    + `year`: `1980` (number) - This is the date year.
+        _Read Only_, _length=4_, _min=1900_
+    + `month`: `12` (number) - This is the date month.
+        _Read Only_, _length=2_, _max=12_
+    + `day`: `25` (number) - This is the date day.
+        _Read Only_, _length=2_, _max=31_
 
 ## EID Compare
 
@@ -1550,6 +1686,9 @@ This is how you submit a request to rerun a risk check request.
         + `decision`: `Y` (string) - This is a decision from the downstream provider.
         + `score`: `25` (string) - This is a score from the downstream provider.
 
+## Empty
++ 
+
 ## Previous Addresses
 + `previousAddresses` (array) - This is an array of the consumer's previous addresses. **Note:** If *monthsAtAddress* in the *currentAddress* object is 24 or less, the risk check request will have a greater probability of being successful if a previous address is included.
     + (object)
@@ -1573,33 +1712,87 @@ This is how you submit a request to rerun a risk check request.
             + `monthsAtAddress`: `50` (string) - This is the number of months the consumer has been living at this address.
                 _length<=1200_
 
+## Previous Addresses Rerun
++ `previousAddresses` (array) - This is an array of the consumer's previous addresses. **Note:** If *monthsAtAddress* in the *currentAddress* object is 24 or less, the risk check request will have a greater probability of being successful if a previous address is included.
+    + (object)
+        + Properties
+            + `apartment`: `11` (string) -  This is the consumer's apartment number, if applicable.
+                _Read Only_, _length<=50_
+            + `street`: `100 Queen Street West` - (string) - This is the first line of the consumer's street address.
+                _Read Only_, _length<=255_
+            + `street2`: `Building B` (string) - This is the second line of the consumer's street address, if required.
+                _Read Only_, _length<=255_
+            + `city`: `Toronto` (string) - This is the city where the address is located.
+                _Read Only_, _length<=255_
+            + `country`: `CA` (string) - This is the country where the address is located. See [Country Codes](#countrycodes).
+                _Read Only_, _length=2_
+            + `state`: `ON` (string) - This is the state/province/region in which the consumer lives. For Canada see [Province Codes](#provincecodes). For the United States see [State Codes](#statecodes). 
+                _Read Only_, _length=2_
+            + `zip`: `M5H 2N2` (string) - This is the zip or postal code of the consumer's address.
+                _Read Only_, _length<=10_
+            + `phone`: `647-788-3901` (string) - This is the consumer's phone number.
+                _Read Only_, _length<=15_
+            + `monthsAtAddress`: `50` (string) - This is the number of months the consumer has been living at this address.
+                _Read Only_, _length<=1200_
+
 ## Profile
++ `profile` (object, required)
+    + Properties
+        + `firstName`: `John` (string, required) - This is the consumer’s first name. 
+            _length<=15_
+        + `middleName`: `James` (string) - This is the consumer’s middle name.
+            _length<=15_
+        + `lastName`: `Smith` (string, required) - This is the consumer’s last name.
+            _length<=25_
+        + One of
+            + `ssn`: `123456789` (string) - This is the consumer's Social Security Number.
+                _length<=10_    
+            + `sin`: `123456789` (string) - This is the consumer's Social Insurance number
+                _length<=9_
+        + `email`: `johnsmith@myemail.com` (string) - This is the consumer's email address.
+            _length<=128_
+        + One of
+            + `ssnLastFour`: `6789` (string) - This is the last four digits of the consumer's Social Security Number, returned in the response.
+                _Read Only_, _length=4_
+            + `sinLastFour`: `6789` (string) - This is the last four digits of the consumer's Social Insurance Number, returned in the response.
+                _Read Only_, _length=4_        
+        + `locale`: `en_CA` (enum) - This indicates the language of the profile.
+
+            + Members
+                + `en_CA`
+                + `fr_CA`
+        + Include Current Address
+        + Include Date of Birth
+        + Include Previous Addresses
+
+## Profile Rerun
 + `firstName`: `John` (string, required) - This is the consumer’s first name. 
-    _length<=15_
+    _Read Only_, _length<=15_
 + `middleName`: `James` (string) - This is the consumer’s middle name.
-    _length<=15_
+    _Read Only_, _length<=15_
 + `lastName`: `Smith` (string, required) - This is the consumer’s last name.
-    _length<=25_
+    _Read Only_, _length<=25_
 + One of
     + `ssn`: `123456789` (string) - This is the consumer's Social Security Number.
-        _length<=10_    
+        _Read Only_, _length<=10_    
     + `sin`: `123456789` (string) - This is the consumer's Social Insurance number
-        _length<=9_
+        _Read Only_, _length<=9_
 + `email`: `johnsmith@myemail.com` (string) - This is the consumer's email address.
-    _length<=128_
+    _Read Only_, _length<=128_
 + One of
     + `ssnLastFour`: `6789` (string) - This is the last four digits of the consumer's Social Security Number, returned in the response.
         _Read Only_, _length=4_
     + `sinLastFour`: `6789` (string) - This is the last four digits of the consumer's Social Insurance Number, returned in the response.
         _Read Only_, _length=4_        
 + `locale`: `en_CA` (enum) - This indicates the language of the profile.
+    _Read Only_
 
     + Members
         + `en_CA`
         + `fr_CA`
-+ Include Current Address
-+ Include Date of Birth
-+ Include Previous Addresses
++ Include Current Address Rerun
++ Include Date of Birth Rerun
++ Include Previous Addresses Rerun
 
 ## Provider Responses
 + `providerResponses` (object)
@@ -1624,10 +1817,10 @@ This is how you submit a request to rerun a risk check request.
     _Read Only_
 
     + Members
-        + `SUCCESS`
-        + `FAIL`
-        + `ERROR`
-        + `OUTSORT`
+        + `SUCCESS` - The consumer has successfully passed the Risk Check.
+        + `FAIL` - The consumer has failed the Risk Check.
+        + `ERROR` - The Risk Check could not be processed. In this case you can attempt to [rerun the request](#rerunriskcheckrequest).
+        + `OUTSORT` - The Risk Check was inconclusive. The merchant should collect additional documents to manually verify the consumer.
 
 + `merchantRefNum`: `P1234` (string, required) - This is the merchant reference number created by the merchant and submitted as part of the request.
 
@@ -1654,22 +1847,23 @@ This is how you submit a request to rerun a risk check request.
     _Read Only_
 
     + Members
-        + `SUCCESS`
-        + `FAIL`
-        + `ERROR`
-        + `OUTSORT`
+        + `SUCCESS` - The consumer has successfully passed the Risk Check.
+        + `FAIL` - The consumer has failed the Risk Check.
+        + `ERROR` - The Risk Check could not be processed. In this case you can attempt to [rerun the request](#rerunriskcheckrequest).
+        + `OUTSORT` - The Risk Check was inconclusive. The merchant should collect additional documents to verify the consumer with a manual review.
 
 + `merchantRefNum`: `P1234` (string) - This is the merchant reference number created by the merchant and submitted as part of the request.
 
-    _length<=255_
+    _Read Only_, _length<=255_
 
 + `accountId`: `PMLEID100` (string, required) - This is the merchant's account ID, provided to the merchant by Paysafe.
-    _length<=20_
-+ Include Profile
+    _Read Only_, _length<=20_
++ Include Profile Rerun
 + `customerIp`: `1.1.1.1` (string) - This is the consumer's IP address.
-    _length<=39_
+    _Read Only_, _length<=39_
 + One of
     + `vendorCheck`: `EID_COMPARE` (string) - This is the  You must include either *vendorCheck* or *workflowId* but not both. Upon onboarding, Paysafe will instruct the merchant on which parameter to use as well as which value to provide for the parameter.
-        _length<=80_
+        _Read Only_, _length<=80_
     + `workflowId`: `LOW_RISK` (string) - This is the You must include either *vendorCheck* or *workflowId* but not both. Upon onboarding, Paysafe will instruct the merchant on which parameter to use as well as which value to provide for the parameter.
+        _Read Only_
 + Include Provider Responses
