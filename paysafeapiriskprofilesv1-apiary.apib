@@ -4,11 +4,9 @@ HOST: https://api.test.paysafe.com/v1/riskprofiles/
 # Paysafe Risk Check API
 
 **QUESTIONS**
-- To date, no API key needed for requests
-- Cannot reach *monitor* endpoint for either curl -X GET https://api.test.paysafe.com/riskprofiles/monitor or curl -X GET https://api.test.paysafe.com/v1/riskprofiles/monitor
-- Need to provide guidance to the merchant when Paysafe's *decision* is OUTSORT.
+- Have not been able to reach the *monitor* endpoint in Test, for either curl -X GET https://api.test.paysafe.com/riskprofiles/monitor or curl -X GET https://api.test.paysafe.com/v1/riskprofiles/monitor.
 - Are there any hard-coded values the merchant needs in order to be able to run the Risk Check request in the Test environment, e.g, accountId or value for vendorCheck?
-- Not sure about using camelcase in endpoint for rerunning a risk check (rerunFailedChecks) ... see, e.g., https://developer.paysafe.com/en/vault/api/#/reference/0/ach-bank-accounts/update-an-ach-bank-account, where "achbankaccounts" is used.
+- Is Global Invalid Characters section below accurate?
 
 # Release Notes
 
@@ -18,113 +16,11 @@ HOST: https://api.test.paysafe.com/v1/riskprofiles/
 
 # Overview
 
-The Paysafe Risk Check API allows merchants to perform KYC (know your customer) risk checks on their consumers with a single request to the Paysafe Risk Check API.
-
-The API is easy to use, and once you get a successful KYC response from Paysafe, you can board your consumer with confidence. Here's an overview of the process.
-  
-  1. You gather some minimal information about the consumer.
-  2. Submit a Risk Check request to Paysafe &ndash; [required parameters are listed here](#riskcheckrequest). The request will look something like this, but you don't need all the information in this example:
-
-    ```apib
-    POST https://api.test.paysafe.com/v1/riskprofiles
-            {
-                "merchantRefNum": "KYC_1520461749",
-                "accountId": "PMLEID100",
-                "profile": {
-                    "firstName": "John",
-                    "lastName": "Smith",
-                    "email": "john.smith@myemail.com",
-                    "currentAddress": {
-                        "street": "100 Queen Street West",
-                        "street2": "Unit 201",
-                        "city": "Toronto",
-                        "state": "ON",
-                        "country": "CA",
-                        "zip": "M5H 2N2",
-                        "monthsAtAddress": "50",
-                        "phone": "647-788-3901"
-                    },
-                    "dateOfBirth": {
-                        "day": "25",
-                        "month": "12",
-                        "year": "1980"
-                    },
-                    "sin": "123456789"
-                },
-                "customerIp": "1.1.1.1",
-                "vendorCheck": "EID_COMPARE"
-            }
-    ```
-  3. Paysafe sends your request to downstream providers, which are determined by the *vendorCheck* or *workflowId* parameter used in the request. **Note:** When you sign on, Paysafe will instruct you on which parameter to use and what value to provide for it in the request. 
-  4. The response from Paysafe will look something like the example below. Note that this example has been truncated. 
-
-    ```apib
-            {
-                "id": "86dcb68d-cbd0-4878-8da7-ffc0e6554513",
-                "decision": "SUCCESS",
-                "merchantRefNum": "KYC_1520461749",
-                "accountId": "PMLEID100",
-                "profile": {
-                    "firstName": "John",
-                    "lastName": "Smith",
-                    "email": "john.smith@myemail.com",
-                    "currentAddress": {
-                        "street": "100 Queen Street West",
-                        "street2": "Unit 201",
-                        "city": "Toronto",
-                        "state": "ON",
-                        "country": "CA",
-                        "zip": "M5H 2N2",
-                        "monthsAtAddress": "50",
-                        "phone": "647-788-3901"
-                    },
-                    "dateOfBirth": {
-                        "day": "25",
-                        "month": "12",
-                        "year": "1980"
-                    },
-                    "sinLastFour": "6789"
-                },
-                "customerIp": "1.1.1.1",
-                "vendorCheck": "EID_COMPARE",
-                "providerResponses": {
-                    "eidCompare": {
-                        "id": "0f1266b9-ce28-4df2-bc3f-d4b746cc1ced",
-                        "status": "SUCCESS",
-                        "response": {
-                            "assessmentComplete": {
-                                "reasonCodes": [{
-                                    "description": "Telephone exchange does not match the FSA (first three characters) of the postal code for Current Address",
-                                    "code": "08"
-                                }],
-                                "atomicScores": {
-                                    "interactiveQueryScore": -1
-                                },
-                                "decision": "Y",
-                                "score": 25
-                            }
-                        }
-                    }
-                }
-            }
-    ```
-  5. In this response, you can see that the *decision* parameter returned (the second parameter) has a value of **SUCCESS**. This means the consumer has successfully passed the KYC risk check.
-
-  6. If you receive a value of **ERROR** in the response's *decision* parameter, you can [rerun the risk check request](#rerunriskcheckrequest) to the *rerunfailedchecks* endpoint using the *id* returned in the response. For example, the *id* returned above is *86dcb68d-cbd0-4878-8da7-ffc0e6554513*.
-
-    ```apib
-    POST https://api.test.paysafe.com/v1/riskprofiles/86dcb68d-cbd0-4878-8da7-ffc0e6554513/rerunfailedchecks
-            {
-                "accountId": "PMLEID100"
-            }
-    ```
-Text.
+The Paysafe Risk Check API allows merchants to perform KYC (know your customer) Risk Checks on their consumers with a single request to the Paysafe Risk Check API. [Click here to see an overview](https://developer.paysafe.com/en/additional-documentation/risk-check/introduction-to-risk-checks/) of how this API works.
 
 
 <a name="apikey" title="Authentication"></a>
 # Authentication
-
-**THIS SECTION WILL HAVE TO BE REMOVED IF NO API KEY IS REQUIRED**
 
 In order for you to use the Paysafe REST API, Paysafe must first set you up on their system and provide you with an API key. Your API key looks something like this:
 
@@ -149,8 +45,6 @@ For additional details, please refer to [http://en.wikipedia.org/wiki/Basic_acce
 
 # URLs 
 
-**NOTE:** The Confluence page for this API has the v1 inverted, so "/v1/riskprofiles/" ... this seems backward from our standard practice, which I have used below.
-
 ##  Test URL
 In order to test your integration with Paysafe, use the following Test URL:
 
@@ -158,7 +52,7 @@ In order to test your integration with Paysafe, use the following Test URL:
 
 For example:
 
-`https://api.test.paysafe.com/riskprofiles/v1/`
+`https://api.test.paysafe.com/v1/riskprofiles`
 
 ## Production URL
 In order to process live requests with Paysafe, use the following Production URL:
@@ -167,12 +61,10 @@ In order to process live requests with Paysafe, use the following Production URL
 
 For example:
 
-`https://api.paysafe.com/riskprofiles/v1/`
+`https://api.paysafe.com/v1/riskprofiles`
 
 <a name="globalinvalidcharacters" title="Global Invalid Characters"></a>
 # Global Invalid Characters
-
-**Verify that this holds for this new API.**
 
 You must not include any of the characters in the following table as values in any of your request parameters. If you do, your request will result in an error.
 
@@ -190,9 +82,7 @@ You must not include any of the characters in the following table as values in a
 
 # API
 
-The Risk Check API allows merchants to ...
-
-The following request types are supported:
+The Risk Check API allows merchants to process KYC (know your customer) Risk Checks on their consumers using the REST protocol. The protocol uses JSON for all requests and responses. The following request types are supported:
 
   * [Risk Checks](#riskcheckrequest)
   * [Rerun Failed Risk Checks](#rerunriskcheckrequest)
@@ -208,13 +98,6 @@ The following request types are supported:
 |---                                                |---                                    |---    |
 |/riskprofiles                                      |Run a Risk Check on a Consumer         |POST   |
 |/riskprofiles/{risk_profile_id}/rerunfailedchecks  |Rerun a Failed Risk Check              |POST   |
-
-
-# Getting Started
-
-You can use the Risk Check API to Click [here](https://developer.paysafe.com/en/rest-apis/riskcheck/using-the-api/scenarios/) for some common scenarios for using the Risk Check API.
-
-**MAKE SURE THE LINK ABOVE IS ACCURATE FOR FLARE CONTENT IN DC.**
 
 
 # Testing Instructions
@@ -579,7 +462,7 @@ With the Paysafe API you can test the following:
 |Element            |Type                                   |Description    |
 |---                |---                                    |---            |
 |id                 |string <br/>`length<=36`               |This is the *amlassist* ID generated for the request, returned in the response.|
-|status             |enum                                   |This is the risk decision from the downstream provider. See the [amlassist Decision Matrix Table](#amlassisttable) for details. |
+|status             |enum                                   |This is the risk status from the downstream provider. See the [amlassist Decision Matrix Table](#amlassisttable) for details. |
 |response           |[response](#amlassistresponseobject)   |   |
 |error              |[error](#errorobject)                  |These are error details in case of any errors occurring while doing the vendor check. |
 
@@ -639,7 +522,7 @@ If the downstream provider cannot find a credit file using a single source, it w
 <a name="amlassistresponseobject" title="AML Assist Response Object"></a>
 ## AML Assist response
 
-This is the raw response from the downstream provider.
+This is the raw response from the downstream provider. Paysafe uses this data in part to render the Risk Check decision.
 
 |Element                                |Type           |Description    |
 |---                                    |---            |---            |
@@ -794,7 +677,7 @@ This is part of the raw response from the downstream provider.
 | Element                   | Type                                      | Description                                                       |
 |---------------------------|---------                                  |-------------------------------------------------------------------|
 |id                         |string <br/>`length<=36`                   |This is the *eidCompare* ID generated for the request, returned in the response. |
-|status                     |enum                                       |This is the risk decision. Possible values are: <ul><li>SUCCESS</li><li>FAIL</li><li>ERROR</li></ul> |
+|status                     |enum                                       |This is the risk status from the downstream provider. Possible values are: <ul><li>SUCCESS</li><li>FAIL</li><li>ERROR</li></ul> |
 |response                   |[response](#eidcompareresponseobject)      |   |
 |error                      |[error](#errorobject)                      |These are error details in case of any errors occurring while doing the vendor check. |
 
@@ -831,7 +714,7 @@ This is part of the raw response from the downstream provider.
 <a name="eidcompareresponseobject" title="EID Compare Response Object"></a>
 ## EID Compare response
 
-This is the raw response from the downstream provider.
+This is the raw response from the downstream provider. Paysafe uses this data in part to render the Risk Check decision.
 
 | Element               | Type    | Description                                                       |
 |-----------------------|---------|-------------------------------------------------------------------|
@@ -895,7 +778,7 @@ This is the raw response from the downstream provider.
 <a name="previousaddressesobject" title="Previous Addresses Object"></a>
 ## previousAddresses
 
-**Note:** If *monthsAtAddress* in the [*currentAddress* object](#currentaddressobject) is 24 or less, the risk check request will have a greater probability of being successful if a previous address is included.
+**Note:** If *monthsAtAddress* in the [*currentAddress* object](#currentaddressobject) is 24 or less, the Risk Check request will have a greater probability of being successful if a previous address is included.
 
 |Element            |Type                       |Description    |
 |---                |---                        |---       |
@@ -937,7 +820,7 @@ This is the raw response from the downstream provider.
 |locale             |enum                               |This indicates the language of the profile. Possible values are:<ul><li>en_CA</li><li>fr_CA</li></ul> |
 |currentAddress     |[currentAddress](#addressobject)   |This is the consumer's address. |
 |dateOfBirth        |[dateOfBirth](#dateofbirthobject)  |This is the customer's date of birth.|
-|previousAddresses  |[previousAddresses](#addressobject) | This is an array of the consumer's previous addresses. **Note:** If *monthsAtAddress* in the *currentAddress* object is 24 or less, the risk check request will have a greater probability of being successful if a previous address is included.|
+|previousAddresses  |[previousAddresses](#addressobject) | This is an array of the consumer's previous addresses. **Note:** If *monthsAtAddress* in the *currentAddress* object is 24 or less, the Risk Check request will have a greater probability of being successful if a previous address is included.|
 
 ```apib
     {
@@ -965,6 +848,9 @@ This is the raw response from the downstream provider.
 
 <a name="providerresponsesobject" title="providerResponses Object"></a>
 ## providerResponses
+
+These are raw responses from the downstream providers.
+
 | Element               | Type    | Description                                                       |
 |-----------------------|---------|-------------------------------------------------------------------|
 |amlassist              |[amlassist](#amlassistobject) |                   |
@@ -1066,6 +952,16 @@ This is the raw response from the downstream provider.
 
 # Error Summary
 
+<a name="riskcheckerrors" title="Risk Check Errors"></a>
+## Risk Check Errors
+
+|HTTP Status Code   |Error Code |Description|
+|---                |---        |---|
+|500                | 6007      | Gateway internal error.  |
+|502                | 6008      | Gateway responded with an error. |
+|504                | 6009      | Gateway timed out. |
+|404                | 6010      | No credit file available for given input. |
+
 <a name="commonerrors" title="Common Errors"></a>
 ## Common Errors
 |HTTP Status Code       |Error Code    |Description|
@@ -1104,18 +1000,6 @@ This is the raw response from the downstream provider.
 |401                    |5280           |The required authentication credentials were not provided.|
 |405                    |5281           |The request uses an action (e.g., GET, POST, or PUT) that is not supported by the resource.|
 |400                    |5502           |Either the payment token is invalid or the corresponding profile or bank account is not active.|
-
-<a name="riskcheckerrors" title="Risk Check Errors"></a>
-## Risk Check Errors
-
-**NOTE THAT THIS LIST HAS STILL TO BE UPDATED AND VERIFIED**
-
-|HTTP Status Code   |Error Code |Description|
-|---                |---        |---|
-|500                | 6007      | Gateway internal error.  |
-|502                | 6008      | Gateway responded with an error. |
-|504                | 6009      | Gateway timed out. |
-|404                | 6010      | No credit file available for given input. |
 
 
 # Using the example API calls (Console Window)
@@ -1160,8 +1044,8 @@ This call returns a status of READY if the API is available.
 
 Click on **Run a Risk Check** above to see two examples of a Risk Check request:
 
- * Risk check using *vendorCheck*
- * Risk check using *workflowId*
+ * Risk Check using *vendorCheck*
+ * Risk Check using *workflowId*
 
 + Attributes
     + Include Risk Check
@@ -1424,14 +1308,14 @@ Click on **Run a Risk Check** above to see two examples of a Risk Check request:
 <a name="rerunriskcheckrequest" title="Rerun Risk Check"></a>
 
 ## Rerun a Risk Check [POST /{risk_check_id}/rerunfailedchecks]
-<a name="riskcheckrequest" title="Run a Risk Check"></a>
+<a name="rerunriskcheckrequest" title="Rerun a Risk Check"></a>
 
-This is how you submit a request to rerun a risk check request.
+Click on **Rerun a Risk Check** above to see how you submit a request to rerun a Risk Check request.
 
-**Note:** The only parameter to include in the request to rerun a risk check is *accountId*. 
+**Note:** There is no payload to include in the request to rerun a Risk Check. 
 
- - You can rerun a risk check request when the *decision* in the response to the initial request is **ERROR**, which could mean that the initial risk check request could not be completed. 
- - Do not rerun a risk check request if the *decision* in the response to the initial request is **FAIL**. You will get the same FAIL decision if you resubmit it.
+ - You can rerun a Risk Check request when the *decision* in the response to the initial request is **ERROR**, which could mean that the initial Risk Check request could not be completed. 
+ - Do not rerun a Risk Check request if the *decision* in the response to the initial request is **FAIL**. You will get the same FAIL decision if you resubmit it.
 
 + Parameters
 
@@ -1690,7 +1574,7 @@ This is how you submit a request to rerun a risk check request.
 + 
 
 ## Previous Addresses
-+ `previousAddresses` (array) - This is an array of the consumer's previous addresses. **Note:** If *monthsAtAddress* in the *currentAddress* object is 24 or less, the risk check request will have a greater probability of being successful if a previous address is included.
++ `previousAddresses` (array) - This is an array of the consumer's previous addresses. **Note:** If *monthsAtAddress* in the *currentAddress* object is 24 or less, the Risk Check request will have a greater probability of being successful if a previous address is included.
     + (object)
         + Properties
             + `apartment`: `11` (string) -  This is the consumer's apartment number, if applicable.
@@ -1713,7 +1597,7 @@ This is how you submit a request to rerun a risk check request.
                 _length<=1200_
 
 ## Previous Addresses Rerun
-+ `previousAddresses` (array) - This is an array of the consumer's previous addresses. **Note:** If *monthsAtAddress* in the *currentAddress* object is 24 or less, the risk check request will have a greater probability of being successful if a previous address is included.
++ `previousAddresses` (array) - This is an array of the consumer's previous addresses. **Note:** If *monthsAtAddress* in the *currentAddress* object is 24 or less, the Risk Check request will have a greater probability of being successful if a previous address is included.
     + (object)
         + Properties
             + `apartment`: `11` (string) -  This is the consumer's apartment number, if applicable.
@@ -1813,7 +1697,7 @@ This is how you submit a request to rerun a risk check request.
 
     _Read Only_, _length<=36_
 
-+ `decision`: `SUCCESS` (enum) - This is the overall risk check decision returned by Paysafe, based on responses by downstream providers.
++ `decision`: `SUCCESS` (enum) - This is the overall Risk Check decision returned by Paysafe, based on responses by downstream providers.
     _Read Only_
 
     + Members
@@ -1843,7 +1727,7 @@ This is how you submit a request to rerun a risk check request.
 
     _Read Only_, _length<=36_
 
-+ `decision`: `SUCCESS` (enum) - This is the overall risk check decision returned by Paysafe, based on responses by downstream providers.
++ `decision`: `SUCCESS` (enum) - This is the overall Risk Check decision returned by Paysafe, based on responses by downstream providers.
     _Read Only_
 
     + Members
