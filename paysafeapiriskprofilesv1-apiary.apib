@@ -4,8 +4,9 @@ HOST: https://api.test.paysafe.com/v1/riskprofiles/
 # Paysafe Risk Check API
 
 **QUESTIONS**
-- To date, no API key needed for requests
-- Cannot reach *monitor* endpoint for either curl -X GET https://api.test.paysafe.com/riskprofiles/monitor or curl -X GET https://api.test.paysafe.com/v1/riskprofiles/monitor
+- Have not been able to reach the *monitor* endpoint in Test, for either curl -X GET https://api.test.paysafe.com/riskprofiles/monitor or curl -X GET https://api.test.paysafe.com/v1/riskprofiles/monitor.
+- Are there any hard-coded values the merchant needs in order to be able to run the Risk Check request in the Test environment, e.g, accountId or value for vendorCheck?
+- Is Global Invalid Characters section below accurate?
 
 # Release Notes
 
@@ -15,9 +16,7 @@ HOST: https://api.test.paysafe.com/v1/riskprofiles/
 
 # Overview
 
-**Rewrite overview content** 
-
-The Paysafe Risk Check API  ... 
+The Paysafe Risk Check API allows merchants to perform KYC (know your customer) Risk Checks on their consumers with a single request to the Paysafe Risk Check API. [Click here to see an overview](https://developer.paysafe.com/en/additional-documentation/risk-check/introduction-to-risk-checks/) of how this API works.
 
 
 <a name="apikey" title="Authentication"></a>
@@ -46,8 +45,6 @@ For additional details, please refer to [http://en.wikipedia.org/wiki/Basic_acce
 
 # URLs 
 
-**NOTE:** The Confluence page for this API has the v1 inverted, so "/v1/riskprofiles/" ... this seems backward from our standard practice, which I have used below.
-
 ##  Test URL
 In order to test your integration with Paysafe, use the following Test URL:
 
@@ -55,7 +52,7 @@ In order to test your integration with Paysafe, use the following Test URL:
 
 For example:
 
-`https://api.test.paysafe.com/riskprofiles/v1/`
+`https://api.test.paysafe.com/v1/riskprofiles`
 
 ## Production URL
 In order to process live requests with Paysafe, use the following Production URL:
@@ -64,12 +61,10 @@ In order to process live requests with Paysafe, use the following Production URL
 
 For example:
 
-`https://api.paysafe.com/riskprofiles/v1/`
+`https://api.paysafe.com/v1/riskprofiles`
 
 <a name="globalinvalidcharacters" title="Global Invalid Characters"></a>
 # Global Invalid Characters
-
-**Verify that this holds for this new API.**
 
 You must not include any of the characters in the following table as values in any of your request parameters. If you do, your request will result in an error.
 
@@ -87,9 +82,7 @@ You must not include any of the characters in the following table as values in a
 
 # API
 
-The Risk Check API allows merchants to ...
-
-The following request types are supported:
+The Risk Check API allows merchants to process KYC (know your customer) Risk Checks on their consumers using the REST protocol. The protocol uses JSON for all requests and responses. The following request types are supported:
 
   * [Risk Checks](#riskcheckrequest)
   * [Rerun Failed Risk Checks](#rerunriskcheckrequest)
@@ -97,28 +90,25 @@ The following request types are supported:
 **API Endpoints** 
 
  - `https://api.paysafe.com/riskprofiles/v1`
- - `https://api.paysafe.com/riskprofiles/v1/risk_profile_id/rerunFailedChecks`
+ - `https://api.paysafe.com/riskprofiles/v1/risk_profile_id/rerunfailedchecks`
 
 **Resource Patterns**
 
 |Endpoint URL                                       |Description                            |Action |
 |---                                                |---                                    |---    |
 |/riskprofiles                                      |Run a Risk Check on a Consumer         |POST   |
-|/riskprofiles/{risk_profile_id}/rerunFailedChecks  |Rerun a Failed Risk Check              |POST   |
-
-
-# Getting Started
-
-You can use the Risk Check API to Click [here](https://developer.paysafe.com/en/rest-apis/riskcheck/using-the-api/scenarios/) for some common scenarios for using the Risk Check API.
-
-**MAKE SURE THE LINK ABOVE IS ACCURATE FOR FLARE CONTENT IN DC.**
+|/riskprofiles/{risk_profile_id}/rerunfailedchecks  |Rerun a Failed Risk Check              |POST   |
 
 
 # Testing Instructions
 
-The Paysafe Test environment can be used to test websites or applications. It is important to make sure that your systems are working correctly before going into a live environment. Click [here](https://developer.paysafe.com/en/rest-apis/riskcheck/test-and-go-live/testing-instructions/) for details of using the test environment.
+The Paysafe Test environment can be used to test applications without running transactions through the Production (live) system. Requests processed in the Test environment are not sent to live downstream providers, but through a simulator. Depending on the information provided with the transaction request, the simulator returns either a successful (approved) or failed (declined) response.
 
-**MAKE SURE THE LINK ABOVE IS ACCURATE FOR FLARE CONTENT IN DC.**
+With the Paysafe API you can test the following:
+
+* Verify support for all the operation types that you require.
+* Review all common errors as well as errors that may occur for each operation, and ensure your application can handle them.
+* Verify the lengths and format for all attributes you send.
 
 <a name="isostandards" title="ISO Standards"></a>
 # ISO Standards
@@ -472,7 +462,7 @@ The Paysafe Test environment can be used to test websites or applications. It is
 |Element            |Type                                   |Description    |
 |---                |---                                    |---            |
 |id                 |string <br/>`length<=36`               |This is the *amlassist* ID generated for the request, returned in the response.|
-|status             |enum                                   |This is the risk decision from the downstream provider. See the [amlassist Decision Matrix Table](#amlassisttable) for details. |
+|status             |enum                                   |This is the risk status from the downstream provider. See the [amlassist Decision Matrix Table](#amlassisttable) for details. |
 |response           |[response](#amlassistresponseobject)   |   |
 |error              |[error](#errorobject)                  |These are error details in case of any errors occurring while doing the vendor check. |
 
@@ -532,7 +522,7 @@ If the downstream provider cannot find a credit file using a single source, it w
 <a name="amlassistresponseobject" title="AML Assist Response Object"></a>
 ## AML Assist response
 
-This is the raw response from the downstream provider.
+This is the raw response from the downstream provider. Paysafe uses this data in part to render the Risk Check decision.
 
 |Element                                |Type           |Description    |
 |---                                    |---            |---            |
@@ -687,7 +677,7 @@ This is part of the raw response from the downstream provider.
 | Element                   | Type                                      | Description                                                       |
 |---------------------------|---------                                  |-------------------------------------------------------------------|
 |id                         |string <br/>`length<=36`                   |This is the *eidCompare* ID generated for the request, returned in the response. |
-|status                     |enum                                       |This is the risk decision. Possible values are: <ul><li>SUCCESS</li><li>FAIL</li><li>ERROR</li></ul> |
+|status                     |enum                                       |This is the risk status from the downstream provider. Possible values are: <ul><li>SUCCESS</li><li>FAIL</li><li>ERROR</li></ul> |
 |response                   |[response](#eidcompareresponseobject)      |   |
 |error                      |[error](#errorobject)                      |These are error details in case of any errors occurring while doing the vendor check. |
 
@@ -724,7 +714,7 @@ This is part of the raw response from the downstream provider.
 <a name="eidcompareresponseobject" title="EID Compare Response Object"></a>
 ## EID Compare response
 
-This is the raw response from the downstream provider.
+This is the raw response from the downstream provider. Paysafe uses this data in part to render the Risk Check decision.
 
 | Element               | Type    | Description                                                       |
 |-----------------------|---------|-------------------------------------------------------------------|
@@ -788,7 +778,7 @@ This is the raw response from the downstream provider.
 <a name="previousaddressesobject" title="Previous Addresses Object"></a>
 ## previousAddresses
 
-**Note:** If *monthsAtAddress* in the [*currentAddress* object](#currentaddressobject) is 24 or less, the risk check request will have a greater probability of being successful if a previous address is included.
+**Note:** If *monthsAtAddress* in the [*currentAddress* object](#currentaddressobject) is 24 or less, the Risk Check request will have a greater probability of being successful if a previous address is included.
 
 |Element            |Type                       |Description    |
 |---                |---                        |---       |
@@ -830,7 +820,7 @@ This is the raw response from the downstream provider.
 |locale             |enum                               |This indicates the language of the profile. Possible values are:<ul><li>en_CA</li><li>fr_CA</li></ul> |
 |currentAddress     |[currentAddress](#addressobject)   |This is the consumer's address. |
 |dateOfBirth        |[dateOfBirth](#dateofbirthobject)  |This is the customer's date of birth.|
-|previousAddresses  |[previousAddresses](#addressobject) | This is an array of the consumer's previous addresses. **Note:** If *monthsAtAddress* in the *currentAddress* object is 24 or less, the risk check request will have a greater probability of being successful if a previous address is included.|
+|previousAddresses  |[previousAddresses](#addressobject) | This is an array of the consumer's previous addresses. **Note:** If *monthsAtAddress* in the *currentAddress* object is 24 or less, the Risk Check request will have a greater probability of being successful if a previous address is included.|
 
 ```apib
     {
@@ -858,6 +848,9 @@ This is the raw response from the downstream provider.
 
 <a name="providerresponsesobject" title="providerResponses Object"></a>
 ## providerResponses
+
+These are raw responses from the downstream providers.
+
 | Element               | Type    | Description                                                       |
 |-----------------------|---------|-------------------------------------------------------------------|
 |amlassist              |[amlassist](#amlassistobject) |                   |
@@ -959,6 +952,16 @@ This is the raw response from the downstream provider.
 
 # Error Summary
 
+<a name="riskcheckerrors" title="Risk Check Errors"></a>
+## Risk Check Errors
+
+|HTTP Status Code   |Error Code |Description|
+|---                |---        |---|
+|500                | 6007      | Gateway internal error.  |
+|502                | 6008      | Gateway responded with an error. |
+|504                | 6009      | Gateway timed out. |
+|404                | 6010      | No credit file available for given input. |
+
 <a name="commonerrors" title="Common Errors"></a>
 ## Common Errors
 |HTTP Status Code       |Error Code    |Description|
@@ -997,18 +1000,6 @@ This is the raw response from the downstream provider.
 |401                    |5280           |The required authentication credentials were not provided.|
 |405                    |5281           |The request uses an action (e.g., GET, POST, or PUT) that is not supported by the resource.|
 |400                    |5502           |Either the payment token is invalid or the corresponding profile or bank account is not active.|
-
-<a name="riskcheckerrors" title="Risk Check Errors"></a>
-## Risk Check Errors
-
-**NOTE THAT THIS LIST HAS STILL TO BE UPDATED AND VERIFIED**
-
-|HTTP Status Code   |Error Code |Description|
-|---                |---        |---|
-|???                | 6007      | Gateway internal error.  |
-|???                | 6008      | Gateway responded with an error. |
-|???                | 6009      | Gateway timed out. |
-|???                | 6010      | No credit file available for given input. |
 
 
 # Using the example API calls (Console Window)
@@ -1051,12 +1042,15 @@ This call returns a status of READY if the API is available.
 ## Run a Risk Check [POST ]
 <a name="riskcheckrequest" title="Run a Risk Check"></a>
 
-This is how you submit a risk check request. 
+Click on **Run a Risk Check** above to see two examples of a Risk Check request:
+
+ * Risk Check using *vendorCheck*
+ * Risk Check using *workflowId*
 
 + Attributes
     + Include Risk Check
 
-+ Request Risk Check (application/json)
++ Request Risk Check Using vendorCheck (application/json)
 
     + Headers
     
@@ -1159,6 +1153,114 @@ This is how you submit a risk check request.
                                 "decision": "Y",
                                 "score": 25
                             }
+                        }
+                    }
+                }
+            }
+
++ Request Risk Check Using workflowId (application/json)
+
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
+    + Body
+
+            {
+                "merchantRefNum": "KYC_1520461749",
+                "accountId": "PMLEID100",
+                "profile": {
+                    "firstName": "John",
+                    "lastName": "Smith",
+                    "email": "john.smith@myemail.com",
+                    "currentAddress": {
+                        "street": "100 Queen Street West",
+                        "street2": "Unit 201",
+                        "city": "Toronto",
+                        "state": "ON",
+                        "country": "CA",
+                        "zip": "M5H 2N2",
+                        "monthsAtAddress": "20",
+                        "phone": "647-788-3901"
+                    },
+                    "previousAddresses": [{
+                        "city": "Calgary",
+                        "state": "AB",
+                        "street": "2124 Westchester street",
+                        "street2": "string",
+                        "zip": "M2H 2G6",
+                        "country": "CA",
+                        "monthsAtAddress": "30"
+                    }],
+                    "dateOfBirth": {
+                        "day": "25",
+                        "month": "12",
+                        "year": "1980"
+                    },
+                    "sin": "123456789"
+                },
+                "customerIp": "1.1.1.1",
+                "workflowId": "LOW_RISK"
+            }
+            
++ Response 200 (application/json)
+
+    + Body
+
+            {
+                "id": "86dcb68d-cbd0-4878-8da7-ffc0e6554513",
+                "decision": "SUCCESS",
+                "merchantRefNum": "KYC_1520461749",
+                "accountId": "PMLEID100",
+                "profile": {
+                    "firstName": "John",
+                    "lastName": "Smith",
+                    "email": "john.smith@myemail.com",
+                    "currentAddress": {
+                        "street": "100 Queen Street West",
+                        "street2": "Unit 201",
+                        "city": "Toronto",
+                        "state": "ON",
+                        "country": "CA",
+                        "zip": "M5H 2N2",
+                        "monthsAtAddress": "20",
+                        "phone": "647-788-3901"
+                    },
+                    "previousAddresses": [{
+                        "city": "Calgary",
+                        "state": "AB",
+                        "street": "2124 Westchester street",
+                        "street2": "string",
+                        "zip": "M2H 2G6",
+                        "country": "CA",
+                        "monthsAtAddress": "30"
+                    }],
+                    "dateOfBirth": {
+                        "day": "25",
+                        "month": "12",
+                        "year": "1980"
+                    },
+                    "sinLastFour": "6789"
+                },
+                "customerIp": "1.1.1.1",
+                "workflowId": "LOW_RISK",
+                "providerResponses": {
+                    "eidCompare": {
+                        "id": "0f1266b9-ce28-4df2-bc3f-d4b746cc1ced",
+                        "status": "SUCCESS",
+                        "response": {
+            
+                            "assessmentComplete": {
+                                "reasonCodes": [{
+                                    "description": "Telephone exchange does not match the FSA (first three characters) of the postal code for Current Address",
+                                    "code": "08"
+                                }],
+                                "atomicScores": {
+                                    "interactiveQueryScore": -1
+                                },
+                                "decision": "Y",
+                                "score": 25
+                            }
                         },
                         "amlassist": {
                             "id": "amlassistResId",
@@ -1202,18 +1304,18 @@ This is how you submit a risk check request.
             }
 
 
-# Rerun a Risk Check [/risk_check_id/rerunFailedChecks]
+# Rerun a Risk Check [/risk_check_id/rerunfailedchecks]
 <a name="rerunriskcheckrequest" title="Rerun Risk Check"></a>
 
-## Rerun a Risk Check [POST /{risk_check_id}/rerunFailedChecks]
-<a name="riskcheckrequest" title="Run a Risk Check"></a>
+## Rerun a Risk Check [POST /{risk_check_id}/rerunfailedchecks]
+<a name="rerunriskcheckrequest" title="Rerun a Risk Check"></a>
 
-This is how you submit a request to rerun a risk check request.
+Click on **Rerun a Risk Check** above to see how you submit a request to rerun a Risk Check request.
 
-**Note:** The only parameter to include in the request to rerun a risk check is *accountId*. 
+**Note:** There is no payload to include in the request to rerun a Risk Check. 
 
- - You can rerun a risk check request when the *decision* in the response to the initial request is **ERROR**, which could mean that the initial risk check request could not be completed. 
- - Do not rerun a risk check request if the *decision* in the response to the initial request is **FAIL**. You will get the same FAIL status if you resubmit it.
+ - You can rerun a Risk Check request when the *decision* in the response to the initial request is **ERROR**, which could mean that the initial Risk Check request could not be completed. 
+ - Do not rerun a Risk Check request if the *decision* in the response to the initial request is **FAIL**. You will get the same FAIL decision if you resubmit it.
 
 + Parameters
 
@@ -1227,11 +1329,11 @@ This is how you submit a request to rerun a risk check request.
     + Headers
     
             Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
-
+    
     + Body
 
             {
-                "accountId": "PMLEID100"
+                
             }
             
 + Response 200 (application/json)
@@ -1399,6 +1501,28 @@ This is how you submit a request to rerun a risk check request.
     + `monthsAtAddress`: `50` (string) - This is the number of months the consumer has been living at this address.
         _length<=1200_
 
+## Current Address Rerun
+
++ `currentAddress` (object)
+    + `apartment`: `11` (string) -  This is the consumer's apartment number, if applicable.
+        _Read Only_, _length<=50_
+    + `street`: `100 Queen Street West` - (string) - This is the first line of the consumer's street address.
+        _Read Only_, _length<=60_
+    + `street2`: `Building B` (string) - This is the second line of the consumer's street address, if required.
+        _Read Only_, _length<=60_
+    + `city`: `Toronto` (string) - This is the city where the address is located.
+        _Read Only_, _length<=255_
+    + `country`: `CA` (string) - This is the country where the address is located. See [Country Codes](#countrycodes).
+        _Read Only_, _length=2_
+    + `state`: `ON` (string) - This is the state/province/region in which the consumer lives. For Canada see [Province Codes](#provincecodes). For the United States see [State Codes](#statecodes). 
+        _Read Only_, _length=2_
+    + `zip`: `M5H 2N2` (string) - This is the zip or postal code of the consumer's address.
+        _Read Only_, _length<=10_
+    + `phone`: `647-788-3901` (string) - This is the consumer's phone number.
+        _Read Only_, _length<=15_
+    + `monthsAtAddress`: `50` (string) - This is the number of months the consumer has been living at this address.
+        _Read Only_, _length<=1200_
+
 ## Date of Birth
 
 + `dateOfBirth` (object, required)
@@ -1408,6 +1532,16 @@ This is how you submit a request to rerun a risk check request.
         _length=2_, _max=12_
     + `day`: `25` (number, required) - This is the date day.
         _length=2_, _max=31_
+
+## Date of Birth Rerun
+
++ `dateOfBirth` (object)
+    + `year`: `1980` (number) - This is the date year.
+        _Read Only_, _length=4_, _min=1900_
+    + `month`: `12` (number) - This is the date month.
+        _Read Only_, _length=2_, _max=12_
+    + `day`: `25` (number) - This is the date day.
+        _Read Only_, _length=2_, _max=31_
 
 ## EID Compare
 
@@ -1436,8 +1570,11 @@ This is how you submit a request to rerun a risk check request.
         + `decision`: `Y` (string) - This is a decision from the downstream provider.
         + `score`: `25` (string) - This is a score from the downstream provider.
 
+## Empty
++ 
+
 ## Previous Addresses
-+ `previousAddresses` (array) - This is an array of the consumer's previous addresses. **Note:** If *monthsAtAddress* in the *currentAddress* object is 24 or less, the risk check request will have a greater probability of being successful if a previous address is included.
++ `previousAddresses` (array) - This is an array of the consumer's previous addresses. **Note:** If *monthsAtAddress* in the *currentAddress* object is 24 or less, the Risk Check request will have a greater probability of being successful if a previous address is included.
     + (object)
         + Properties
             + `apartment`: `11` (string) -  This is the consumer's apartment number, if applicable.
@@ -1459,33 +1596,87 @@ This is how you submit a request to rerun a risk check request.
             + `monthsAtAddress`: `50` (string) - This is the number of months the consumer has been living at this address.
                 _length<=1200_
 
+## Previous Addresses Rerun
++ `previousAddresses` (array) - This is an array of the consumer's previous addresses. **Note:** If *monthsAtAddress* in the *currentAddress* object is 24 or less, the Risk Check request will have a greater probability of being successful if a previous address is included.
+    + (object)
+        + Properties
+            + `apartment`: `11` (string) -  This is the consumer's apartment number, if applicable.
+                _Read Only_, _length<=50_
+            + `street`: `100 Queen Street West` - (string) - This is the first line of the consumer's street address.
+                _Read Only_, _length<=255_
+            + `street2`: `Building B` (string) - This is the second line of the consumer's street address, if required.
+                _Read Only_, _length<=255_
+            + `city`: `Toronto` (string) - This is the city where the address is located.
+                _Read Only_, _length<=255_
+            + `country`: `CA` (string) - This is the country where the address is located. See [Country Codes](#countrycodes).
+                _Read Only_, _length=2_
+            + `state`: `ON` (string) - This is the state/province/region in which the consumer lives. For Canada see [Province Codes](#provincecodes). For the United States see [State Codes](#statecodes). 
+                _Read Only_, _length=2_
+            + `zip`: `M5H 2N2` (string) - This is the zip or postal code of the consumer's address.
+                _Read Only_, _length<=10_
+            + `phone`: `647-788-3901` (string) - This is the consumer's phone number.
+                _Read Only_, _length<=15_
+            + `monthsAtAddress`: `50` (string) - This is the number of months the consumer has been living at this address.
+                _Read Only_, _length<=1200_
+
 ## Profile
++ `profile` (object, required)
+    + Properties
+        + `firstName`: `John` (string, required) - This is the consumer’s first name. 
+            _length<=15_
+        + `middleName`: `James` (string) - This is the consumer’s middle name.
+            _length<=15_
+        + `lastName`: `Smith` (string, required) - This is the consumer’s last name.
+            _length<=25_
+        + One of
+            + `ssn`: `123456789` (string) - This is the consumer's Social Security Number.
+                _length<=10_    
+            + `sin`: `123456789` (string) - This is the consumer's Social Insurance number
+                _length<=9_
+        + `email`: `johnsmith@myemail.com` (string) - This is the consumer's email address.
+            _length<=128_
+        + One of
+            + `ssnLastFour`: `6789` (string) - This is the last four digits of the consumer's Social Security Number, returned in the response.
+                _Read Only_, _length=4_
+            + `sinLastFour`: `6789` (string) - This is the last four digits of the consumer's Social Insurance Number, returned in the response.
+                _Read Only_, _length=4_        
+        + `locale`: `en_CA` (enum) - This indicates the language of the profile.
+
+            + Members
+                + `en_CA`
+                + `fr_CA`
+        + Include Current Address
+        + Include Date of Birth
+        + Include Previous Addresses
+
+## Profile Rerun
 + `firstName`: `John` (string, required) - This is the consumer’s first name. 
-    _length<=15_
+    _Read Only_, _length<=15_
 + `middleName`: `James` (string) - This is the consumer’s middle name.
-    _length<=15_
+    _Read Only_, _length<=15_
 + `lastName`: `Smith` (string, required) - This is the consumer’s last name.
-    _length<=25_
+    _Read Only_, _length<=25_
 + One of
     + `ssn`: `123456789` (string) - This is the consumer's Social Security Number.
-        _length<=10_    
+        _Read Only_, _length<=10_    
     + `sin`: `123456789` (string) - This is the consumer's Social Insurance number
-        _length<=9_
+        _Read Only_, _length<=9_
 + `email`: `johnsmith@myemail.com` (string) - This is the consumer's email address.
-    _length<=128_
+    _Read Only_, _length<=128_
 + One of
     + `ssnLastFour`: `6789` (string) - This is the last four digits of the consumer's Social Security Number, returned in the response.
         _Read Only_, _length=4_
     + `sinLastFour`: `6789` (string) - This is the last four digits of the consumer's Social Insurance Number, returned in the response.
         _Read Only_, _length=4_        
 + `locale`: `en_CA` (enum) - This indicates the language of the profile.
+    _Read Only_
 
     + Members
         + `en_CA`
         + `fr_CA`
-+ Include Current Address
-+ Include Date of Birth
-+ Include Previous Addresses
++ Include Current Address Rerun
++ Include Date of Birth Rerun
++ Include Previous Addresses Rerun
 
 ## Provider Responses
 + `providerResponses` (object)
@@ -1506,14 +1697,14 @@ This is how you submit a request to rerun a risk check request.
 
     _Read Only_, _length<=36_
 
-+ `decision`: `SUCCESS` (enum) - This is the overall risk check decision returned by Paysafe, based on responses by downstream providers.
++ `decision`: `SUCCESS` (enum) - This is the overall Risk Check decision returned by Paysafe, based on responses by downstream providers.
     _Read Only_
 
     + Members
-        + `SUCCESS`
-        + `FAIL`
-        + `ERROR`
-        + `OUTSORT`
+        + `SUCCESS` - The consumer has successfully passed the Risk Check.
+        + `FAIL` - The consumer has failed the Risk Check.
+        + `ERROR` - The Risk Check could not be processed. In this case you can attempt to [rerun the request](#rerunriskcheckrequest).
+        + `OUTSORT` - The Risk Check was inconclusive. The merchant should collect additional documents to manually verify the consumer.
 
 + `merchantRefNum`: `P1234` (string, required) - This is the merchant reference number created by the merchant and submitted as part of the request.
 
@@ -1536,26 +1727,27 @@ This is how you submit a request to rerun a risk check request.
 
     _Read Only_, _length<=36_
 
-+ `decision`: `SUCCESS` (enum) - This is the overall risk check decision returned by Paysafe, based on responses by downstream providers.
++ `decision`: `SUCCESS` (enum) - This is the overall Risk Check decision returned by Paysafe, based on responses by downstream providers.
     _Read Only_
 
     + Members
-        + `SUCCESS`
-        + `FAIL`
-        + `ERROR`
-        + `OUTSORT`
+        + `SUCCESS` - The consumer has successfully passed the Risk Check.
+        + `FAIL` - The consumer has failed the Risk Check.
+        + `ERROR` - The Risk Check could not be processed. In this case you can attempt to [rerun the request](#rerunriskcheckrequest).
+        + `OUTSORT` - The Risk Check was inconclusive. The merchant should collect additional documents to verify the consumer with a manual review.
 
 + `merchantRefNum`: `P1234` (string) - This is the merchant reference number created by the merchant and submitted as part of the request.
 
-    _length<=255_
+    _Read Only_, _length<=255_
 
 + `accountId`: `PMLEID100` (string, required) - This is the merchant's account ID, provided to the merchant by Paysafe.
-    _length<=20_
-+ Include Profile
+    _Read Only_, _length<=20_
++ Include Profile Rerun
 + `customerIp`: `1.1.1.1` (string) - This is the consumer's IP address.
-    _length<=39_
+    _Read Only_, _length<=39_
 + One of
     + `vendorCheck`: `EID_COMPARE` (string) - This is the  You must include either *vendorCheck* or *workflowId* but not both. Upon onboarding, Paysafe will instruct the merchant on which parameter to use as well as which value to provide for the parameter.
-        _length<=80_
+        _Read Only_, _length<=80_
     + `workflowId`: `LOW_RISK` (string) - This is the You must include either *vendorCheck* or *workflowId* but not both. Upon onboarding, Paysafe will instruct the merchant on which parameter to use as well as which value to provide for the parameter.
+        _Read Only_
 + Include Provider Responses
