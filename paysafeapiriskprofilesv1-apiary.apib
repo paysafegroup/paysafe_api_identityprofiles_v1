@@ -16,7 +16,7 @@ HOST: https://api.test.paysafe.com/v1/riskprofiles/
 
 # Overview
 
-The Paysafe Risk Check API allows merchants to perform KYC (know your customer) Risk Checks on their consumers with a single request to the Paysafe Risk Check API. [Click here to see an overview](https://developer.paysafe.com/en/additional-documentation/risk-check/introduction-to-risk-checks/) of how this API works.
+The Paysafe Risk Check API allows merchants to perform KYC (know your customer) Risk Checks on their consumers with a single request to the API. [Click here to see an overview](https://developer.paysafe.com/en/additional-documentation/risk-check/introduction-to-risk-checks/) of how this API works.
 
 
 <a name="apikey" title="Authentication"></a>
@@ -27,7 +27,7 @@ In order for you to use the Paysafe REST API, Paysafe must first set you up on t
   * Key Username – MerchantXYZ
   * Key Password – B-tst1-0-51ed39e4-312d02345d3f123120881dff9bb4020a89e8ac44cdfdcecd702151182fdc952272661d290ab2e5849e31bb03deede7e
 
-Note this is not the same as your Merchant Back Office username and password.
+Note that this is not the same as your Merchant Back Office username and password.
 The case-sensitive API key is sent using HTTP Basic Authentication. To use HTTP Basic Authentication, you must send the API key credentials using the Authorization header with every request. The Authorization header is constructed as follows:
 
   1. The Key Username and Key Password are combined into a string separated by a colon, e.g.,“Key Username:Key Password”.
@@ -757,7 +757,7 @@ This is the raw response from the downstream provider. Paysafe uses this data in
 |code               |string     |The error code.   |
 |message            |string     |A description of the error. Also shown in the X-Application-Status-Code response header.  |
 |details            |string array |This is the detailed error description, if applicable. |
-|fieldErrors        |string array     |Details of any parameter value errors (optional). One or more field:error pairs, where field is the field name and error is the error in the field. |
+|fieldErrors        |string array     |Details of any parameter value errors (optional). One or more *field:error* pairs, where *field* is the field name and *error* is the error in the field. |
 
 ```apib
 {  
@@ -790,7 +790,7 @@ This is the raw response from the downstream provider. Paysafe uses this data in
 |state              |string<br/>`length=2`      |This is the state/province/region in which the consumer lives.<br/>For Canada see [Province Codes](#provincecodes). For the United States see [State Codes](#statecodes). Other countries have no restrictions. |
 |zip                |string<br/>`length<=10`    |This is the zip, postal, or post code of the consumer's address.|
 |phone              |string<br/>`length<=15`    |This is the consumer's phone number.|
-|monthsAtAddress    |number<br/>`length<=1200`  |This is the number of months the consumer has been living at this address.|
+|monthsAtAddress    |number<br/>`length<=1200`  |This is the number of months the consumer lived at this address.|
 
 ```apib
             {
@@ -1003,11 +1003,11 @@ These are raw responses from the downstream providers.
 
 
 # Using the example API calls (Console Window)
-To configure and test the API examples, first click on one of the API calls in the API Reference section and then click **Switch to Console** in the right hand pane. 
+To configure and test the API examples, first click on one of the API calls in the API Reference section and then click **Switch to Console** in the right-hand pane. 
 Using the Console window you can update the headers, the request body, and parts of the API endpoint.
 You must update the Header to include your API Key by selecting **Headers** and then updating the **Authorization** value using the Base64
-version of your API key. To get your API key, log into the test version of the Merchant Back Office and choose **Settings > API Key**. 
-Click *View Base 64 Encoded* and copy the key to your clipboard. Paste the key after the word Basic to replace the text YOUR-BASE64-ENCODED-API-KEY.
+version of your API key. To get your API key, log in to the test version of the Merchant Back Office and choose **Settings > API Key**. 
+Click **View Base 64 Encoded** and copy the key to your clipboard. Paste the key after the word Basic to replace the text YOUR-BASE64-ENCODED-API-KEY.
 When you are ready to test your example, you can choose between the Production and Mock server environment:
 * Production server – This calls the resource on Paysafe's Test system. 
 * Mock server – This environment simply returns the dummy values in the example response irrespective of the parameters you supply. You do not need to use your account ID or Test API key for this request.
@@ -1310,7 +1310,7 @@ Click on **Run a Risk Check** above to see two examples of a Risk Check request:
 ## Rerun a Risk Check [POST /{risk_check_id}/rerunfailedchecks]
 <a name="rerunriskcheckrequest" title="Rerun a Risk Check"></a>
 
-Click on **Rerun a Risk Check** above to see how you submit a request to rerun a Risk Check request.
+Click on **Rerun a Risk Check** above to see how you submit a request to rerun a Risk Check.
 
 **Note:** There is no payload to include in the request to rerun a Risk Check. 
 
@@ -1587,17 +1587,18 @@ Click on **Rerun a Risk Check** above to see how you submit a request to rerun a
                 _length<=255_
             + `country`: `CA` (string, required) - This is the country where the address is located. See [Country Codes](#countrycodes).
                 _length=2_
-            + `state`: `ON` (string, required) - This is the state/province/region in which the consumer lives. For Canada see [Province Codes](#provincecodes). For the United States see [State Codes](#statecodes). 
+            + `state`: `ON` (string, required) - This is the state/province/region in which the consumer lived. For Canada see [Province Codes](#provincecodes). For the United States see [State Codes](#statecodes). 
                 _length=2_
             + `zip`: `M5H 2N2` (string, required) - This is the zip or postal code of the consumer's address.
                 _length<=10_
             + `phone`: `647-788-3901` (string) - This is the consumer's phone number.
                 _length<=15_
-            + `monthsAtAddress`: `50` (string) - This is the number of months the consumer has been living at this address.
+            + `monthsAtAddress`: `50` (string) - This is the number of months the consumer lived at this address.
                 _length<=1200_
 
 ## Previous Addresses Rerun
 + `previousAddresses` (array) - This is an array of the consumer's previous addresses. **Note:** If *monthsAtAddress* in the *currentAddress* object is 24 or less, the Risk Check request will have a greater probability of being successful if a previous address is included.
+    
     + (object)
         + Properties
             + `apartment`: `11` (string) -  This is the consumer's apartment number, if applicable.
@@ -1610,13 +1611,13 @@ Click on **Rerun a Risk Check** above to see how you submit a request to rerun a
                 _Read Only_, _length<=255_
             + `country`: `CA` (string) - This is the country where the address is located. See [Country Codes](#countrycodes).
                 _Read Only_, _length=2_
-            + `state`: `ON` (string) - This is the state/province/region in which the consumer lives. For Canada see [Province Codes](#provincecodes). For the United States see [State Codes](#statecodes). 
+            + `state`: `ON` (string) - This is the state/province/region in which the consumer lived. For Canada see [Province Codes](#provincecodes). For the United States see [State Codes](#statecodes). 
                 _Read Only_, _length=2_
             + `zip`: `M5H 2N2` (string) - This is the zip or postal code of the consumer's address.
                 _Read Only_, _length<=10_
             + `phone`: `647-788-3901` (string) - This is the consumer's phone number.
                 _Read Only_, _length<=15_
-            + `monthsAtAddress`: `50` (string) - This is the number of months the consumer has been living at this address.
+            + `monthsAtAddress`: `50` (string) - This is the number of months the consumer lived at this address.
                 _Read Only_, _length<=1200_
 
 ## Profile
@@ -1650,30 +1651,32 @@ Click on **Rerun a Risk Check** above to see how you submit a request to rerun a
         + Include Previous Addresses
 
 ## Profile Rerun
-+ `firstName`: `John` (string, required) - This is the consumer’s first name. 
-    _Read Only_, _length<=15_
-+ `middleName`: `James` (string) - This is the consumer’s middle name.
-    _Read Only_, _length<=15_
-+ `lastName`: `Smith` (string, required) - This is the consumer’s last name.
-    _Read Only_, _length<=25_
-+ One of
-    + `ssn`: `123456789` (string) - This is the consumer's Social Security Number.
-        _Read Only_, _length<=10_    
-    + `sin`: `123456789` (string) - This is the consumer's Social Insurance number
-        _Read Only_, _length<=9_
-+ `email`: `johnsmith@myemail.com` (string) - This is the consumer's email address.
-    _Read Only_, _length<=128_
-+ One of
-    + `ssnLastFour`: `6789` (string) - This is the last four digits of the consumer's Social Security Number, returned in the response.
-        _Read Only_, _length=4_
-    + `sinLastFour`: `6789` (string) - This is the last four digits of the consumer's Social Insurance Number, returned in the response.
-        _Read Only_, _length=4_        
-+ `locale`: `en_CA` (enum) - This indicates the language of the profile.
-    _Read Only_
++ `profile` (object, required)
+    + Properties
+        + `firstName`: `John` (string, required) - This is the consumer’s first name. 
+            _Read Only_, _length<=15_
+        + `middleName`: `James` (string) - This is the consumer’s middle name.
+            _Read Only_, _length<=15_
+        + `lastName`: `Smith` (string, required) - This is the consumer’s last name.
+            _Read Only_, _length<=25_
+        + One of
+            + `ssn`: `123456789` (string) - This is the consumer's Social Security Number.
+                _Read Only_, _length<=10_    
+            + `sin`: `123456789` (string) - This is the consumer's Social Insurance number
+                _Read Only_, _length<=9_
+        + `email`: `johnsmith@myemail.com` (string) - This is the consumer's email address.
+            _Read Only_, _length<=128_
+        + One of
+            + `ssnLastFour`: `6789` (string) - This is the last four digits of the consumer's Social Security Number, returned in the response.
+                _Read Only_, _length=4_
+            + `sinLastFour`: `6789` (string) - This is the last four digits of the consumer's Social Insurance Number, returned in the response.
+                _Read Only_, _length=4_        
+        + `locale`: `en_CA` (enum) - This indicates the language of the profile.
+            _Read Only_
 
-    + Members
-        + `en_CA`
-        + `fr_CA`
+            + Members
+                + `en_CA`
+                + `fr_CA`
 + Include Current Address Rerun
 + Include Date of Birth Rerun
 + Include Previous Addresses Rerun
@@ -1716,9 +1719,9 @@ Click on **Rerun a Risk Check** above to see how you submit a request to rerun a
 + `customerIp`: `1.1.1.1` (string) - This is the consumer's IP address.
     _length<=39_
 + One of
-    + `vendorCheck`: `EID_COMPARE` (string, required) - This is the  You must include either *vendorCheck* or *workflowId* but not both. Upon onboarding, Paysafe will instruct the merchant on which parameter to use as well as which value to provide for the parameter.
+    + `vendorCheck`: `EID_COMPARE` (string, required) - You must include either *vendorCheck* or *workflowId* but not both. Upon onboarding, Paysafe will instruct the merchant on which parameter to use as well as which value to provide for the parameter.
         _length<=80_
-    + `workflowId`: `LOW_RISK` (string, required) - This is the You must include either *vendorCheck* or *workflowId* but not both. Upon onboarding, Paysafe will instruct the merchant on which parameter to use as well as which value to provide for the parameter.
+    + `workflowId`: `LOW_RISK` (string, required) - You must include either *vendorCheck* or *workflowId* but not both. Upon onboarding, Paysafe will instruct the merchant on which parameter to use as well as which value to provide for the parameter.
 + Include Provider Responses
 
 ## Risk Check Rerun
