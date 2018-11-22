@@ -1,12 +1,17 @@
 FORMAT: 1A
-HOST: https://api.test.paysafe.com/v1/riskprofiles/
+HOST: https://api.test.paysafe.com/v1/identityprofiles/
 
-# Paysafe Risk Check API
+# Paysafe Consumer Identity API
 
 **QUESTIONS**
-- Have not been able to reach the *monitor* endpoint in Test, for either curl -X GET https://api.test.paysafe.com/riskprofiles/monitor or curl -X GET https://api.test.paysafe.com/v1/riskprofiles/monitor.
-- Are there any hard-coded values the merchant needs in order to be able to run the Risk Check request in the Test environment, e.g, accountId or value for vendorCheck?
+- Have not been able to reach the *monitor* endpoint in Test, for either curl -X GET https://api.test.paysafe.com/identityprofiles/monitor or curl -X GET https://api.test.paysafe.com/v1/identityprofiles/monitor.
+- Are there any hard-coded values the merchant needs in order to be able to run the Consumer Identity request in the Test environment, e.g, accountId or value for vendorCheck?
 - Is Global Invalid Characters section below accurate?
+- isWaterfallProcess is in request but not documented in table of attributes.
+- are errors 6007-6010 no longer being used? Updated Error Object page has different set now: https://confluence.neterra.paysafe.com/display/DATA/Error+Object
+- Update requests in Reference section to reflect changes made to complex response objects.
+- Richard says new endpoint is customeridentity (not identityprofiles).
+- The AML Assist Object page in Confluence (https://confluence.neterra.paysafe.com/display/DATA/AML+Assist+Object) has three parameters that aren't in the sample API request (https://confluence.neterra.paysafe.com/pages/viewpage.action?pageId=152706890) (*IsCreditFileGreaterThanThreeYearsOld*, *bureauName*, and *dateOfRequest*). I just want to make sure these three should be included in the documentation. 
 
 # Release Notes
 
@@ -16,7 +21,7 @@ HOST: https://api.test.paysafe.com/v1/riskprofiles/
 
 # Overview
 
-The Paysafe Risk Check API allows merchants to perform KYC (know your customer) Risk Checks on their consumers with a single request to the API. [Click here to see an overview](https://developer.paysafe.com/en/additional-documentation/risk-check/introduction-to-risk-checks/) of how this API works.
+The Paysafe Consumer Identity API allows merchants to perform KYC (know your customer) Consumer Identity checks on their consumers with a single request to the API. [Click here to see an overview](https://developer.paysafe.com/en/additional-documentation/risk-check/introduction-to-risk-checks/) of how this API works.
 
 
 <a name="apikey" title="Authentication"></a>
@@ -52,7 +57,7 @@ In order to test your integration with Paysafe, use the following Test URL:
 
 For example:
 
-`https://api.test.paysafe.com/v1/riskprofiles`
+`https://api.test.paysafe.com/v1/identityprofiles`
 
 ## Production URL
 In order to process live requests with Paysafe, use the following Production URL:
@@ -61,7 +66,7 @@ In order to process live requests with Paysafe, use the following Production URL
 
 For example:
 
-`https://api.paysafe.com/v1/riskprofiles`
+`https://api.paysafe.com/v1/identityprofiles`
 
 <a name="globalinvalidcharacters" title="Global Invalid Characters"></a>
 # Global Invalid Characters
@@ -82,22 +87,22 @@ You must not include any of the characters in the following table as values in a
 
 # API
 
-The Risk Check API allows merchants to process KYC (know your customer) Risk Checks on their consumers using the REST protocol. The protocol uses JSON for all requests and responses. The following request types are supported:
+The Consumer Identity API allows merchants to process KYC (know your customer) Consumer Identity checks on their consumers using the REST protocol. The protocol uses JSON for all requests and responses. The following request types are supported:
 
-  * [Risk Checks](#riskcheckrequest)
-  * [Rerun Failed Risk Checks](#rerunriskcheckrequest)
+  * [Consumer Identity Checks](#riskcheckrequest)
+  * [Rerun Failed Consumer Identity Checks](#rerunriskcheckrequest)
   
 **API Endpoints** 
 
- - `https://api.paysafe.com/riskprofiles/v1`
- - `https://api.paysafe.com/riskprofiles/v1/risk_profile_id/rerunfailedchecks`
+ - `https://api.paysafe.com/identityprofiles/v1`
+ - `https://api.paysafe.com/identityprofiles/v1/consumer_identity_id/rerunfailedchecks`
 
 **Resource Patterns**
 
 |Endpoint URL                                       |Description                            |Action |
 |---                                                |---                                    |---    |
-|/riskprofiles                                      |Run a Risk Check on a Consumer         |POST   |
-|/riskprofiles/{risk_profile_id}/rerunfailedchecks  |Rerun a Failed Risk Check              |POST   |
+|/identityprofiles                                      |Run a Consumer Identity Check on a Consumer         |POST   |
+|/identityprofiles/{consumer_identity_id}/rerunfailedchecks  |Rerun a Failed Consumer Identity Check              |POST   |
 
 
 # Testing Instructions
@@ -463,46 +468,72 @@ With the Paysafe API you can test the following:
 |---                |---                                    |---            |
 |id                 |string <br/>`length<=36`               |This is the *amlassist* ID generated for the request, returned in the response.|
 |status             |enum                                   |This is the risk status from the downstream provider. See the [amlassist Decision Matrix Table](#amlassisttable) for details. |
-|response           |[response](#amlassistresponseobject)   |   |
-|error              |[error](#errorobject)                  |These are error details in case of any errors occurring while doing the vendor check. |
+|response           |[response](#amlassistresponseobject)   |These are responses from downstream providers. |
+|error              |[error](#errorobject)                  |These are error details in case errors occurred. |
 
 ```apib
-    {
-        "id": "0f1266b9-ce28-4df2-bc3f-d4b746cc1ced",
-        "status": "SUCCESS",
-        "response": {
-            "creditFileNumber": "65462",
-            "creditFileGreaterThanThreeYearsOld": "True",
-            "isSingleSourceHit": "True",
-            "isDualSourceHit": "False",
-            "isLastNameMatched": "True",
-            "isFirstNameMatched": "True",
-            "isMiddleNameMatched": "True",
-            "isDateOfBirthMatch": "True",
-            "isAddressCivicMatch": "True",
-            "isAddressStreetNameMatch": "True",
-            "isAddressCityMatch": "True",
-            "isAddressPostalCodeMatch": "True",
-            "isAddressProvinceMatch": "True",
-            "creditFileCreationDate": {
-                "day": "12",
-                "month": "10",
-                "year": "2010"
-            },
-            "numberOfTrades": "23",
-            "familyName": "Roz",
-            "singleSourceDecision": "True",
-            "dualSourceDecision": null,
-            "institutionName": "institute",
-            "accountNumber": "45487852",
-            "isNameAndDobMatch": "True",
-            "isNameAndAddressMatch": "True",
-            "isNameAndAccountNumberMatch": "True",
-            "bureauName": "Equifax Canada",
-            "originOfCreditFile": "CANADA",
-            "dateOfRequest": "2018/10/29 12:00 AM UTC"
-        }
-    }
+            {
+                "id": "0f1266b9-ce28-4df2-bc3f-d4b746cc1ced",
+                "status": "SUCCESS",
+                "response": {
+                    "isSingleSourceHit": "true",
+                    "isDualSourceHit": "false",
+                    "decision": "SUCCESS",
+                    "singleSourceDecision": "N",
+                    "dualSourceDecision": "N",
+                    "isWaterfallProcess": "true",
+                    "originOfCreditFile": "CANADA",
+                    "numberOfTrades": "1",
+                    "singleSourceResult": {
+                        "isLastNameMatched": "true",
+                        "isFirstNameMatched": "true",
+                        "isMiddleNameMatched": "true",
+                        "isSuffixNameMatched": "true",
+                        "isAddressCivicMatch": "True",
+                        "isAddressStreetNameMatch": "True",
+                        "isAddressCityMatch": "True",
+                        "isAddressPostalCodeMatch": "True",
+                        "isAddressProvinceMatch": "True",
+                        "isDateOfBirthMatch": "True",
+                        "currentAddressReportedDate": "201811",
+                        "dateOfBirthAsReported": "19711130",
+                        "nameAsReported": "SMITH, JANE",
+                        "addressAsReported": "11,DORVAL AVE,DORVAL,QC,H3S1G4"
+                    },
+                    "dualSourceResult": [{
+                        "isLastNameMatched": "true",
+                        "isFirstNameMatched": "true",
+                        "isMiddleNameMatched": "true",
+                        "isSuffixNameMatched": "true",
+                        "isAddressCivicMatch": "True",
+                        "isAddressStreetNameMatch": "True",
+                        "isAddressCityMatch": "True",
+                        "isAddressPostalCodeMatch": "True",
+                        "isAddressProvinceMatch": "True",
+                        "isDateOfBirthMatch": "True",
+                        "isAccountNumberMatch": false,
+                        "isNameAndDobMatch": true,
+                        "isNameAndAddressMatch": false,
+                        "isNameAndAccountMatch": false,
+                        "tradeStatus": "O",
+                        "dateOfBirthAsReported": "19711130",
+                        "memberNumber": "481BB01426",
+                        "dateLastReported": "20180901",
+                        "dateOpened": "20170802",
+                        "institutionName": "CIBC",
+                        "accountNumber": "123456789011111",
+                        "familyName": "CANADIAN IMPERIAL BANK-CMMRC",
+                        "nameAsReported": "SMITH, JANE",
+                        "addressAsReported": "11,DORVAL AVE,DORVAL,QC,H3S1G4"
+                    }],
+                    "bureauName": "Equifax Canada",
+                    "dateOfRequest": "2018/10/29 12:00 AM UTC",
+                    "creditFileNumber": "65462",
+                    "isCreditFileGreaterThanThreeYearsOld": "true",
+                    "verificationTime": "2018/11/15 10:58 AM UTC",
+                    "creditFileCreationDate": "2016/01/01 12:00 AM UTC"
+                }
+            }
 ```
 
 <a name="amlassisttable" title="AML Assist Decision Matrix Table"></a>
@@ -522,70 +553,188 @@ If the downstream provider cannot find a credit file using a single source, it w
 <a name="amlassistresponseobject" title="AML Assist Response Object"></a>
 ## AML Assist response
 
-This is the raw response from the downstream provider. Paysafe uses this data in part to render the Risk Check decision.
+This is the raw response from the downstream provider. Paysafe uses this data in part to render the Consumer Identity Check decision.
 
 |Element                                |Type           |Description    |
 |---                                    |---            |---            |
-|creditFileNumber                       |string         |This is the number for the credit file retrieved from AML Assist. |
-|isCreditFileGreaterThanThreeYearsOld   |boolean        |This indicates whether the credit file is greater than three years old.|
-|isSingleSourceHit                      |boolean        |This indicates whether a single source has been hit. |
+|isSingleSourceHit                      | boolean       | This indicates whether a single source has been hit. |
 |isDualSourceHit                        | boolean       | This indicates whether a dual source has been hit. |
+|decision                               | enum          |   |
+|singleSourceDecision                   | boolean       | This indicates whether the decision was obtained from single source. Applicable if single source has been hit.|
+|dualSourceDecision                     | boolean       | This indicates whether the decision was obtained from dual source. Applicable if dual source has been hit. |
+|isWaterfallProcess                     |               |       |
+|originOfCreditFile                     | string        | This indicates the country of origin of this credit file. |
+|numberOfTrades                         | number        | this is the number of trades on the credit file. Applicable if dual source has been hit. |
+|singleSourceResult                     |[singleSourceResult](#amlassistsinglesourceresultobject) |      |
+|dualSourceResult                       |[dualSourceResult](#amlassistdualsourceresultobject) |      |
+|bureauName                             | string        | This is the bureau name retrieved from the downstream provider output. |
+|dateOfRequest                          | string        | This indicates the date the credit file was requested. |
+|creditFileNumber                       | string        | This is the credit file number received from the downstream provider.  |
+|isCreditFileGreaterThanThreeYearsOld   | boolean       | This indicates whether the credit file is greater than three years old.  |
+|verificationTime                       | dateTime      | This is the time the request was processed. |
+|creditFileCreationDate                 | dateTime      | This is the date the credit file was created. |
+
+```apib
+            {
+                "response": {
+                    "isSingleSourceHit": "true",
+                    "isDualSourceHit": "false",
+                    "decision": "SUCCESS",
+                    "singleSourceDecision": "N",
+                    "dualSourceDecision": "N",
+                    "isWaterfallProcess": "true",
+                    "originOfCreditFile": "CANADA",
+                    "numberOfTrades": "1",
+                    "singleSourceResult": {
+                        "isLastNameMatched": "true",
+                        "isFirstNameMatched": "true",
+                        "isMiddleNameMatched": "true",
+                        "isSuffixNameMatched": "true",
+                        "isAddressCivicMatch": "True",
+                        "isAddressStreetNameMatch": "True",
+                        "isAddressCityMatch": "True",
+                        "isAddressPostalCodeMatch": "True",
+                        "isAddressProvinceMatch": "True",
+                        "isDateOfBirthMatch": "True",
+                        "currentAddressReportedDate": "201811",
+                        "dateOfBirthAsReported": "19711130",
+                        "nameAsReported": "SMITH, JANE",
+                        "addressAsReported": "11,DORVAL AVE,DORVAL,QC,H3S1G4"
+                    },
+                    "dualSourceResult": [{
+                        "isLastNameMatched": "true",
+                        "isFirstNameMatched": "true",
+                        "isMiddleNameMatched": "true",
+                        "isSuffixNameMatched": "true",
+                        "isAddressCivicMatch": "True",
+                        "isAddressStreetNameMatch": "True",
+                        "isAddressCityMatch": "True",
+                        "isAddressPostalCodeMatch": "True",
+                        "isAddressProvinceMatch": "True",
+                        "isDateOfBirthMatch": "True",
+                        "isAccountNumberMatch": false,
+                        "isNameAndDobMatch": true,
+                        "isNameAndAddressMatch": false,
+                        "isNameAndAccountMatch": false,
+                        "tradeStatus": "O",
+                        "dateOfBirthAsReported": "19711130",
+                        "memberNumber": "481BB01426",
+                        "dateLastReported": "20180901",
+                        "dateOpened": "20170802",
+                        "institutionName": "CIBC",
+                        "accountNumber": "123456789011111",
+                        "familyName": "CANADIAN IMPERIAL BANK-CMMRC",
+                        "nameAsReported": "SMITH, JANE",
+                        "addressAsReported": "11,DORVAL AVE,DORVAL,QC,H3S1G4"
+                    }],
+                    "bureauName": "Equifax Canada",
+                    "dateOfRequest": "2018/10/29 12:00 AM UTC",
+                    "creditFileNumber": "65462",
+                    "isCreditFileGreaterThanThreeYearsOld": "True",
+                    "verificationTime": "2018/11/15 10:58 AM UTC",
+                    "creditFileCreationDate": "2016/01/01 12:00 AM UTC"
+                }
+            }
+```
+
+<a name="amlassistsinglesourceresultobject" title="AML Assist Single Source Result Object"></a>
+## singleSourceResult
+
+This is the raw response from the downstream provider. Paysafe uses this data in part to render the Consumer Identity Check decision.
+
+|Element                                |Type           |Description    |
+|---                                    |---            |---            |
 |isLastNameMatched                      | boolean       | This indicates whether the last name matched. |
 |isFirstNameMatched                     | boolean       | This indicates whether the first name matched. |
 |isMiddleNameMatched                    | boolean       | This indicates whether the middle name matched. |
-|isDateOfBirthMatch                     | boolean       | This indicates whether the date of birth matched.  |
+|isSuffixNameMatched                    | boolean       | This indicates whether the suffix name matched. |
 |isAddressCivicMatch                    | boolean       | This indicates whether the civic number of the address matched. |
 |isAddressStreetNameMatch               | boolean       | This indicates whether the address street name matched. |
 |isAddressCityMatch                     | boolean       | This indicates whether the address city matched. |
 |isAddressPostalCodeMatch               | boolean       | This indicates whether the address postal code matched. |
 |isAddressProvinceMatch                 | boolean       | This indicates whether the address province matched. |
-|creditFileCreationDate                 | [creditFileCreationDate](#dateobject) | This is the date on which credit file was created. |
-|numberOfTrades                         |integer        | This is the number of trades on credit file. Applicable if single source has been hit. |
-|singleSourceDecision                   | boolean       | This indicates whether the decision was obtained from single source. Applicable if single source has been hit.|
-|dualSourceDecision                     | boolean       | This indicates whether the decision was obtained from dual source. Applicable if dual source has been hit. |
-|institutionName                        | string        | This is the institution name retrieved from the AML Assist output. Applicable if dual source has been hit. |
-|accountNumber                          | string        | This is the account name retrieved from the AML Assist output. Applicable if dual source has been hit. |
-|familyName                             | string        | This is the family name retrieved from the AML Assist output. Applicable if dual source has been hit.|
-|isNameAndDobMatch                      | boolean       | This indicates whether the name and date of birth match. Applicable if dual source has been hit.|
-|isNameAndAddressMatch                  | boolean       | This indicates whether the name and address match. Applicable if dual source has been hit. |
-|isNameAndAccountNumberMatch            | boolean       | This indicates whether the name and account number match. Applicable if dual source has been hit.|
-|bureauName                             | string        | This indicates which bureau the credit file belongs to. |
-|originOfCreditFile                     | string        | This indicates the country of origin of this credit file. |
-|dateOfRequest                          | string        | This indicates the date the credit file was requested. |
+|isDateOfBirthMatch                     | boolean       | This indicates whether the date of birth matched.  |
+|currentAddressReportedDate             | string        | This is the date of the current address retrieved from the downstream provider output. |
+|dateOfBirthAsReported                  | string        | This is the date of birth retrieved from the downstream provider output. |
+|nameAsReported                         | string        | This is the name retrieved from the downstream provider output. |
+|addressAsReported                      | string        | This is the address retrieved from the downstream provider output. |
 
 ```apib
-    {
-        "creditFileNumber": "65462",
-        "creditFileGreaterThanThreeYearsOld": "True",
-        "isSingleSourceHit": "True",
-        "isDualSourceHit": "False",
-        "isLastNameMatched": "True",
-        "isFirstNameMatched": "True",
-        "isMiddleNameMatched": "True",
-        "isDateOfBirthMatch": "True",
-        "isAddressCivicMatch": "True",
-        "isAddressStreetNameMatch": "True",
-        "isAddressCityMatch": "True",
-        "isAddressPostalCodeMatch": "True",
-        "isAddressProvinceMatch": "True",
-        "creditFileCreationDate": {
-            "day": "12",
-            "month": "10",
-            "year": "2010"
-        },
-        "numberOfTrades": "23",
-        "familyName": "Roz",
-        "singleSourceDecision": "True",
-        "dualSourceDecision": null,
-        "institutionName": "institute",
-        "accountNumber": "45487852",
-        "isNameAndDobMatch": "True",
-        "isNameAndAddressMatch": "True",
-        "isNameAndAccountNumberMatch": "True",
-        "bureauName": "Equifax Canada",
-        "originOfCreditFile": "CANADA",
-        "dateOfRequest": "2018/10/29 12:00 AM UTC"
-    }
+                "isLastNameMatched": "true",
+                "isFirstNameMatched": "true",
+                "isMiddleNameMatched": "true",
+                "isSuffixNameMatched": "true",
+                "isAddressCivicMatch": "true",
+                "isAddressStreetNameMatch": "true",
+                "isAddressCityMatch": "true",
+                "isAddressPostalCodeMatch": "true",
+                "isAddressProvinceMatch": "true",
+                "isDateOfBirthMatch": "true",
+                "currentAddressReportedDate": "201811",
+                "dateOfBirthAsReported": "19711130",
+                "nameAsReported": "SMITH, JANE",
+                "addressAsReported": "11,DORVAL AVE,DORVAL,QC,H3S1G4"
+```
+
+<a name="amlassistdualsourceresultobject" title="AML Assist Dual Source Result Object"></a>
+## dualSourceResult
+
+This is the raw response from the downstream provider. Paysafe uses this data in part to render the Consumer Identity Check decision.
+
+|Element                                |Type           |Description    |
+|---                                    |---            |---            |
+|isLastNameMatched                      | boolean       | This indicates whether the last name matched. |
+|isFirstNameMatched                     | boolean       | This indicates whether the first name matched. |
+|isMiddleNameMatched                    | boolean       | This indicates whether the middle name matched. |
+|isSuffixNameMatched                    | boolean       | This indicates whether the suffix name matched. |
+|isAddressCivicMatch                    | boolean       | This indicates whether the civic number of the address matched. |
+|isAddressStreetNameMatch               | boolean       | This indicates whether the address street name matched. |
+|isAddressCityMatch                     | boolean       | This indicates whether the address city matched. |
+|isAddressPostalCodeMatch               | boolean       | This indicates whether the address postal code matched. |
+|isAddressProvinceMatch                 | boolean       | This indicates whether the address province matched. |
+|isDateOfBirthMatch                     | boolean       | This indicates whether the date of birth matched.  |
+|isAccountNumberMatch                   | boolean       | This indicates whether the account number has been matched. |
+|isNameAndDobMatch                      | boolean       | This indicates whether the name and date of birth match. Applicable if dual source has been hit.|
+|isNameAndAddressMatch                  | boolean       | This indicates whether the name and address match. Applicable if dual source has been hit. |
+|isNameAndAccountMatch                  | boolean       | This indicates whether the name and account number match. Applicable if dual source has been hit.|
+|tradeStatus                            | string        | This is the trade status retrieved from the downstream provider. |
+|dateOfBirthAsReported                  | string        | This is the date of birth retrieved from the downstream provider output. |
+|memberNumber                           | string        | This is the member number retrieved from the downstream provider output. |
+|dateLastReported                       | string        | This is the date the credit file was last reported, retrieved from the downstream provider output. |
+|dateOpened                             | string        | This is the date the credit file was opened, retrieved from the downstream provider output. |
+|institutionName                        | string        | This is the institution name, retrieved from the downstream provider output. |
+|accountNumber                          | string        | This is the account name retrieved from the AML Assist output. Applicable if dual source has been hit. |
+|familyName                             | string        | This is the family name retrieved from the AML Assist output. Applicable if dual source has been hit.|
+|nameAsReported                         | string        | This is the name retrieved from the downstream provider output. |
+|addressAsReported                      | string        | This is the address retrieved from the downstream provider output. |
+
+```apib
+            {
+                "isLastNameMatched": "true",
+                "isFirstNameMatched": "true",
+                "isMiddleNameMatched": "true",
+                "isSuffixNameMatched": "true",
+                "isAddressCivicMatch": "true",
+                "isAddressStreetNameMatch": "true",
+                "isAddressCityMatch": "true",
+                "isAddressPostalCodeMatch": "true",
+                "isAddressProvinceMatch": "true",
+                "isDateOfBirthMatch": "true",
+                "isAccountNumberMatch": false,
+                "isNameAndDobMatch": true,
+                "isNameAndAddressMatch": false,
+                "isNameAndAccountMatch": false,
+                "tradeStatus": "O",
+                "dateOfBirthAsReported": "19711130",
+                "memberNumber": "481BB01426",
+                "dateLastReported": "20180901",
+                "dateOpened": "20170802",
+                "institutionName": "CIBC",
+                "accountNumber": "123456789011111",
+                "familyName": "CANADIAN IMPERIAL BANK-CMMRC",
+                "nameAsReported": "SMITH, JANE",
+                "addressAsReported": "11,DORVAL AVE,DORVAL,QC,H3S1G4"
+            }
 ```
 
 
@@ -633,9 +782,9 @@ This is part of the raw response from the downstream provider.
 |Element            |Type                       |Description    |
 |---                |---                        |---       |
 |apartment          |string<br/>`length<=50`    |This is the consumer's apartment number, if applicable.|
-|street             |string<br/>`length<=60`    |This is the first line of the consumer's street address.|
-|street2            |string<br/>`length<=60`    |This is the second line of the consumer's street address, if required.|
-|city               |string<br/>`length<=255`   |This is the city where the address is located.|
+|street             |string<br/>`length<=25`    |This is the first line of the consumer's street address.|
+|street2            |string<br/>`length<=25`    |This is the second line of the consumer's street address, if required.|
+|city               |string<br/>`length<=20`   |This is the city where the address is located.|
 |country            |string<br/>`length=2`      |This is the country where the address is located. See [Country Codes](#countrycodes).|
 |state              |string<br/>`length=2`      |This is the state/province/region in which the consumer lives.<br/>For Canada see [Province Codes](#provincecodes). For the United States see [State Codes](#statecodes). Other countries have no restrictions. |
 |zip                |string<br/>`length<=10`    |This is the zip, postal, or post code of the consumer's address.|
@@ -679,7 +828,7 @@ This is part of the raw response from the downstream provider.
 |id                         |string <br/>`length<=36`                   |This is the *eidCompare* ID generated for the request, returned in the response. |
 |status                     |enum                                       |This is the risk status from the downstream provider. Possible values are: <ul><li>SUCCESS</li><li>FAIL</li><li>ERROR</li></ul> |
 |response                   |[response](#eidcompareresponseobject)      |   |
-|error                      |[error](#errorobject)                      |These are error details in case of any errors occurring while doing the vendor check. |
+|error                      |[error](#errorobject)                      | These are error details in case errors occurred. |
 
 ```apib
     {
@@ -714,7 +863,7 @@ This is part of the raw response from the downstream provider.
 <a name="eidcompareresponseobject" title="EID Compare Response Object"></a>
 ## EID Compare response
 
-This is the raw response from the downstream provider. Paysafe uses this data in part to render the Risk Check decision.
+This is the raw response from the downstream provider. Paysafe uses this data in part to render the Consumer Identity Check decision.
 
 | Element               | Type    | Description                                                       |
 |-----------------------|---------|-------------------------------------------------------------------|
@@ -754,10 +903,10 @@ This is the raw response from the downstream provider. Paysafe uses this data in
 ## error
 |Element            |Type       |Description       |
 |---                |---        |---               |
-|code               |string     |The error code.   |
-|message            |string     |A description of the error. Also shown in the X-Application-Status-Code response header.  |
+|code               |string     |This is the error code.   |
+|message            |string     |This is a description of the error. Also shown in the X-Application-Status-Code response header.  |
 |details            |string array |This is the detailed error description, if applicable. |
-|fieldErrors        |string array     |Details of any parameter value errors (optional). One or more *field:error* pairs, where *field* is the field name and *error* is the error in the field. |
+|fieldErrors        |string array     |If applicable, this is a list of fields that have errors. One or more *field:error* pairs, where *field* is the field name and *error* is the error in the field. |
 
 ```apib
 {  
@@ -778,14 +927,14 @@ This is the raw response from the downstream provider. Paysafe uses this data in
 <a name="previousaddressesobject" title="Previous Addresses Object"></a>
 ## previousAddresses
 
-**Note:** If *monthsAtAddress* in the [*currentAddress* object](#currentaddressobject) is 24 or less, the Risk Check request will have a greater probability of being successful if a previous address is included.
+**Note:** If *monthsAtAddress* in the [*currentAddress* object](#currentaddressobject) is 24 or less, the Consumer Identity Check request will have a greater probability of being successful if a previous address is included.
 
 |Element            |Type                       |Description    |
 |---                |---                        |---       |
 |apartment          |string<br/>`length<=50`    |This is the consumer's apartment number, if applicable.|
-|street             |string<br/>`length<=60`    |This is the first line of the consumer's street address.|
-|street2            |string<br/>`length<=60`    |This is the second line of the consumer's street address, if required.|
-|city               |string<br/>`length<=255`   |This is the city where the address is located.|
+|street             |string<br/>`length<=25`    |This is the first line of the consumer's street address.|
+|street2            |string<br/>`length<=25`    |This is the second line of the consumer's street address, if required.|
+|city               |string<br/>`length<=20`   |This is the city where the address is located.|
 |country            |string<br/>`length=2`      |This is the country where the address is located. See [Country Codes](#countrycodes).|
 |state              |string<br/>`length=2`      |This is the state/province/region in which the consumer lives.<br/>For Canada see [Province Codes](#provincecodes). For the United States see [State Codes](#statecodes). Other countries have no restrictions. |
 |zip                |string<br/>`length<=10`    |This is the zip, postal, or post code of the consumer's address.|
@@ -813,14 +962,14 @@ This is the raw response from the downstream provider. Paysafe uses this data in
 |middleName         |string <br/>`length<=15`           |This is the consumer’s middle name. |
 |lastName           |string <br/>`length<=25`           |This is the consumer’s last name. |
 |ssn                |string <br/>`length<=10`           |This is the consumer's Social Security Number. |
-|sin                |string <br/>`length<=9`            |This is the consumer's Social Insurance Number. |
+|sin                |string <br/>`length<=9`            |This is the Canadian consumer's Social Insurance Number. |
 |ssnLastFour        |string <br/>`length=4`             |This is the last four digits of the consumer's Social Security Number, returned in the response. |
 |sinLastFour        |string <br/>`length=4`             |This is the last four digits of the consumer's Social Insurance Number, returned in the response. |
 |email              |string<br/>`length<=128`           |This is the consumer's email address.|
 |locale             |enum                               |This indicates the language of the profile. Possible values are:<ul><li>en_CA</li><li>fr_CA</li></ul> |
 |currentAddress     |[currentAddress](#addressobject)   |This is the consumer's address. |
-|dateOfBirth        |[dateOfBirth](#dateofbirthobject)  |This is the customer's date of birth.|
-|previousAddresses  |[previousAddresses](#addressobject) | This is an array of the consumer's previous addresses. **Note:** If *monthsAtAddress* in the *currentAddress* object is 24 or less, the Risk Check request will have a greater probability of being successful if a previous address is included.|
+|dateOfBirth        |[dateOfBirth](#dateofbirthobject)  |This is the consumer's date of birth.|
+|previousAddresses  |[previousAddresses](#addressobject) | This is an array of the consumer's previous addresses. **Note:** If *monthsAtAddress* in the *currentAddress* object is 24 or less, the Consumer Identity Check request will have a greater probability of being successful if a previous address is included.|
 
 ```apib
     {
@@ -889,7 +1038,7 @@ These are raw responses from the downstream providers.
                     "status": "SUCCESS",
                     "response": {
                         "creditFileNumber": "65462",
-                        "creditFileGreaterThanThreeYearsOld": "True",
+                        "isCreditFileGreaterThanThreeYearsOld": "True",
                         "isSingleSourceHit": "True",
                         "isDualSourceHit": "False",
                         "isLastNameMatched": "True",
@@ -952,8 +1101,8 @@ These are raw responses from the downstream providers.
 
 # Error Summary
 
-<a name="riskcheckerrors" title="Risk Check Errors"></a>
-## Risk Check Errors
+<a name="riskcheckerrors" title="Consumer Identity Check Errors"></a>
+## Consumer Identity Check Errors
 
 |HTTP Status Code   |Error Code |Description|
 |---                |---        |---|
@@ -1036,21 +1185,21 @@ This call returns a status of READY if the API is available.
                 "status" : "READY"
             }
 
-# Risk Check [/]
-<a name="riskcheckrequest" title="Risk Check Request"></a>
+# Consumer Identity Check [/]
+<a name="riskcheckrequest" title="Consumer Identity Check Request"></a>
 
-## Run a Risk Check [POST ]
-<a name="riskcheckrequest" title="Run a Risk Check"></a>
+## Run a Consumer Identity Check [POST ]
+<a name="riskcheckrequest" title="Run a Consumer Identity Check"></a>
 
-Click on **Run a Risk Check** above to see two examples of a Risk Check request:
+Click on **Run a Consumer Identity Check** above to see two examples of a Consumer Identity Check request:
 
- * Risk Check using *vendorCheck*
- * Risk Check using *workflowId*
+ * Consumer Identity Check using *vendorCheck*
+ * Consumer Identity Check using *workflowId*
 
 + Attributes
-    + Include Risk Check
+    + Include Consumer Identity Check
 
-+ Request Risk Check Using vendorCheck (application/json)
++ Request Consumer Identity Check Using vendorCheck (application/json)
 
     + Headers
     
@@ -1158,7 +1307,7 @@ Click on **Run a Risk Check** above to see two examples of a Risk Check request:
                 }
             }
 
-+ Request Risk Check Using workflowId (application/json)
++ Request Consumer Identity Check Using workflowId (application/json)
 
     + Headers
     
@@ -1266,37 +1415,62 @@ Click on **Run a Risk Check** above to see two examples of a Risk Check request:
                             "id": "amlassistResId",
                             "status": "SUCCESS",
                             "response": {
-                                "creditFileNumber": "65462",
-                                "creditFileGreaterThanThreeYearsOld": "True",
-                                "isSingleSourceHit": "True",
-                                "isDualSourceHit": "False",
-                                "isLastNameMatched": "True",
-                                "isFirstNameMatched": "True",
-                                "isMiddleNameMatched": "True",
-                                "isDateOfBirthMatch": "True",
-                                "isAddressCivicMatch": "True",
-                                "isAddressStreetNameMatch": "True",
-                                "isAddressCityMatch": "True",
-                                "isAddressPostalCodeMatch": "True",
-                                "isAddressProvinceMatch": "True",
-                                "creditFileCreationDate": {
-                                    "day": "12",
-                                    "month": "10",
-                                    "year": "2010"
-                                },
-                                "numberOfTrades": "23",
-                                "familyName": "Roz",
-                                "singleSourceDecision": "True",
-                                "dualSourceDecision": null,
-                                "institutionName": "institute",
-                                "accountNumber": "45487852",
-                                "isNameAndDobMatch": "True",
-                                "isNameAndAddressMatch": "True",
-                                "isNameAndAccountNumberMatch": "True",
-                                "bureauName": "Equifax Canada",
+                                "isSingleSourceHit": "true",
+                                "isDualSourceHit": "false",
+                                "decision": "SUCCESS",
+                                "singleSourceDecision": "N",
+                                "dualSourceDecision": "N",
+                                "isWaterfallProcess": "true",
                                 "originOfCreditFile": "CANADA",
-                                "dateOfRequest": "2018/10/29 12:00 AM UTC"
-            
+                                "numberOfTrades": "1",
+                                "singleSourceResult": {
+                                    "isLastNameMatched": "true",
+                                    "isFirstNameMatched": "true",
+                                    "isMiddleNameMatched": "true",
+                                    "isSuffixNameMatched": "true",
+                                    "isAddressCivicMatch": "True",
+                                    "isAddressStreetNameMatch": "True",
+                                    "isAddressCityMatch": "True",
+                                    "isAddressPostalCodeMatch": "True",
+                                    "isAddressProvinceMatch": "True",
+                                    "isDateOfBirthMatch": "True",
+                                    "currentAddressReportedDate": "201811",
+                                    "dateOfBirthAsReported": "19711130",
+                                    "nameAsReported": "SMITH, JANE",
+                                    "addressAsReported": "11,DORVAL AVE,DORVAL,QC,H3S1G4"
+                                },
+                                "dualSourceResult": [{
+                                    "isLastNameMatched": "true",
+                                    "isFirstNameMatched": "true",
+                                    "isMiddleNameMatched": "true",
+                                    "isSuffixNameMatched": "true",
+                                    "isAddressCivicMatch": "True",
+                                    "isAddressStreetNameMatch": "True",
+                                    "isAddressCityMatch": "True",
+                                    "isAddressPostalCodeMatch": "True",
+                                    "isAddressProvinceMatch": "True",
+                                    "isDateOfBirthMatch": "True",
+                                    "isAccountNumberMatch": false,
+                                    "isNameAndDobMatch": true,
+                                    "isNameAndAddressMatch": false,
+                                    "isNameAndAccountMatch": false,
+                                    "tradeStatus": "O",
+                                    "dateOfBirthAsReported": "19711130",
+                                    "memberNumber": "481BB01426",
+                                    "dateLastReported": "20180901",
+                                    "dateOpened": "20170802",
+                                    "institutionName": "CIBC",
+                                    "accountNumber": "123456789011111",
+                                    "familyName": "CANADIAN IMPERIAL BANK-CMMRC",
+                                    "nameAsReported": "SMITH, JANE",
+                                    "addressAsReported": "11,DORVAL AVE,DORVAL,QC,H3S1G4"
+                                }],
+                                "bureauName": "Equifax Canada",
+                                "dateOfRequest": "2018/10/29 12:00 AM UTC",
+                                "creditFileNumber": "65462",
+                                "isCreditFileGreaterThanThreeYearsOld": "true",
+                                "verificationTime": "2018/11/15 10:58 AM UTC",
+                                "creditFileCreationDate": "2016/01/01 12:00 AM UTC"
                             }
                         }
                     }
@@ -1304,27 +1478,27 @@ Click on **Run a Risk Check** above to see two examples of a Risk Check request:
             }
 
 
-# Rerun a Risk Check [/risk_check_id/rerunfailedchecks]
-<a name="rerunriskcheckrequest" title="Rerun Risk Check"></a>
+# Rerun a Consumer Identity Check [/risk_check_id/rerunfailedchecks]
+<a name="rerunriskcheckrequest" title="Rerun Consumer Identity Check"></a>
 
-## Rerun a Risk Check [POST /{risk_check_id}/rerunfailedchecks]
-<a name="rerunriskcheckrequest" title="Rerun a Risk Check"></a>
+## Rerun a Consumer Identity Check [POST /{risk_check_id}/rerunfailedchecks]
+<a name="rerunriskcheckrequest" title="Rerun a Consumer Identity Check"></a>
 
-Click on **Rerun a Risk Check** above to see how you submit a request to rerun a Risk Check.
+Click on **Rerun a Consumer Identity Check** above to see how you submit a request to rerun a Consumer Identity Check.
 
-**Note:** There is no payload to include in the request to rerun a Risk Check. 
+**Note:** There is no payload to include in the request to rerun a Consumer Identity Check. 
 
- - You can rerun a Risk Check request when the *decision* in the response to the initial request is **ERROR**, which could mean that the initial Risk Check request could not be completed. 
- - Do not rerun a Risk Check request if the *decision* in the response to the initial request is **FAIL**. You will get the same FAIL decision if you resubmit it.
+ - You can rerun a Consumer Identity Check request when the *decision* in the response to the initial request is **ERROR**, which could mean that the initial Consumer Identity Check request could not be completed. 
+ - Do not rerun a Consumer Identity Check request if the *decision* in the response to the initial request is **FAIL**. You will get the same FAIL decision if you resubmit it.
 
 + Parameters
 
-    + risk_check_id:`86dcb68d-cbd0-4878-8da7-ffc0e6554513` (string, required) - This is the ID returned in the response to the original Risk Check request.
+    + risk_check_id:`86dcb68d-cbd0-4878-8da7-ffc0e6554513` (string, required) - This is the ID returned in the response to the original Consumer Identity Check request.
 
 + Attributes
-    + Include Risk Check Rerun
+    + Include Consumer Identity Check Rerun
 
-+ Request Rerun Risk Check (application/json)
++ Request Rerun Consumer Identity Check (application/json)
 
     + Headers
     
@@ -1344,7 +1518,7 @@ Click on **Rerun a Risk Check** above to see how you submit a request to rerun a
                 "id": "86dcb68d-cbd0-4878-8da7-ffc0e6554513",
                 "decision": "SUCCESS",
                 "merchantRefNum": "KYC_1520461749",
-                "accountId": "PMLEID100", 
+                "accountId": "PMLEID100",
                 "profile": {
                     "firstName": "John",
                     "lastName": "Smith",
@@ -1376,7 +1550,7 @@ Click on **Rerun a Risk Check** above to see how you submit a request to rerun a
                     "sinLastFour": "6789"
                 },
                 "customerIp": "1.1.1.1",
-                "vendorCheck": "EID_COMPARE",
+                "workflowId": "LOW_RISK",
                 "providerResponses": {
                     "eidCompare": {
                         "id": "0f1266b9-ce28-4df2-bc3f-d4b746cc1ced",
@@ -1399,37 +1573,62 @@ Click on **Rerun a Risk Check** above to see how you submit a request to rerun a
                             "id": "amlassistResId",
                             "status": "SUCCESS",
                             "response": {
-                                "creditFileNumber": "65462",
-                                "creditFileGreaterThanThreeYearsOld": "True",
-                                "isSingleSourceHit": "True",
-                                "isDualSourceHit": "False",
-                                "isLastNameMatched": "True",
-                                "isFirstNameMatched": "True",
-                                "isMiddleNameMatched": "True",
-                                "isDateOfBirthMatch": "True",
-                                "isAddressCivicMatch": "True",
-                                "isAddressStreetNameMatch": "True",
-                                "isAddressCityMatch": "True",
-                                "isAddressPostalCodeMatch": "True",
-                                "isAddressProvinceMatch": "True",
-                                "creditFileCreationDate": {
-                                    "day": "12",
-                                    "month": "10",
-                                    "year": "2010"
-                                },
-                                "numberOfTrades": "23",
-                                "familyName": "Roz",
-                                "singleSourceDecision": "True",
-                                "dualSourceDecision": null,
-                                "institutionName": "institute",
-                                "accountNumber": "45487852",
-                                "isNameAndDobMatch": "True",
-                                "isNameAndAddressMatch": "True",
-                                "isNameAndAccountNumberMatch": "True",
-                                "bureauName": "Equifax Canada",
+                                "isSingleSourceHit": "true",
+                                "isDualSourceHit": "false",
+                                "decision": "SUCCESS",
+                                "singleSourceDecision": "N",
+                                "dualSourceDecision": "N",
+                                "isWaterfallProcess": "true",
                                 "originOfCreditFile": "CANADA",
-                                "dateOfRequest": "2018/10/29 12:00 AM UTC"
-            
+                                "numberOfTrades": "1",
+                                "singleSourceResult": {
+                                    "isLastNameMatched": "true",
+                                    "isFirstNameMatched": "true",
+                                    "isMiddleNameMatched": "true",
+                                    "isSuffixNameMatched": "true",
+                                    "isAddressCivicMatch": "True",
+                                    "isAddressStreetNameMatch": "True",
+                                    "isAddressCityMatch": "True",
+                                    "isAddressPostalCodeMatch": "True",
+                                    "isAddressProvinceMatch": "True",
+                                    "isDateOfBirthMatch": "True",
+                                    "currentAddressReportedDate": "201811",
+                                    "dateOfBirthAsReported": "19711130",
+                                    "nameAsReported": "SMITH, JANE",
+                                    "addressAsReported": "11,DORVAL AVE,DORVAL,QC,H3S1G4"
+                                },
+                                "dualSourceResult": [{
+                                    "isLastNameMatched": "true",
+                                    "isFirstNameMatched": "true",
+                                    "isMiddleNameMatched": "true",
+                                    "isSuffixNameMatched": "true",
+                                    "isAddressCivicMatch": "True",
+                                    "isAddressStreetNameMatch": "True",
+                                    "isAddressCityMatch": "True",
+                                    "isAddressPostalCodeMatch": "True",
+                                    "isAddressProvinceMatch": "True",
+                                    "isDateOfBirthMatch": "True",
+                                    "isAccountNumberMatch": false,
+                                    "isNameAndDobMatch": true,
+                                    "isNameAndAddressMatch": false,
+                                    "isNameAndAccountMatch": false,
+                                    "tradeStatus": "O",
+                                    "dateOfBirthAsReported": "19711130",
+                                    "memberNumber": "481BB01426",
+                                    "dateLastReported": "20180901",
+                                    "dateOpened": "20170802",
+                                    "institutionName": "CIBC",
+                                    "accountNumber": "123456789011111",
+                                    "familyName": "CANADIAN IMPERIAL BANK-CMMRC",
+                                    "nameAsReported": "SMITH, JANE",
+                                    "addressAsReported": "11,DORVAL AVE,DORVAL,QC,H3S1G4"
+                                }],
+                                "bureauName": "Equifax Canada",
+                                "dateOfRequest": "2018/10/29 12:00 AM UTC",
+                                "creditFileNumber": "65462",
+                                "isCreditFileGreaterThanThreeYearsOld": "true",
+                                "verificationTime": "2018/11/15 10:58 AM UTC",
+                                "creditFileCreationDate": "2016/01/01 12:00 AM UTC"
                             }
                         }
                     }
@@ -1446,7 +1645,7 @@ Click on **Rerun a Risk Check** above to see how you submit a request to rerun a
 
     + Properties
         + `id`: `d4b746cc1ced-ce28-4df2-bc3f-d4b746cc1ced-0f1266b9` (string) - This is the ID generated for the request, returned in the response.
-            _length<=36_
+            _Read Only_, _length<=36_
         + `status`: `SUCCESS` (enum) - This is the risk decision.
             
             + Members
@@ -1457,13 +1656,40 @@ Click on **Rerun a Risk Check** above to see how you submit a request to rerun a
 
 ## AML Assist Response
 
-+ `response` (object) - This is a sample of some of the response parameters [returned by the downstream provider](#amlassistresponseobject).
++ `response` (object) - These are the response parameters [returned by the downstream provider](#amlassistresponseobject).
     _Read Only_
 
     + Properties
-        + `creditFileNumber`: `65462` (string)
-        + `creditFileGreaterThanThreeYearsOld`: `true` (boolean)
         + `isSingleSourceHit`: `true` (boolean)
+            _Read Only_
+        + `isDualSourceHit`: `false` (boolean)
+            _Read Only_
+        + `decision`: `SUCCESS` (enum)
+            _Read Only_
+        + `singleSourceDecision`: `false` (boolean)
+            _Read Only_
+        + `dualSourceDecision`: `true` (boolean)
+            _Read Only_
+        + `isWaterfallProcess`: `false` (boolean)
+            _Read Only_
+        + `originOfCreditFile`: `Canada` (string)
+            _Read Only_
+        + `numberOfTrades`: `1` (number)
+            _Read Only_
+        + Include Single Source Result
+        + Include Dual Source Result
+        + `bureauName`: `Equifax Canada` (string)
+            _Read Only_
+        + `dateOfRequest`: `2018/10/29 12:00 AM UTC` (string)
+            _Read Only_
+        + `creditFileNumber`: `65462` (string)
+            _Read Only_
+        + `isCreditFileGreaterThanThreeYearsOld`: `true` (boolean)
+            _Read Only_
+        + `verificationTime`: `2018/11/15 10:58 AM UTC` (string)
+            _Read Only_
+        + `creditFileCreationDate`: `2016/01/01 12:00 AM UTC` (string)
+            _Read Only_
 
 ## Assessment Complete
 + `assessmentComplete` (object)
@@ -1485,11 +1711,11 @@ Click on **Rerun a Risk Check** above to see how you submit a request to rerun a
     + `apartment`: `11` (string) -  This is the consumer's apartment number, if applicable.
         _length<=50_
     + `street`: `100 Queen Street West` - (string, required) - This is the first line of the consumer's street address.
-        _length<=60_
+        _length<=25_
     + `street2`: `Building B` (string) - This is the second line of the consumer's street address, if required.
-        _length<=60_
+        _length<=25_
     + `city`: `Toronto` (string, required) - This is the city where the address is located.
-        _length<=255_
+        _length<=20_
     + `country`: `CA` (string, required) - This is the country where the address is located. See [Country Codes](#countrycodes).
         _length=2_
     + `state`: `ON` (string, required) - This is the state/province/region in which the consumer lives. For Canada see [Province Codes](#provincecodes). For the United States see [State Codes](#statecodes). 
@@ -1507,9 +1733,9 @@ Click on **Rerun a Risk Check** above to see how you submit a request to rerun a
     + `apartment`: `11` (string) -  This is the consumer's apartment number, if applicable.
         _Read Only_, _length<=50_
     + `street`: `100 Queen Street West` - (string) - This is the first line of the consumer's street address.
-        _Read Only_, _length<=60_
+        _Read Only_, _length<=25_
     + `street2`: `Building B` (string) - This is the second line of the consumer's street address, if required.
-        _Read Only_, _length<=60_
+        _Read Only_, _length<=25_
     + `city`: `Toronto` (string) - This is the city where the address is located.
         _Read Only_, _length<=255_
     + `country`: `CA` (string) - This is the country where the address is located. See [Country Codes](#countrycodes).
@@ -1523,25 +1749,141 @@ Click on **Rerun a Risk Check** above to see how you submit a request to rerun a
     + `monthsAtAddress`: `50` (string) - This is the number of months the consumer has been living at this address.
         _Read Only_, _length<=1200_
 
+## Consumer Identity Check
+
++ `id`: `25f6dadf-176a-415f-95c9-6ff39ff697ba` (string) - This is the ID returned in the response.
+
+    _Read Only_, _length<=36_
+
++ `decision`: `SUCCESS` (enum) - This is the overall Consumer Identity Check decision returned by Paysafe, based on responses by downstream providers.
+    _Read Only_
+
+    + Members
+        + `SUCCESS` - The consumer has successfully passed the Consumer Identity Check.
+        + `FAIL` - The consumer has failed the Consumer Identity Check.
+        + `ERROR` - The Consumer Identity Check could not be processed. In this case you can attempt to [rerun the request](#rerunriskcheckrequest).
+        + `OUTSORT` - The Consumer Identity Check was inconclusive. The merchant should collect additional documents to manually verify the consumer.
+
++ `merchantRefNum`: `P1234` (string, required) - This is the merchant reference number created by the merchant and submitted as part of the request.
+
+    _length<=255_
+
++ `accountId`: `PMLEID100` (string, required) - This is the merchant's account ID, provided to the merchant by Paysafe.
+    _length<=20_
++ Include Profile
++ `ConsumerIp`: `1.1.1.1` (string) - This is the consumer's IP address.
+    _length<=39_
++ One of
+    + `vendorCheck`: `EID_COMPARE` (string, required) - You must include either *vendorCheck* or *workflowId* but not both. Upon onboarding, Paysafe will instruct the merchant on which parameter to use as well as which value to provide for the parameter.
+        _length<=80_
+    + `workflowId`: `LOW_RISK` (string, required) - You must include either *vendorCheck* or *workflowId* but not both. Upon onboarding, Paysafe will instruct the merchant on which parameter to use as well as which value to provide for the parameter.
++ Include Provider Responses
+
+## Consumer Identity Check Rerun
+
++ `id`: `25f6dadf-176a-415f-95c9-6ff39ff697ba` (string) - This is the ID returned in the response.
+
+    _Read Only_, _length<=36_
+
++ `decision`: `SUCCESS` (enum) - This is the overall Consumer Identity Check decision returned by Paysafe, based on responses by downstream providers.
+    _Read Only_
+
+    + Members
+        + `SUCCESS` - The consumer has successfully passed the Consumer Identity Check.
+        + `FAIL` - The consumer has failed the Consumer Identity Check.
+        + `ERROR` - The Consumer Identity Check could not be processed. In this case you can attempt to [rerun the request](#rerunriskcheckrequest).
+        + `OUTSORT` - The Consumer Identity Check was inconclusive. The merchant should collect additional documents to verify the consumer with a manual review.
+
++ `merchantRefNum`: `P1234` (string) - This is the merchant reference number created by the merchant and submitted as part of the request.
+
+    _Read Only_, _length<=255_
+
++ `accountId`: `PMLEID100` (string, required) - This is the merchant's account ID, provided to the merchant by Paysafe.
+    _Read Only_, _length<=20_
++ Include Profile Rerun
++ `customerIp`: `1.1.1.1` (string) - This is the consumer's IP address.
+    _Read Only_, _length<=39_
++ One of
+    + `vendorCheck`: `EID_COMPARE` (string) - This is the  You must include either *vendorCheck* or *workflowId* but not both. Upon onboarding, Paysafe will instruct the merchant on which parameter to use as well as which value to provide for the parameter.
+        _Read Only_, _length<=80_
+    + `workflowId`: `LOW_RISK` (string) - This is the You must include either *vendorCheck* or *workflowId* but not both. Upon onboarding, Paysafe will instruct the merchant on which parameter to use as well as which value to provide for the parameter.
+        _Read Only_
++ Include Provider Responses
+
 ## Date of Birth
 
 + `dateOfBirth` (object, required)
-    + `year`: `1980` (number, required) - This is the date year.
-        _length=4_, _min=1900_
-    + `month`: `12` (number, required) - This is the date month.
-        _length=2_, _max=12_
     + `day`: `25` (number, required) - This is the date day.
         _length=2_, _max=31_
+    + `month`: `12` (number, required) - This is the date month.
+        _length=2_, _max=12_        
+    + `year`: `1980` (number, required) - This is the date year.
+        _length=4_, _min=1900_
 
 ## Date of Birth Rerun
 
 + `dateOfBirth` (object)
-    + `year`: `1980` (number) - This is the date year.
-        _Read Only_, _length=4_, _min=1900_
-    + `month`: `12` (number) - This is the date month.
-        _Read Only_, _length=2_, _max=12_
     + `day`: `25` (number) - This is the date day.
         _Read Only_, _length=2_, _max=31_
+    + `month`: `12` (number) - This is the date month.
+        _Read Only_, _length=2_, _max=12_        
+    + `year`: `1980` (number) - This is the date year.
+        _Read Only_, _length=4_, _min=1900_
+
+
+## Dual Source Result
++ `dualSourceResult` (object)
+    _Read Only_
+    + Properties
+        + `isLastNameMatched`: `true` (boolean) 
+            _Read Only_
+        + `isFirstNameMatched`: `true` (boolean) 
+            _Read Only_
+        + `isMiddleNameMatched`: `true` (boolean) 
+            _Read Only_
+        + `isSuffixNameMatched`: `true` (boolean) 
+            _Read Only_
+        + `isAddressCivicMatch`: `true` (boolean) 
+            _Read Only_
+        + `isAddressStreetNameMatch`: `true` (boolean) 
+            _Read Only_
+        + `isAddressCityMatch`: `true` (boolean) 
+            _Read Only_
+        + `isAddressPostalCodeMatch`: `true` (boolean) 
+            _Read Only_
+        + `isAddressProvinceMatch`: `true` (boolean) 
+            _Read Only_
+        + `isDateOfBirthMatch`: `true` (boolean) 
+            _Read Only_
+        + `isAccountNumberMatch`: `true` (boolean)
+            _Read Only_
+        + `isNameAndDobMatch`: `true` (boolean)
+            _Read Only_
+        + `isNameAndAddressMatch`: `true` (boolean)
+            _Read Only_
+        + `isNameAndAccountMatch`: `true` (boolean)
+            _Read Only_
+        + `tradeStatus`: `0` (string)
+            _Read Only_
+        + `dateOfBirthAsReported`: `19711130` (string) 
+            _Read Only_
+        + `memberNumber`: `481BB01426` (string)
+            _Read Only_
+        + `dateLastReported`: `20180901` (string)
+            _Read Only_
+        + `dateOpened`: `20170802` (string)
+            _Read Only_
+        + `institutionName`: `CIBC` (string)
+            _Read Only_
+        + `accountNumber`: `123456789011111` (string)
+            _Read Only_
+        + `familyName`: `Roz` (string)
+            _Read Only_
+        + `nameAsReported`: `SMITH, JANE` (string) 
+            _Read Only_
+        + `addressAsReported`: `11,DORVAL AVE,DORVAL,QC,H3S1G4` (string) 
+            _Read Only_
+
 
 ## EID Compare
 
@@ -1574,17 +1916,17 @@ Click on **Rerun a Risk Check** above to see how you submit a request to rerun a
 + 
 
 ## Previous Addresses
-+ `previousAddresses` (array) - This is an array of the consumer's previous addresses. **Note:** If *monthsAtAddress* in the *currentAddress* object is 24 or less, the Risk Check request will have a greater probability of being successful if a previous address is included.
++ `previousAddresses` (array) - This is an array of the consumer's previous addresses. **Note:** If *monthsAtAddress* in the *currentAddress* object is 24 or less, the Consumer Identity Check request will have a greater probability of being successful if a previous address is included.
     + (object)
         + Properties
             + `apartment`: `11` (string) -  This is the consumer's apartment number, if applicable.
                 _length<=50_
             + `street`: `100 Queen Street West` - (string, required) - This is the first line of the consumer's street address.
-                _length<=255_
+                _length<=25_
             + `street2`: `Building B` (string) - This is the second line of the consumer's street address, if required.
-                _length<=255_
+                _length<=25_
             + `city`: `Toronto` (string, required) - This is the city where the address is located.
-                _length<=255_
+                _length<=20_
             + `country`: `CA` (string, required) - This is the country where the address is located. See [Country Codes](#countrycodes).
                 _length=2_
             + `state`: `ON` (string, required) - This is the state/province/region in which the consumer lived. For Canada see [Province Codes](#provincecodes). For the United States see [State Codes](#statecodes). 
@@ -1597,18 +1939,18 @@ Click on **Rerun a Risk Check** above to see how you submit a request to rerun a
                 _length<=1200_
 
 ## Previous Addresses Rerun
-+ `previousAddresses` (array) - This is an array of the consumer's previous addresses. **Note:** If *monthsAtAddress* in the *currentAddress* object is 24 or less, the Risk Check request will have a greater probability of being successful if a previous address is included.
++ `previousAddresses` (array) - This is an array of the consumer's previous addresses. **Note:** If *monthsAtAddress* in the *currentAddress* object is 24 or less, the Consumer Identity Check request will have a greater probability of being successful if a previous address is included.
     
     + (object)
         + Properties
             + `apartment`: `11` (string) -  This is the consumer's apartment number, if applicable.
                 _Read Only_, _length<=50_
             + `street`: `100 Queen Street West` - (string) - This is the first line of the consumer's street address.
-                _Read Only_, _length<=255_
+                _Read Only_, _length<=25_
             + `street2`: `Building B` (string) - This is the second line of the consumer's street address, if required.
-                _Read Only_, _length<=255_
+                _Read Only_, _length<=25_
             + `city`: `Toronto` (string) - This is the city where the address is located.
-                _Read Only_, _length<=255_
+                _Read Only_, _length<=20_
             + `country`: `CA` (string) - This is the country where the address is located. See [Country Codes](#countrycodes).
                 _Read Only_, _length=2_
             + `state`: `ON` (string) - This is the state/province/region in which the consumer lived. For Canada see [Province Codes](#provincecodes). For the United States see [State Codes](#statecodes). 
@@ -1692,65 +2034,37 @@ Click on **Rerun a Risk Check** above to see how you submit a request to rerun a
 
     + Properties
         + `description`: `Telephone exchange does not match the FSA (first three characters) of the postal code for Current Address.` (string)
-        + `code`: `08` (number) 
+        + `code`: `08` (number)
 
-## Risk Check
-
-+ `id`: `25f6dadf-176a-415f-95c9-6ff39ff697ba` (string) - This is the ID returned in the response.
-
-    _Read Only_, _length<=36_
-
-+ `decision`: `SUCCESS` (enum) - This is the overall Risk Check decision returned by Paysafe, based on responses by downstream providers.
+## Single Source Result
++ `singleSourceResult` (object)
     _Read Only_
-
-    + Members
-        + `SUCCESS` - The consumer has successfully passed the Risk Check.
-        + `FAIL` - The consumer has failed the Risk Check.
-        + `ERROR` - The Risk Check could not be processed. In this case you can attempt to [rerun the request](#rerunriskcheckrequest).
-        + `OUTSORT` - The Risk Check was inconclusive. The merchant should collect additional documents to manually verify the consumer.
-
-+ `merchantRefNum`: `P1234` (string, required) - This is the merchant reference number created by the merchant and submitted as part of the request.
-
-    _length<=255_
-
-+ `accountId`: `PMLEID100` (string, required) - This is the merchant's account ID, provided to the merchant by Paysafe.
-    _length<=20_
-+ Include Profile
-+ `customerIp`: `1.1.1.1` (string) - This is the consumer's IP address.
-    _length<=39_
-+ One of
-    + `vendorCheck`: `EID_COMPARE` (string, required) - You must include either *vendorCheck* or *workflowId* but not both. Upon onboarding, Paysafe will instruct the merchant on which parameter to use as well as which value to provide for the parameter.
-        _length<=80_
-    + `workflowId`: `LOW_RISK` (string, required) - You must include either *vendorCheck* or *workflowId* but not both. Upon onboarding, Paysafe will instruct the merchant on which parameter to use as well as which value to provide for the parameter.
-+ Include Provider Responses
-
-## Risk Check Rerun
-
-+ `id`: `25f6dadf-176a-415f-95c9-6ff39ff697ba` (string) - This is the ID returned in the response.
-
-    _Read Only_, _length<=36_
-
-+ `decision`: `SUCCESS` (enum) - This is the overall Risk Check decision returned by Paysafe, based on responses by downstream providers.
-    _Read Only_
-
-    + Members
-        + `SUCCESS` - The consumer has successfully passed the Risk Check.
-        + `FAIL` - The consumer has failed the Risk Check.
-        + `ERROR` - The Risk Check could not be processed. In this case you can attempt to [rerun the request](#rerunriskcheckrequest).
-        + `OUTSORT` - The Risk Check was inconclusive. The merchant should collect additional documents to verify the consumer with a manual review.
-
-+ `merchantRefNum`: `P1234` (string) - This is the merchant reference number created by the merchant and submitted as part of the request.
-
-    _Read Only_, _length<=255_
-
-+ `accountId`: `PMLEID100` (string, required) - This is the merchant's account ID, provided to the merchant by Paysafe.
-    _Read Only_, _length<=20_
-+ Include Profile Rerun
-+ `customerIp`: `1.1.1.1` (string) - This is the consumer's IP address.
-    _Read Only_, _length<=39_
-+ One of
-    + `vendorCheck`: `EID_COMPARE` (string) - This is the  You must include either *vendorCheck* or *workflowId* but not both. Upon onboarding, Paysafe will instruct the merchant on which parameter to use as well as which value to provide for the parameter.
-        _Read Only_, _length<=80_
-    + `workflowId`: `LOW_RISK` (string) - This is the You must include either *vendorCheck* or *workflowId* but not both. Upon onboarding, Paysafe will instruct the merchant on which parameter to use as well as which value to provide for the parameter.
-        _Read Only_
-+ Include Provider Responses
+    + Properties
+        + `isLastNameMatched`: `true` (boolean) 
+            _Read Only_
+        + `isFirstNameMatched`: `true` (boolean) 
+            _Read Only_
+        + `isMiddleNameMatched`: `true` (boolean) 
+            _Read Only_
+        + `isSuffixNameMatched`: `true` (boolean) 
+            _Read Only_
+        + `isAddressCivicMatch`: `true` (boolean) 
+            _Read Only_
+        + `isAddressStreetNameMatch`: `true` (boolean) 
+            _Read Only_
+        + `isAddressCityMatch`: `true` (boolean) 
+            _Read Only_
+        + `isAddressPostalCodeMatch`: `true` (boolean) 
+            _Read Only_
+        + `isAddressProvinceMatch`: `true` (boolean) 
+            _Read Only_
+        + `isDateOfBirthMatch`: `true` (boolean) 
+            _Read Only_
+        + `currentAddressReportedDate`: `201811` (string) 
+            _Read Only_
+        + `dateOfBirthAsReported`: `19711130` (string) 
+            _Read Only_
+        + `nameAsReported`: `SMITH, JANE` (string) 
+            _Read Only_
+        + `addressAsReported`: `11,DORVAL AVE,DORVAL,QC,H3S1G4` (string) 
+            _Read Only_
