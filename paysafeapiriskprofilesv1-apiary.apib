@@ -21,7 +21,7 @@ HOST: https://api.test.paysafe.com/v1/identityprofiles/
 
 # Overview
 
-The Paysafe Consumer Identity API allows merchants to perform KYC (know your customer) Consumer Identity checks on their consumers with a single request to the API. [Click here to see an overview](https://developer.paysafe.com/en/additional-documentation/risk-check/introduction-to-risk-checks/) of how this API works.
+The Paysafe Consumer Identity API allows merchants to perform KYC (know your customer) Consumer Identity checks on their consumers with a single request to the API. [Click here to see an overview](https://developer.paysafe.com/en/additional-documentation/consumer-identity-checks/introduction-to-consumer-identity-api/) of how this API works.
 
 
 <a name="apikey" title="Authentication"></a>
@@ -94,8 +94,8 @@ The Consumer Identity API allows merchants to process KYC (know your customer) C
   
 **API Endpoints** 
 
- - `https://api.paysafe.com/identityprofiles/v1`
- - `https://api.paysafe.com/identityprofiles/v1/consumer_identity_id/rerunfailedchecks`
+ - `https://api.paysafe.com/v1/identityprofiles`
+ - `https://api.paysafe.com/v1/identityprofiles/consumer_identity_id/rerunfailedchecks`
 
 **Resource Patterns**
 
@@ -1478,10 +1478,10 @@ Click on **Run a Consumer Identity Check** above to see two examples of a Consum
             }
 
 
-# Rerun a Consumer Identity Check [/risk_check_id/rerunfailedchecks]
+# Rerun a Consumer Identity Check [/consumer_identity_id/rerunfailedchecks]
 <a name="rerunriskcheckrequest" title="Rerun Consumer Identity Check"></a>
 
-## Rerun a Consumer Identity Check [POST /{risk_check_id}/rerunfailedchecks]
+## Rerun a Consumer Identity Check [POST /{consumer_identity_id}/rerunfailedchecks]
 <a name="rerunriskcheckrequest" title="Rerun a Consumer Identity Check"></a>
 
 Click on **Rerun a Consumer Identity Check** above to see how you submit a request to rerun a Consumer Identity Check.
@@ -1493,7 +1493,7 @@ Click on **Rerun a Consumer Identity Check** above to see how you submit a reque
 
 + Parameters
 
-    + risk_check_id:`86dcb68d-cbd0-4878-8da7-ffc0e6554513` (string, required) - This is the ID returned in the response to the original Consumer Identity Check request.
+    + consumer_identity_id:`86dcb68d-cbd0-4878-8da7-ffc0e6554513` (string, required) - This is the ID returned in the response to the original Consumer Identity Check request.
 
 + Attributes
     + Include Consumer Identity Check Rerun
