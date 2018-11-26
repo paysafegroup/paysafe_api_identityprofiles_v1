@@ -3,16 +3,6 @@ HOST: https://api.test.paysafe.com/v1/identityprofiles/
 
 # Paysafe Consumer Identity API
 
-**QUESTIONS**
-- Have not been able to reach the *monitor* endpoint in Test, for either curl -X GET https://api.test.paysafe.com/identityprofiles/monitor or curl -X GET https://api.test.paysafe.com/v1/identityprofiles/monitor.
-- Are there any hard-coded values the merchant needs in order to be able to run the Consumer Identity request in the Test environment, e.g, accountId or value for vendorCheck?
-- Is Global Invalid Characters section below accurate?
-- isWaterfallProcess is in request but not documented in table of attributes.
-- are errors 6007-6010 no longer being used? Updated Error Object page has different set now: https://confluence.neterra.paysafe.com/display/DATA/Error+Object
-- Update requests in Reference section to reflect changes made to complex response objects.
-- Richard says new endpoint is customeridentity (not identityprofiles).
-- The AML Assist Object page in Confluence (https://confluence.neterra.paysafe.com/display/DATA/AML+Assist+Object) has three parameters that aren't in the sample API request (https://confluence.neterra.paysafe.com/pages/viewpage.action?pageId=152706890) (*IsCreditFileGreaterThanThreeYearsOld*, *bureauName*, and *dateOfRequest*). I just want to make sure these three should be included in the documentation. 
-
 # Release Notes
 
 | Version   | Date           | Details |
@@ -551,7 +541,7 @@ If the downstream provider cannot find a credit file using a single source, it w
 |Credit file not found  |Fail                       |Trade info not found   |Fail                   |FAIL   |   
 
 <a name="amlassistresponseobject" title="AML Assist Response Object"></a>
-## AML Assist response
+## AML Assist Response
 
 This is the raw response from the downstream provider. Paysafe uses this data in part to render the Consumer Identity Check decision.
 
@@ -559,14 +549,14 @@ This is the raw response from the downstream provider. Paysafe uses this data in
 |---                                    |---            |---            |
 |isSingleSourceHit                      | boolean       | This indicates whether a single source has been hit. |
 |isDualSourceHit                        | boolean       | This indicates whether a dual source has been hit. |
-|decision                               | enum          |   |
+|decision                               | enum          | This is a decision returned by the provider. Possible values are:<ul><li>SUCCESS</li><li>FAIL</li></ol>  |
 |singleSourceDecision                   | boolean       | This indicates whether the decision was obtained from single source. Applicable if single source has been hit.|
 |dualSourceDecision                     | boolean       | This indicates whether the decision was obtained from dual source. Applicable if dual source has been hit. |
 |isWaterfallProcess                     |               |       |
 |originOfCreditFile                     | string        | This indicates the country of origin of this credit file. |
-|numberOfTrades                         | number        | this is the number of trades on the credit file. Applicable if dual source has been hit. |
-|singleSourceResult                     |[singleSourceResult](#amlassistsinglesourceresultobject) |      |
-|dualSourceResult                       |[dualSourceResult](#amlassistdualsourceresultobject) |      |
+|numberOfTrades                         | number        | This is the number of trades on the credit file. Applicable if dual source has been hit. |
+|singleSourceResult                     |[singleSourceResult](#amlassistsinglesourceresultobject) | This is the raw response from the downstream provider.     |
+|dualSourceResult                       |[dualSourceResult](#amlassistdualsourceresultobject) |      | This is the raw response from the downstream provider.
 |bureauName                             | string        | This is the bureau name retrieved from the downstream provider output. |
 |dateOfRequest                          | string        | This indicates the date the credit file was requested. |
 |creditFileNumber                       | string        | This is the credit file number received from the downstream provider.  |
@@ -861,7 +851,7 @@ This is part of the raw response from the downstream provider.
 
 
 <a name="eidcompareresponseobject" title="EID Compare Response Object"></a>
-## EID Compare response
+## EID Compare Response
 
 This is the raw response from the downstream provider. Paysafe uses this data in part to render the Consumer Identity Check decision.
 
@@ -936,7 +926,7 @@ This is the raw response from the downstream provider. Paysafe uses this data in
 |street2            |string<br/>`length<=25`    |This is the second line of the consumer's street address, if required.|
 |city               |string<br/>`length<=20`   |This is the city where the address is located.|
 |country            |string<br/>`length=2`      |This is the country where the address is located. See [Country Codes](#countrycodes).|
-|state              |string<br/>`length=2`      |This is the state/province/region in which the consumer lives.<br/>For Canada see [Province Codes](#provincecodes). For the United States see [State Codes](#statecodes). Other countries have no restrictions. |
+|state              |string<br/>`length=2`      |This is the state/province/region where the address is located.<br/>For Canada see [Province Codes](#provincecodes). For the United States see [State Codes](#statecodes). Other countries have no restrictions. |
 |zip                |string<br/>`length<=10`    |This is the zip, postal, or post code of the consumer's address.|
 |phone              |string<br/>`length<=15`    |This is the consumer's phone number.|
 |monthsAtAddress    |number<br/>`length<=1200`  |This is the number of months the consumer lived at this address.|
@@ -969,7 +959,7 @@ This is the raw response from the downstream provider. Paysafe uses this data in
 |locale             |enum                               |This indicates the language of the profile. Possible values are:<ul><li>en_CA</li><li>fr_CA</li></ul> |
 |currentAddress     |[currentAddress](#addressobject)   |This is the consumer's address. |
 |dateOfBirth        |[dateOfBirth](#dateofbirthobject)  |This is the consumer's date of birth.|
-|previousAddresses  |[previousAddresses](#addressobject) | This is an array of the consumer's previous addresses. **Note:** If *monthsAtAddress* in the *currentAddress* object is 24 or less, the Consumer Identity Check request will have a greater probability of being successful if a previous address is included.|
+|previousAddresses  |[previousAddresses](#addressobject) | This is an array of the consumer's previous addresses. <br/>**Note:** If *monthsAtAddress* in the *currentAddress* object is 24 or less, the Consumer Identity Check request will have a greater probability of being successful if a previous address is included.|
 
 ```apib
     {
@@ -1138,8 +1128,8 @@ These are raw responses from the downstream providers.
 |400                    |5068           |Either you submitted a request that is missing a mandatory field or the value of a field does not match the format expected.|
 |404                    |5269           |The ID(s) specified in the URL do not correspond to the values in the system.|
 |403                    |5270           |The credentials provided with the request do not have permission to access the requested data.|
-|406                    |5271           |You requested a response in the 'Accept' header that is in an unsupported format.|
-|406                    |5272           |The 'Content-Type' you specified in request header was submitted in an unsupported format.|
+|406                    |5271           |You requested a response in the Accept header that is in an unsupported format.|
+|406                    |5272           |The Content-Type you specified in request header was submitted in an unsupported format.|
 |404                    |5273           |Your client reached our application but we were unable to service your request due to an invalid URL.|
 |401                    |5275           |The authentication credentials provided with the request have expired.|
 |401                    |5276           |The authentication credentials provided with the request provided have been disabled.|
@@ -1660,35 +1650,40 @@ Click on **Rerun a Consumer Identity Check** above to see how you submit a reque
     _Read Only_
 
     + Properties
-        + `isSingleSourceHit`: `true` (boolean)
+        + `isSingleSourceHit`: `true` (boolean) - This indicates whether a single source has been hit.
             _Read Only_
-        + `isDualSourceHit`: `false` (boolean)
+        + `isDualSourceHit`: `false` (boolean) - This indicates whether a dual source has been hit.
             _Read Only_
-        + `decision`: `SUCCESS` (enum)
+        + `decision`: `SUCCESS` (enum) - This is a decision returned by the provider. 
             _Read Only_
-        + `singleSourceDecision`: `false` (boolean)
+            
+            + Members
+                + SUCCESS
+                + FAIL
+        
+        + `singleSourceDecision`: `false` (boolean) - This indicates whether the decision was obtained from single source. Applicable if single source has been hit.
             _Read Only_
-        + `dualSourceDecision`: `true` (boolean)
+        + `dualSourceDecision`: `true` (boolean) - This indicates whether the decision was obtained from dual source. Applicable if dual source has been hit.
             _Read Only_
-        + `isWaterfallProcess`: `false` (boolean)
+        + `isWaterfallProcess`: `false` (boolean) 
             _Read Only_
-        + `originOfCreditFile`: `Canada` (string)
+        + `originOfCreditFile`: `Canada` (string) - This indicates the country of origin of this credit file.
             _Read Only_
-        + `numberOfTrades`: `1` (number)
+        + `numberOfTrades`: `1` (number) - This is the number of trades on the credit file. Applicable if dual source has been hit.
             _Read Only_
         + Include Single Source Result
         + Include Dual Source Result
-        + `bureauName`: `Equifax Canada` (string)
+        + `bureauName`: `Equifax Canada` (string) - This is the bureau name retrieved from the downstream provider output.
             _Read Only_
-        + `dateOfRequest`: `2018/10/29 12:00 AM UTC` (string)
+        + `dateOfRequest`: `2018/10/29 12:00 AM UTC` (string) - This indicates the date the credit file was requested.
             _Read Only_
-        + `creditFileNumber`: `65462` (string)
+        + `creditFileNumber`: `65462` (string) - This is the credit file number received from the downstream provider.
             _Read Only_
-        + `isCreditFileGreaterThanThreeYearsOld`: `true` (boolean)
+        + `isCreditFileGreaterThanThreeYearsOld`: `true` (boolean) - This indicates whether the credit file is greater than three years old.
             _Read Only_
-        + `verificationTime`: `2018/11/15 10:58 AM UTC` (string)
+        + `verificationTime`: `2018/11/15 10:58 AM UTC` (string) - This is the time the request was processed.
             _Read Only_
-        + `creditFileCreationDate`: `2016/01/01 12:00 AM UTC` (string)
+        + `creditFileCreationDate`: `2016/01/01 12:00 AM UTC` (string) - This is the date the credit file was created.
             _Read Only_
 
 ## Assessment Complete
@@ -1703,7 +1698,7 @@ Click on **Rerun a Consumer Identity Check** above to see how you submit a reque
     _Read Only_
 
     + Properties
-        + `interactiveQueryScore`: `-1`
+        + `interactiveQueryScore`: `-1` (string) - This value comes in the response from the downstream provider.
 
 ## Current Address
 
@@ -1835,53 +1830,53 @@ Click on **Rerun a Consumer Identity Check** above to see how you submit a reque
 + `dualSourceResult` (object)
     _Read Only_
     + Properties
-        + `isLastNameMatched`: `true` (boolean) 
+         + `isLastNameMatched`: `true` (boolean) - This indicates whether the last name matched.
             _Read Only_
-        + `isFirstNameMatched`: `true` (boolean) 
+        + `isFirstNameMatched`: `true` (boolean) - This indicates whether the first name matched.
             _Read Only_
-        + `isMiddleNameMatched`: `true` (boolean) 
+        + `isMiddleNameMatched`: `true` (boolean) - This indicates whether the middle name matched.
             _Read Only_
-        + `isSuffixNameMatched`: `true` (boolean) 
+        + `isSuffixNameMatched`: `true` (boolean) - This indicates whether the suffix name matched.
             _Read Only_
-        + `isAddressCivicMatch`: `true` (boolean) 
+        + `isAddressCivicMatch`: `true` (boolean) - This indicates whether the civic number of the address matched.
             _Read Only_
-        + `isAddressStreetNameMatch`: `true` (boolean) 
+        + `isAddressStreetNameMatch`: `true` (boolean) - This indicates whether the address street name matched.
             _Read Only_
-        + `isAddressCityMatch`: `true` (boolean) 
+        + `isAddressCityMatch`: `true` (boolean) - This indicates whether the address city matched.
             _Read Only_
-        + `isAddressPostalCodeMatch`: `true` (boolean) 
+        + `isAddressPostalCodeMatch`: `true` (boolean) - This indicates whether the address postal code matched.
             _Read Only_
-        + `isAddressProvinceMatch`: `true` (boolean) 
+        + `isAddressProvinceMatch`: `true` (boolean) - This indicates whether the address province matched.
             _Read Only_
-        + `isDateOfBirthMatch`: `true` (boolean) 
+        + `isDateOfBirthMatch`: `true` (boolean) - This indicates whether the date of birth matched.
             _Read Only_
-        + `isAccountNumberMatch`: `true` (boolean)
+        + `isAccountNumberMatch`: `true` (boolean) - This indicates whether the account number has been matched.
             _Read Only_
-        + `isNameAndDobMatch`: `true` (boolean)
+        + `isNameAndDobMatch`: `true` (boolean) - This indicates whether the name and date of birth match.
             _Read Only_
-        + `isNameAndAddressMatch`: `true` (boolean)
+        + `isNameAndAddressMatch`: `true` (boolean) - This indicates whether the name and address match.
             _Read Only_
-        + `isNameAndAccountMatch`: `true` (boolean)
+        + `isNameAndAccountMatch`: `true` (boolean) - This indicates whether the name and account number match.
             _Read Only_
-        + `tradeStatus`: `0` (string)
+        + `tradeStatus`: `0` (string) - This is the trade status retrieved from the downstream provider.
             _Read Only_
-        + `dateOfBirthAsReported`: `19711130` (string) 
+        + `dateOfBirthAsReported`: `19711130` (string) - This is the date of birth retrieved from the downstream provider output.
             _Read Only_
-        + `memberNumber`: `481BB01426` (string)
+        + `memberNumber`: `481BB01426` (string) - This is the member number retrieved from the downstream provider output.
             _Read Only_
-        + `dateLastReported`: `20180901` (string)
+        + `dateLastReported`: `20180901` (string) - This is the date the credit file was last reported, retrieved from the downstream provider output.
             _Read Only_
-        + `dateOpened`: `20170802` (string)
+        + `dateOpened`: `20170802` (string) - This is the date the credit file was opened, retrieved from the downstream provider output.
             _Read Only_
-        + `institutionName`: `CIBC` (string)
+        + `institutionName`: `CIBC` (string) - This is the institution name, retrieved from the downstream provider output.
             _Read Only_
-        + `accountNumber`: `123456789011111` (string)
+        + `accountNumber`: `123456789011111` (string) - This is the account name retrieved from the AML Assist output.
             _Read Only_
-        + `familyName`: `Roz` (string)
+        + `familyName`: `Roz` (string) - This is the family name retrieved from the AML Assist output. 
             _Read Only_
-        + `nameAsReported`: `SMITH, JANE` (string) 
+        + `nameAsReported`: `SMITH, JANE` (string) - This is the name retrieved from the downstream provider output.
             _Read Only_
-        + `addressAsReported`: `11,DORVAL AVE,DORVAL,QC,H3S1G4` (string) 
+        + `addressAsReported`: `11,DORVAL AVE,DORVAL,QC,H3S1G4` (string) - This is the address retrieved from the downstream provider output.
             _Read Only_
 
 
@@ -2030,41 +2025,41 @@ Click on **Rerun a Consumer Identity Check** above to see how you submit a reque
     + Include AML Assist
 
 ## Reason Codes
-+ `reasonCodes` (object)
++ `reasonCodes` (object) - This is an array of reason codes and descriptions from the downstream provider.
 
     + Properties
-        + `description`: `Telephone exchange does not match the FSA (first three characters) of the postal code for Current Address.` (string)
-        + `code`: `08` (number)
+        + `description`: `Telephone exchange does not match the FSA (first three characters) of the postal code for Current Address.` (string) - This is a comment on the request by the downstream provider.
+        + `code`: `08` (number) - This is a code returned by the downstream provider.
 
 ## Single Source Result
 + `singleSourceResult` (object)
     _Read Only_
     + Properties
-        + `isLastNameMatched`: `true` (boolean) 
+        + `isLastNameMatched`: `true` (boolean) - This indicates whether the last name matched.
             _Read Only_
-        + `isFirstNameMatched`: `true` (boolean) 
+        + `isFirstNameMatched`: `true` (boolean) - This indicates whether the first name matched.
             _Read Only_
-        + `isMiddleNameMatched`: `true` (boolean) 
+        + `isMiddleNameMatched`: `true` (boolean) - This indicates whether the middle name matched.
             _Read Only_
-        + `isSuffixNameMatched`: `true` (boolean) 
+        + `isSuffixNameMatched`: `true` (boolean) - This indicates whether the suffix name matched.
             _Read Only_
-        + `isAddressCivicMatch`: `true` (boolean) 
+        + `isAddressCivicMatch`: `true` (boolean) - This indicates whether the civic number of the address matched.
             _Read Only_
-        + `isAddressStreetNameMatch`: `true` (boolean) 
+        + `isAddressStreetNameMatch`: `true` (boolean) - This indicates whether the address street name matched.
             _Read Only_
-        + `isAddressCityMatch`: `true` (boolean) 
+        + `isAddressCityMatch`: `true` (boolean) - This indicates whether the address city matched.
             _Read Only_
-        + `isAddressPostalCodeMatch`: `true` (boolean) 
+        + `isAddressPostalCodeMatch`: `true` (boolean) - This indicates whether the address postal code matched.
             _Read Only_
-        + `isAddressProvinceMatch`: `true` (boolean) 
+        + `isAddressProvinceMatch`: `true` (boolean) - This indicates whether the address province matched.
             _Read Only_
-        + `isDateOfBirthMatch`: `true` (boolean) 
+        + `isDateOfBirthMatch`: `true` (boolean) - This indicates whether the date of birth matched.
             _Read Only_
-        + `currentAddressReportedDate`: `201811` (string) 
+        + `currentAddressReportedDate`: `201811` (string) - This is the date of the current address retrieved from the downstream provider output.
             _Read Only_
-        + `dateOfBirthAsReported`: `19711130` (string) 
+        + `dateOfBirthAsReported`: `19711130` (string) - This is the date of birth retrieved from the downstream provider output.
             _Read Only_
-        + `nameAsReported`: `SMITH, JANE` (string) 
+        + `nameAsReported`: `SMITH, JANE` (string) - This is the name retrieved from the downstream provider output.
             _Read Only_
-        + `addressAsReported`: `11,DORVAL AVE,DORVAL,QC,H3S1G4` (string) 
+        + `addressAsReported`: `11,DORVAL AVE,DORVAL,QC,H3S1G4` (string) - This is the address retrieved from the downstream provider output.
             _Read Only_
