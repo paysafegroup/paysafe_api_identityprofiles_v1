@@ -58,23 +58,6 @@ For example:
 
 `https://api.paysafe.com/v1/identityprofiles`
 
-<a name="globalinvalidcharacters" title="Global Invalid Characters"></a>
-# Global Invalid Characters
-
-You must not include any of the characters in the following table as values in any of your request parameters. If you do, your request will result in an error.
-
-|    Character    |    HEX    |    Description                     |
-|-----------------|-----------|------------------------------------|
-| "               | 22        | Double quotes (or speech marks)    |
-| ;               | 3B        | Semicolon                          |
-| ^               | 5E        | Caret, circumflex                  |
-| *               | 2A        | Asterisk                           |
-| <               | 3C        | Less than (or open angled bracket) |
-| /               | 2F        | Slash or divide                    |
-| [               | 5B        | Opening bracket                    |
-| ]               | 5D        | Closing bracket                    |
-| \               | 5C        | Backslash                          |
-
 # API
 
 The Consumer Identity API allows merchants to process KYC (know your customer) Consumer Identity checks on their consumers using the REST protocol. The protocol uses JSON for all requests and responses. The following request types are supported:
@@ -471,6 +454,7 @@ With the Paysafe API you can test the following:
                     "decision": "SUCCESS",
                     "singleSourceDecision": "N",
                     "dualSourceDecision": "N",
+                    "isWaterfallProcess": true,
                     "originOfCreditFile": "CANADA",
                     "numberOfTrades": "1",
                     "singleSourceResult": {
@@ -551,6 +535,7 @@ This is the raw response from the downstream provider. Paysafe uses this data in
 |decision                               | enum          | This is a decision returned by the provider. Possible values are:<ul><li>SUCCESS</li><li>FAIL</li></ol>  |
 |singleSourceDecision                   | boolean       | This indicates whether the decision was obtained from single source. Applicable if single source has been hit.|
 |dualSourceDecision                     | boolean       | This indicates whether the decision was obtained from dual source. Applicable if dual source has been hit. |
+|isWaterfallProcess                     | boolean       | This indicates whether the waterfall process model has been applied. |
 |originOfCreditFile                     | string        | This indicates the country of origin of this credit file. |
 |numberOfTrades                         | number        | This is the number of trades on the credit file. Applicable if dual source has been hit. |
 |singleSourceResult                     |[singleSourceResult](#amlassistsinglesourceresultobject) | This is the raw response from the downstream provider.     |
@@ -570,6 +555,7 @@ This is the raw response from the downstream provider. Paysafe uses this data in
                     "decision": "SUCCESS",
                     "singleSourceDecision": "N",
                     "dualSourceDecision": "N",
+                    "isWaterfallProcess": true,
                     "originOfCreditFile": "CANADA",
                     "numberOfTrades": "1",
                     "singleSourceResult": {
@@ -1046,6 +1032,7 @@ These are raw responses from the downstream providers.
                         "familyName": "Roz",
                         "singleSourceDecision": "True",
                         "dualSourceDecision": null,
+                        "isWaterfallProcess": true,
                         "institutionName": "institute",
                         "accountNumber": "45487852",
                         "isNameAndDobMatch": "True",
@@ -1196,7 +1183,6 @@ Click on **Run a Consumer Identity Check** above to see two examples of a Consum
 
             {
                 "merchantRefNum": "KYC_1520461749",
-                "accountId": "PMLEID100",
                 "profile": {
                     "firstName": "John",
                     "lastName": "Smith",
@@ -1239,7 +1225,6 @@ Click on **Run a Consumer Identity Check** above to see two examples of a Consum
                 "id": "86dcb68d-cbd0-4878-8da7-ffc0e6554513",
                 "decision": "SUCCESS",
                 "merchantRefNum": "KYC_1520461749",
-                "accountId": "PMLEID100",
                 "profile": {
                     "firstName": "John",
                     "lastName": "Smith",
@@ -1304,7 +1289,6 @@ Click on **Run a Consumer Identity Check** above to see two examples of a Consum
 
             {
                 "merchantRefNum": "KYC_1520461749",
-                "accountId": "PMLEID100",
                 "profile": {
                     "firstName": "John",
                     "lastName": "Smith",
@@ -1347,7 +1331,6 @@ Click on **Run a Consumer Identity Check** above to see two examples of a Consum
                 "id": "86dcb68d-cbd0-4878-8da7-ffc0e6554513",
                 "decision": "SUCCESS",
                 "merchantRefNum": "KYC_1520461749",
-                "accountId": "PMLEID100",
                 "profile": {
                     "firstName": "John",
                     "lastName": "Smith",
@@ -1407,6 +1390,7 @@ Click on **Run a Consumer Identity Check** above to see two examples of a Consum
                                 "decision": "SUCCESS",
                                 "singleSourceDecision": "N",
                                 "dualSourceDecision": "N",
+                                "isWaterfallProcess": true,
                                 "originOfCreditFile": "CANADA",
                                 "numberOfTrades": "1",
                                 "singleSourceResult": {
@@ -1504,7 +1488,6 @@ Click on **Rerun a Consumer Identity Check** above to see how you submit a reque
                 "id": "86dcb68d-cbd0-4878-8da7-ffc0e6554513",
                 "decision": "SUCCESS",
                 "merchantRefNum": "KYC_1520461749",
-                "accountId": "PMLEID100",
                 "profile": {
                     "firstName": "John",
                     "lastName": "Smith",
@@ -1564,6 +1547,7 @@ Click on **Rerun a Consumer Identity Check** above to see how you submit a reque
                                 "decision": "SUCCESS",
                                 "singleSourceDecision": "N",
                                 "dualSourceDecision": "N",
+                                "isWaterfallProcess": true,
                                 "originOfCreditFile": "CANADA",
                                 "numberOfTrades": "1",
                                 "singleSourceResult": {
@@ -1659,6 +1643,8 @@ Click on **Rerun a Consumer Identity Check** above to see how you submit a reque
         + `singleSourceDecision`: `false` (boolean) - This indicates whether the decision was obtained from single source. Applicable if single source has been hit.
             _Read Only_
         + `dualSourceDecision`: `true` (boolean) - This indicates whether the decision was obtained from dual source. Applicable if dual source has been hit.
+            _Read Only_
+        + `isWaterfallProcess`: `true` (boolean) - This indicates whether the waterfall process model has been applied.
             _Read Only_
         + `originOfCreditFile`: `Canada` (string) - This indicates the country of origin of this credit file.
             _Read Only_
@@ -1756,8 +1742,6 @@ Click on **Rerun a Consumer Identity Check** above to see how you submit a reque
 
     _length<=255_
 
-+ `accountId`: `PMLEID100` (string, required) - This is the merchant's account ID, provided to the merchant by Paysafe.
-    _length<=20_
 + Include Profile
 + `ConsumerIp`: `1.1.1.1` (string) - This is the consumer's IP address.
     _length<=39_
@@ -1786,8 +1770,6 @@ Click on **Rerun a Consumer Identity Check** above to see how you submit a reque
 
     _Read Only_, _length<=255_
 
-+ `accountId`: `PMLEID100` (string, required) - This is the merchant's account ID, provided to the merchant by Paysafe.
-    _Read Only_, _length<=20_
 + Include Profile Rerun
 + `customerIp`: `1.1.1.1` (string) - This is the consumer's IP address.
     _Read Only_, _length<=39_
