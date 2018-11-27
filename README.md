@@ -1,2 +1,2 @@
-# paysafe_api_riskprofiles
-Paysafe Risk Check API
+# paysafe_api_identityprofiles
+Paysafe Consumer Identity API
