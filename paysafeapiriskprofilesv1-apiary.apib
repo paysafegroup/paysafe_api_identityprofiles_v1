@@ -471,7 +471,6 @@ With the Paysafe API you can test the following:
                     "decision": "SUCCESS",
                     "singleSourceDecision": "N",
                     "dualSourceDecision": "N",
-                    "isWaterfallProcess": "true",
                     "originOfCreditFile": "CANADA",
                     "numberOfTrades": "1",
                     "singleSourceResult": {
@@ -552,7 +551,6 @@ This is the raw response from the downstream provider. Paysafe uses this data in
 |decision                               | enum          | This is a decision returned by the provider. Possible values are:<ul><li>SUCCESS</li><li>FAIL</li></ol>  |
 |singleSourceDecision                   | boolean       | This indicates whether the decision was obtained from single source. Applicable if single source has been hit.|
 |dualSourceDecision                     | boolean       | This indicates whether the decision was obtained from dual source. Applicable if dual source has been hit. |
-|isWaterfallProcess                     |               |       |
 |originOfCreditFile                     | string        | This indicates the country of origin of this credit file. |
 |numberOfTrades                         | number        | This is the number of trades on the credit file. Applicable if dual source has been hit. |
 |singleSourceResult                     |[singleSourceResult](#amlassistsinglesourceresultobject) | This is the raw response from the downstream provider.     |
@@ -572,7 +570,6 @@ This is the raw response from the downstream provider. Paysafe uses this data in
                     "decision": "SUCCESS",
                     "singleSourceDecision": "N",
                     "dualSourceDecision": "N",
-                    "isWaterfallProcess": "true",
                     "originOfCreditFile": "CANADA",
                     "numberOfTrades": "1",
                     "singleSourceResult": {
@@ -1410,7 +1407,6 @@ Click on **Run a Consumer Identity Check** above to see two examples of a Consum
                                 "decision": "SUCCESS",
                                 "singleSourceDecision": "N",
                                 "dualSourceDecision": "N",
-                                "isWaterfallProcess": "true",
                                 "originOfCreditFile": "CANADA",
                                 "numberOfTrades": "1",
                                 "singleSourceResult": {
@@ -1568,7 +1564,6 @@ Click on **Rerun a Consumer Identity Check** above to see how you submit a reque
                                 "decision": "SUCCESS",
                                 "singleSourceDecision": "N",
                                 "dualSourceDecision": "N",
-                                "isWaterfallProcess": "true",
                                 "originOfCreditFile": "CANADA",
                                 "numberOfTrades": "1",
                                 "singleSourceResult": {
@@ -1664,8 +1659,6 @@ Click on **Rerun a Consumer Identity Check** above to see how you submit a reque
         + `singleSourceDecision`: `false` (boolean) - This indicates whether the decision was obtained from single source. Applicable if single source has been hit.
             _Read Only_
         + `dualSourceDecision`: `true` (boolean) - This indicates whether the decision was obtained from dual source. Applicable if dual source has been hit.
-            _Read Only_
-        + `isWaterfallProcess`: `false` (boolean) 
             _Read Only_
         + `originOfCreditFile`: `Canada` (string) - This indicates the country of origin of this credit file.
             _Read Only_
