@@ -539,7 +539,7 @@ This is the raw response from the downstream provider. Paysafe uses this data in
 |originOfCreditFile                     | string        | This indicates the country of origin of this credit file. |
 |numberOfTrades                         | number        | This is the number of trades on the credit file. Applicable if dual source has been hit. |
 |singleSourceResult                     |[singleSourceResult](#amlassistsinglesourceresultobject) | This is the raw response from the downstream provider.     |
-|dualSourceResult                       |[dualSourceResult](#amlassistdualsourceresultobject) |      | This is the raw response from the downstream provider.
+|dualSourceResult                       |[dualSourceResult](#amlassistdualsourceresultobject) | This is the raw response from the downstream provider.
 |bureauName                             | string        | This is the bureau name retrieved from the downstream provider output. |
 |dateOfRequest                          | string        | This indicates the date the credit file was requested. |
 |creditFileNumber                       | string        | This is the credit file number received from the downstream provider.  |
@@ -715,7 +715,7 @@ This is the raw response from the downstream provider. Paysafe uses this data in
 ## assessmentComplete
 | Element               | Type    | Description                                                       |
 |-----------------------|---------|-------------------------------------------------------------------|
-|reasonCodes            |[reasonCodes](#reasoncodesobject)   | This is an array of reason codes and descriptions from Equifax.  |
+|reasonCodes            |[reasonCodes](#reasoncodesobject)   | This is an array of reason codes and descriptions from the downstream provider.  |
 
 ```apib
      "assessmentComplete": {
@@ -729,7 +729,7 @@ This is the raw response from the downstream provider. Paysafe uses this data in
               "code": "60"
             },
             {
-              "description": "Supplied address same as the current address in the Equifax database",
+              "description": "Supplied address same as the current address in the provider database",
               "code": "C1"
             },
 ```
@@ -818,7 +818,7 @@ This is part of the raw response from the downstream provider.
                         "code": "60"
                     },
                     {
-                        "description": "Supplied address same as the current address in the Equifax database",
+                        "description": "Supplied address same as the current address in the provider database",
                         "code": "C1"
                     }
                 ],
@@ -840,10 +840,10 @@ This is the raw response from the downstream provider. Paysafe uses this data in
 
 | Element               | Type    | Description                                                       |
 |-----------------------|---------|-------------------------------------------------------------------|
-|assessmentComplete     |[assessmentComplete](#assessmentcompleteobject)   |This is an array of reason codes from Equifax. |
+|assessmentComplete     |[assessmentComplete](#assessmentcompleteobject)   |This is an array of reason codes from the downstream provider. |
 |atomicScores           |[atomicScores](#atomicscoresobject) |                                |
-|decision               |string   |This is the risk decision returned by Equifax. |
-|score                  |string   |This is the risk score computed by Equifax.   |
+|decision               |string   |This is the risk decision returned by the downstream provider. |
+|score                  |string   |This is the risk score computed by the downstream provider.   |
 
 ```apib
     {
@@ -858,7 +858,7 @@ This is the raw response from the downstream provider. Paysafe uses this data in
                     "code": "60"
                 },
                 {
-                    "description": "Supplied address same as the current address in the Equifax database",
+                    "description": "Supplied address same as the current address in the provider database",
                     "code": "C1"
                 }
             ],
@@ -995,7 +995,7 @@ These are raw responses from the downstream providers.
                                 "code": "60"
                             },
                             {
-                                "description": "Supplied address same as the current address in the Equifax database",
+                                "description": "Supplied address same as the current address in the provider database",
                                 "code": "C1"
                             }
                         ],
@@ -1052,8 +1052,8 @@ These are raw responses from the downstream providers.
 ## reasonCodes
 | Element               | Type    | Description                                                       |
 |-----------------------|---------|-------------------------------------------------------------------|
-|description            |string   |This is a comment on the request by Equifax.                       |
-|code                   |number   |This is a code returned by Equifax.  |
+|description            |string   |This is a comment on the request by the downstream provider.                       |
+|code                   |number   |This is a code returned by the downstream provider.  |
 
 ```apib
     {
@@ -1066,7 +1066,7 @@ These are raw responses from the downstream providers.
                 "code": "60"
             },
             {
-                "description": "Supplied address same as the current address in the Equifax database",
+                "description": "Supplied address same as the current address in the provider database",
                 "code": "C1"
             }
         ]
