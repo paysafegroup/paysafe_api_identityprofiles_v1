@@ -512,7 +512,7 @@ With the Paysafe API you can test the following:
 <a name="amlassisttable" title="AML Assist Decision Matrix Table"></a>
 ### AML Assist Decision Matrix Table
 
-If the downstream provider cannot find a credit file using a single source, it will attempt to find a credit file using a second source.
+If the downstream provider cannot ascertain the identity of the consumer using the single source product, then it will attempt to do so using the dual source product.
 
 |Single Source          |Single Source Decision     | Dual Source           |Dual Source Decision   |Final Status |
 |---                    |---                        |---                    |---                    |---            |
@@ -530,11 +530,11 @@ This is the raw response from the downstream provider. Paysafe uses this data in
 
 |Element                                |Type           |Description    |
 |---                                    |---            |---            |
-|isSingleSourceHit                      | boolean       | This indicates whether a single source has been hit. |
-|isDualSourceHit                        | boolean       | This indicates whether a dual source has been hit. |
+|isSingleSourceHit                      | boolean       | This indicates whether the single source product has been used.|
+|isDualSourceHit                        | boolean       | This indicates whether the dual source product has been used. |
 |decision                               | enum          | This is a decision returned by the provider. Possible values are:<ul><li>SUCCESS</li><li>FAIL</li></ol>  |
-|singleSourceDecision                   | boolean       | This indicates whether the decision was obtained from single source. Applicable if single source has been hit.|
-|dualSourceDecision                     | boolean       | This indicates whether the decision was obtained from dual source. Applicable if dual source has been hit. |
+|singleSourceDecision                   | boolean       | This is the result of the decisioning model for the single source product.|
+|dualSourceDecision                     | boolean       | This is the result of the decisioning model for the dual source product. |
 |isWaterfallProcess                     | boolean       | This indicates whether the waterfall process model has been applied. |
 |originOfCreditFile                     | string        | This indicates the country of origin of this credit file. |
 |numberOfTrades                         | number        | This is the number of trades on the credit file. Applicable if dual source has been hit. |
@@ -1629,9 +1629,9 @@ Click on **Rerun a Consumer Identity Check** above to see how you submit a reque
     _Read Only_
 
     + Properties
-        + `isSingleSourceHit`: `true` (boolean) - This indicates whether a single source has been hit.
+        + `isSingleSourceHit`: `true` (boolean) - This indicates whether the single source product has been used.
             _Read Only_
-        + `isDualSourceHit`: `false` (boolean) - This indicates whether a dual source has been hit.
+        + `isDualSourceHit`: `false` (boolean) - This indicates whether the dual source product has been used.
             _Read Only_
         + `decision`: `SUCCESS` (enum) - This is a decision returned by the provider. 
             _Read Only_
@@ -1640,9 +1640,9 @@ Click on **Rerun a Consumer Identity Check** above to see how you submit a reque
                 + SUCCESS
                 + FAIL
         
-        + `singleSourceDecision`: `false` (boolean) - This indicates whether the decision was obtained from single source. Applicable if single source has been hit.
+        + `singleSourceDecision`: `false` (boolean) - This is the result of the decisioning model for the single source product.
             _Read Only_
-        + `dualSourceDecision`: `true` (boolean) - This indicates whether the decision was obtained from dual source. Applicable if dual source has been hit.
+        + `dualSourceDecision`: `true` (boolean) - This is the result of the decisioning model for the dual source product.
             _Read Only_
         + `isWaterfallProcess`: `true` (boolean) - This indicates whether the waterfall process model has been applied.
             _Read Only_
