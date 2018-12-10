@@ -1,7 +1,7 @@
 FORMAT: 1A
 HOST: https://api.test.paysafe.com/v1/identityprofiles/
 
-# Paysafe Consumer Identity API
+# Paysafe Customer Identity API
 
 # Release Notes
 
@@ -11,7 +11,7 @@ HOST: https://api.test.paysafe.com/v1/identityprofiles/
 
 # Overview
 
-The Paysafe Consumer Identity API allows merchants to perform KYC (know your customer) Consumer Identity checks on their consumers with a single request to the API. [Click here to see an overview](https://developer.paysafe.com/en/additional-documentation/consumer-identity-checks/introduction-to-consumer-identity-api/) of how this API works.
+The Paysafe Customer Identity API allows merchants to perform KYC (know your customer) Customer Identity checks on their customers with a single request to the API. [Click here to see an overview](https://developer.paysafe.com/en/additional-documentation/customer-identity-checks/introduction-to-customer-identity-api/) of how this API works.
 
 
 <a name="apikey" title="Authentication"></a>
@@ -60,22 +60,22 @@ For example:
 
 # API
 
-The Consumer Identity API allows merchants to process KYC (know your customer) Consumer Identity checks on their consumers using the REST protocol. The protocol uses JSON for all requests and responses. The following request types are supported:
+The Customer Identity API allows merchants to process KYC (know your customer) Customer Identity checks on their customers using the REST protocol. The protocol uses JSON for all requests and responses. The following request types are supported:
 
-  * [Consumer Identity Checks](#riskcheckrequest)
-  * [Rerun Failed Consumer Identity Checks](#rerunriskcheckrequest)
+  * [Customer Identity Checks](#riskcheckrequest)
+  * [Rerun Failed Customer Identity Checks](#rerunriskcheckrequest)
   
 **API Endpoints** 
 
  - `https://api.paysafe.com/v1/identityprofiles`
- - `https://api.paysafe.com/v1/identityprofiles/consumer_identity_id/rerunfailedchecks`
+ - `https://api.paysafe.com/v1/identityprofiles/customer_identity_id/rerunfailedchecks`
 
 **Resource Patterns**
 
 |Endpoint URL                                       |Description                            |Action |
 |---                                                |---                                    |---    |
-|/identityprofiles                                      |Run a Consumer Identity Check on a Consumer         |POST   |
-|/identityprofiles/{consumer_identity_id}/rerunfailedchecks  |Rerun a Failed Consumer Identity Check              |POST   |
+|/identityprofiles                                      |Run a Customer Identity Check on a Customer         |POST   |
+|/identityprofiles/{customer_identity_id}/rerunfailedchecks  |Rerun a Failed Customer Identity Check              |POST   |
 
 
 # Testing Instructions
@@ -512,7 +512,7 @@ With the Paysafe API you can test the following:
 <a name="amlassisttable" title="AML Assist Decision Matrix Table"></a>
 ### AML Assist Decision Matrix Table
 
-If the downstream provider cannot ascertain the identity of the consumer using the single source product, then it will attempt to do so using the dual source product.
+If the downstream provider cannot ascertain the identity of the customer using the single source product, then it will attempt to do so using the dual source product.
 
 |Single Source          |Single Source Decision     | Dual Source           |Dual Source Decision   |Final Status |
 |---                    |---                        |---                    |---                    |---            |
@@ -526,7 +526,7 @@ If the downstream provider cannot ascertain the identity of the consumer using t
 <a name="amlassistresponseobject" title="AML Assist Response Object"></a>
 ## AML Assist Response
 
-This is the raw response from the downstream provider. Paysafe uses this data in part to render the Consumer Identity Check decision.
+This is the raw response from the downstream provider. Paysafe uses this data in part to render the Customer Identity Check decision.
 
 |Element                                |Type           |Description    |
 |---                                    |---            |---            |
@@ -613,7 +613,7 @@ This is the raw response from the downstream provider. Paysafe uses this data in
 <a name="amlassistsinglesourceresultobject" title="AML Assist Single Source Result Object"></a>
 ## singleSourceResult
 
-This is the raw response from the downstream provider. Paysafe uses this data in part to render the Consumer Identity Check decision.
+This is the raw response from the downstream provider. Paysafe uses this data in part to render the Customer Identity Check decision.
 
 |Element                                |Type           |Description    |
 |---                                    |---            |---            |
@@ -652,7 +652,7 @@ This is the raw response from the downstream provider. Paysafe uses this data in
 <a name="amlassistdualsourceresultobject" title="AML Assist Dual Source Result Object"></a>
 ## dualSourceResult
 
-This is the raw response from the downstream provider. Paysafe uses this data in part to render the Consumer Identity Check decision.
+This is the raw response from the downstream provider. Paysafe uses this data in part to render the Customer Identity Check decision.
 
 |Element                                |Type           |Description    |
 |---                                    |---            |---            |
@@ -754,15 +754,15 @@ This is part of the raw response from the downstream provider.
 
 |Element            |Type                       |Description    |
 |---                |---                        |---       |
-|apartment          |string<br/>`length<=50`    |This is the consumer's apartment number, if applicable.|
-|street             |string<br/>`length<=25`    |This is the first line of the consumer's street address.|
-|street2            |string<br/>`length<=25`    |This is the second line of the consumer's street address, if required.|
+|apartment          |string<br/>`length<=50`    |This is the customer's apartment number, if applicable.|
+|street             |string<br/>`length<=25`    |This is the first line of the customer's street address.|
+|street2            |string<br/>`length<=25`    |This is the second line of the customer's street address, if required.|
 |city               |string<br/>`length<=20`   |This is the city where the address is located.|
 |country            |string<br/>`length=2`      |This is the country where the address is located. See [Country Codes](#countrycodes).|
-|state              |string<br/>`length=2`      |This is the state/province/region in which the consumer lives.<br/>For Canada see [Province Codes](#provincecodes). For the United States see [State Codes](#statecodes). Other countries have no restrictions. |
-|zip                |string<br/>`length<=10`    |This is the zip, postal, or post code of the consumer's address.|
-|phone              |string<br/>`length<=15`    |This is the consumer's phone number.|
-|monthsAtAddress    |number<br/>`length<=1200`  |This is the number of months the consumer has been living at this address.|
+|state              |string<br/>`length=2`      |This is the state/province/region in which the customer lives.<br/>For Canada see [Province Codes](#provincecodes). For the United States see [State Codes](#statecodes). Other countries have no restrictions. |
+|zip                |string<br/>`length<=10`    |This is the zip, postal, or post code of the customer's address.|
+|phone              |string<br/>`length<=15`    |This is the customer's phone number.|
+|monthsAtAddress    |number<br/>`length<=1200`  |This is the number of months the customer has been living at this address.|
 
 ```apib
             {
@@ -836,7 +836,7 @@ This is part of the raw response from the downstream provider.
 <a name="eidcompareresponseobject" title="EID Compare Response Object"></a>
 ## EID Compare Response
 
-This is the raw response from the downstream provider. Paysafe uses this data in part to render the Consumer Identity Check decision.
+This is the raw response from the downstream provider. Paysafe uses this data in part to render the Customer Identity Check decision.
 
 | Element               | Type    | Description                                                       |
 |-----------------------|---------|-------------------------------------------------------------------|
@@ -900,19 +900,19 @@ This is the raw response from the downstream provider. Paysafe uses this data in
 <a name="previousaddressesobject" title="Previous Addresses Object"></a>
 ## previousAddresses
 
-**Note:** If *monthsAtAddress* in the [*currentAddress* object](#currentaddressobject) is 24 or less, the Consumer Identity Check request will have a greater probability of being successful if a previous address is included.
+**Note:** If *monthsAtAddress* in the [*currentAddress* object](#currentaddressobject) is 24 or less, the Customer Identity Check request will have a greater probability of being successful if a previous address is included.
 
 |Element            |Type                       |Description    |
 |---                |---                        |---       |
-|apartment          |string<br/>`length<=50`    |This is the consumer's apartment number, if applicable.|
-|street             |string<br/>`length<=25`    |This is the first line of the consumer's street address.|
-|street2            |string<br/>`length<=25`    |This is the second line of the consumer's street address, if required.|
+|apartment          |string<br/>`length<=50`    |This is the customer's apartment number, if applicable.|
+|street             |string<br/>`length<=25`    |This is the first line of the customer's street address.|
+|street2            |string<br/>`length<=25`    |This is the second line of the customer's street address, if required.|
 |city               |string<br/>`length<=20`   |This is the city where the address is located.|
 |country            |string<br/>`length=2`      |This is the country where the address is located. See [Country Codes](#countrycodes).|
 |state              |string<br/>`length=2`      |This is the state/province/region where the address is located.<br/>For Canada see [Province Codes](#provincecodes). For the United States see [State Codes](#statecodes). Other countries have no restrictions. |
-|zip                |string<br/>`length<=10`    |This is the zip, postal, or post code of the consumer's address.|
-|phone              |string<br/>`length<=15`    |This is the consumer's phone number.|
-|monthsAtAddress    |number<br/>`length<=1200`  |This is the number of months the consumer lived at this address.|
+|zip                |string<br/>`length<=10`    |This is the zip, postal, or post code of the customer's address.|
+|phone              |string<br/>`length<=15`    |This is the customer's phone number.|
+|monthsAtAddress    |number<br/>`length<=1200`  |This is the number of months the customer lived at this address.|
 
 ```apib
             {
@@ -931,18 +931,18 @@ This is the raw response from the downstream provider. Paysafe uses this data in
 ## profile
 |Element            |Type                               |Description    |
 |---                |---                                |---            |
-|firstName          |string <br/>`length<=15`           |This is the consumer’s first name. |
-|middleName         |string <br/>`length<=15`           |This is the consumer’s middle name. |
-|lastName           |string <br/>`length<=25`           |This is the consumer’s last name. |
-|ssn                |string <br/>`length<=10`           |This is the consumer's Social Security Number. |
-|sin                |string <br/>`length<=9`            |This is the Canadian consumer's Social Insurance Number. |
-|ssnLastFour        |string <br/>`length=4`             |This is the last four digits of the consumer's Social Security Number, returned in the response. |
-|sinLastFour        |string <br/>`length=4`             |This is the last four digits of the consumer's Social Insurance Number, returned in the response. |
-|email              |string<br/>`length<=128`           |This is the consumer's email address.|
+|firstName          |string <br/>`length<=15`           |This is the customer’s first name. |
+|middleName         |string <br/>`length<=15`           |This is the customer’s middle name. |
+|lastName           |string <br/>`length<=25`           |This is the customer’s last name. |
+|ssn                |string <br/>`length<=10`           |This is the customer's Social Security Number. |
+|sin                |string <br/>`length<=9`            |This is the Canadian customer's Social Insurance Number. |
+|ssnLastFour        |string <br/>`length=4`             |This is the last four digits of the customer's Social Security Number, returned in the response. |
+|sinLastFour        |string <br/>`length=4`             |This is the last four digits of the customer's Social Insurance Number, returned in the response. |
+|email              |string<br/>`length<=128`           |This is the customer's email address.|
 |locale             |enum                               |This indicates the language of the profile. Possible values are:<ul><li>en_CA</li><li>fr_CA</li></ul> |
-|currentAddress     |[currentAddress](#addressobject)   |This is the consumer's address. |
-|dateOfBirth        |[dateOfBirth](#dateofbirthobject)  |This is the consumer's date of birth.|
-|previousAddresses  |[previousAddresses](#addressobject) | This is an array of the consumer's previous addresses. <br/>**Note:** If *monthsAtAddress* in the *currentAddress* object is 24 or less, the Consumer Identity Check request will have a greater probability of being successful if a previous address is included.|
+|currentAddress     |[currentAddress](#addressobject)   |This is the customer's address. |
+|dateOfBirth        |[dateOfBirth](#dateofbirthobject)  |This is the customer's date of birth.|
+|previousAddresses  |[previousAddresses](#addressobject) | This is an array of the customer's previous addresses. <br/>**Note:** If *monthsAtAddress* in the *currentAddress* object is 24 or less, the Customer Identity Check request will have a greater probability of being successful if a previous address is included.|
 
 ```apib
     {
@@ -1075,8 +1075,8 @@ These are raw responses from the downstream providers.
 
 # Error Summary
 
-<a name="riskcheckerrors" title="Consumer Identity Check Errors"></a>
-## Consumer Identity Check Errors
+<a name="riskcheckerrors" title="Customer Identity Check Errors"></a>
+## Customer Identity Check Errors
 
 |HTTP Status Code   |Error Code |Description|
 |---                |---        |---|
@@ -1159,21 +1159,21 @@ This call returns a status of READY if the API is available.
                 "status" : "READY"
             }
 
-# Consumer Identity Check [/]
-<a name="riskcheckrequest" title="Consumer Identity Check Request"></a>
+# Customer Identity Check [/]
+<a name="riskcheckrequest" title="Customer Identity Check Request"></a>
 
-## Run a Consumer Identity Check [POST ]
-<a name="riskcheckrequest" title="Run a Consumer Identity Check"></a>
+## Run a Customer Identity Check [POST ]
+<a name="riskcheckrequest" title="Run a Customer Identity Check"></a>
 
-Click on **Run a Consumer Identity Check** above to see two examples of a Consumer Identity Check request:
+Click on **Run a Customer Identity Check** above to see two examples of a Customer Identity Check request:
 
- * Consumer Identity Check using *vendorCheck*
- * Consumer Identity Check using *workflowId*
+ * Customer Identity Check using *vendorCheck*
+ * Customer Identity Check using *workflowId*
 
 + Attributes
-    + Include Consumer Identity Check
+    + Include Customer Identity Check
 
-+ Request Consumer Identity Check Using vendorCheck (application/json)
++ Request Customer Identity Check Using vendorCheck (application/json)
 
     + Headers
     
@@ -1279,7 +1279,7 @@ Click on **Run a Consumer Identity Check** above to see two examples of a Consum
                 }
             }
 
-+ Request Consumer Identity Check Using workflowId (application/json)
++ Request Customer Identity Check Using workflowId (application/json)
 
     + Headers
     
@@ -1448,27 +1448,27 @@ Click on **Run a Consumer Identity Check** above to see two examples of a Consum
             }
 
 
-# Rerun a Consumer Identity Check [/consumer_identity_id/rerunfailedchecks]
-<a name="rerunriskcheckrequest" title="Rerun Consumer Identity Check"></a>
+# Rerun a Customer Identity Check [/customer_identity_id/rerunfailedchecks]
+<a name="rerunriskcheckrequest" title="Rerun Customer Identity Check"></a>
 
-## Rerun a Consumer Identity Check [POST /{consumer_identity_id}/rerunfailedchecks]
-<a name="rerunriskcheckrequest" title="Rerun a Consumer Identity Check"></a>
+## Rerun a Customer Identity Check [POST /{customer_identity_id}/rerunfailedchecks]
+<a name="rerunriskcheckrequest" title="Rerun a Customer Identity Check"></a>
 
-Click on **Rerun a Consumer Identity Check** above to see how you submit a request to rerun a Consumer Identity Check.
+Click on **Rerun a Customer Identity Check** above to see how you submit a request to rerun a Customer Identity Check.
 
-**Note:** There is no payload to include in the request to rerun a Consumer Identity Check. 
+**Note:** There is no payload to include in the request to rerun a Customer Identity Check. 
 
- - You can rerun a Consumer Identity Check request when the *decision* in the response to the initial request is **ERROR**, which could mean that the initial Consumer Identity Check request could not be completed. 
- - Do not rerun a Consumer Identity Check request if the *decision* in the response to the initial request is **FAIL**. You will get the same FAIL decision if you resubmit it.
+ - You can rerun a Customer Identity Check request when the *decision* in the response to the initial request is **ERROR**, which could mean that the initial Customer Identity Check request could not be completed. 
+ - Do not rerun a Customer Identity Check request if the *decision* in the response to the initial request is **FAIL**. You will get the same FAIL decision if you resubmit it.
 
 + Parameters
 
-    + consumer_identity_id:`86dcb68d-cbd0-4878-8da7-ffc0e6554513` (string, required) - This is the ID returned in the response to the original Consumer Identity Check request.
+    + customer_identity_id:`86dcb68d-cbd0-4878-8da7-ffc0e6554513` (string, required) - This is the ID returned in the response to the original Customer Identity Check request.
 
 + Attributes
-    + Include Consumer Identity Check Rerun
+    + Include Customer Identity Check Rerun
 
-+ Request Rerun Consumer Identity Check (application/json)
++ Request Rerun Customer Identity Check (application/json)
 
     + Headers
     
@@ -1682,68 +1682,68 @@ Click on **Rerun a Consumer Identity Check** above to see how you submit a reque
 ## Current Address
 
 + `currentAddress` (object, required)
-    + `apartment`: `11` (string) -  This is the consumer's apartment number, if applicable.
+    + `apartment`: `11` (string) -  This is the customer's apartment number, if applicable.
         _length<=50_
-    + `street`: `100 Queen Street West` - (string, required) - This is the first line of the consumer's street address.
+    + `street`: `100 Queen Street West` - (string, required) - This is the first line of the customer's street address.
         _length<=25_
-    + `street2`: `Building B` (string) - This is the second line of the consumer's street address, if required.
+    + `street2`: `Building B` (string) - This is the second line of the customer's street address, if required.
         _length<=25_
     + `city`: `Toronto` (string, required) - This is the city where the address is located.
         _length<=20_
     + `country`: `CA` (string, required) - This is the country where the address is located. See [Country Codes](#countrycodes).
         _length=2_
-    + `state`: `ON` (string, required) - This is the state/province/region in which the consumer lives. For Canada see [Province Codes](#provincecodes). For the United States see [State Codes](#statecodes). 
+    + `state`: `ON` (string, required) - This is the state/province/region in which the customer lives. For Canada see [Province Codes](#provincecodes). For the United States see [State Codes](#statecodes). 
         _length=2_
-    + `zip`: `M5H 2N2` (string, required) - This is the zip or postal code of the consumer's address.
+    + `zip`: `M5H 2N2` (string, required) - This is the zip or postal code of the customer's address.
         _length<=10_
-    + `phone`: `647-788-3901` (string) - This is the consumer's phone number.
+    + `phone`: `647-788-3901` (string) - This is the customer's phone number.
         _length<=15_
-    + `monthsAtAddress`: `50` (string) - This is the number of months the consumer has been living at this address.
+    + `monthsAtAddress`: `50` (string) - This is the number of months the customer has been living at this address.
         _length<=1200_
 
 ## Current Address Rerun
 
 + `currentAddress` (object)
-    + `apartment`: `11` (string) -  This is the consumer's apartment number, if applicable.
+    + `apartment`: `11` (string) -  This is the customer's apartment number, if applicable.
         _Read Only_, _length<=50_
-    + `street`: `100 Queen Street West` - (string) - This is the first line of the consumer's street address.
+    + `street`: `100 Queen Street West` - (string) - This is the first line of the customer's street address.
         _Read Only_, _length<=25_
-    + `street2`: `Building B` (string) - This is the second line of the consumer's street address, if required.
+    + `street2`: `Building B` (string) - This is the second line of the customer's street address, if required.
         _Read Only_, _length<=25_
     + `city`: `Toronto` (string) - This is the city where the address is located.
         _Read Only_, _length<=255_
     + `country`: `CA` (string) - This is the country where the address is located. See [Country Codes](#countrycodes).
         _Read Only_, _length=2_
-    + `state`: `ON` (string) - This is the state/province/region in which the consumer lives. For Canada see [Province Codes](#provincecodes). For the United States see [State Codes](#statecodes). 
+    + `state`: `ON` (string) - This is the state/province/region in which the customer lives. For Canada see [Province Codes](#provincecodes). For the United States see [State Codes](#statecodes). 
         _Read Only_, _length=2_
-    + `zip`: `M5H 2N2` (string) - This is the zip or postal code of the consumer's address.
+    + `zip`: `M5H 2N2` (string) - This is the zip or postal code of the customer's address.
         _Read Only_, _length<=10_
-    + `phone`: `647-788-3901` (string) - This is the consumer's phone number.
+    + `phone`: `647-788-3901` (string) - This is the customer's phone number.
         _Read Only_, _length<=15_
-    + `monthsAtAddress`: `50` (string) - This is the number of months the consumer has been living at this address.
+    + `monthsAtAddress`: `50` (string) - This is the number of months the customer has been living at this address.
         _Read Only_, _length<=1200_
 
-## Consumer Identity Check
+## Customer Identity Check
 
 + `id`: `25f6dadf-176a-415f-95c9-6ff39ff697ba` (string) - This is the ID returned in the response.
 
     _Read Only_, _length<=36_
 
-+ `decision`: `SUCCESS` (enum) - This is the overall Consumer Identity Check decision returned by Paysafe, based on responses by downstream providers.
++ `decision`: `SUCCESS` (enum) - This is the overall Customer Identity Check decision returned by Paysafe, based on responses by downstream providers.
     _Read Only_
 
     + Members
-        + `SUCCESS` - The consumer has successfully passed the Consumer Identity Check.
-        + `FAIL` - The consumer has failed the Consumer Identity Check.
-        + `ERROR` - The Consumer Identity Check could not be processed. In this case you can attempt to [rerun the request](#rerunriskcheckrequest).
-        + `OUTSORT` - The Consumer Identity Check was inconclusive. The merchant should collect additional documents to manually verify the consumer.
+        + `SUCCESS` - The customer has successfully passed the Customer Identity Check.
+        + `FAIL` - The customer has failed the Customer Identity Check.
+        + `ERROR` - The Customer Identity Check could not be processed. In this case you can attempt to [rerun the request](#rerunriskcheckrequest).
+        + `OUTSORT` - The Customer Identity Check was inconclusive. The merchant should collect additional documents to manually verify the customer.
 
 + `merchantRefNum`: `P1234` (string, required) - This is the merchant reference number created by the merchant and submitted as part of the request.
 
     _length<=255_
 
 + Include Profile
-+ `customerIp`: `1.1.1.1` (string) - This is the consumer's IP address.
++ `customerIp`: `1.1.1.1` (string) - This is the customer's IP address.
     _length<=39_
 + One of
     + `vendorCheck`: `EID_COMPARE` (string, required) - You must include either *vendorCheck* or *workflowId* but not both. Upon onboarding, Paysafe will instruct the merchant on which parameter to use as well as which value to provide for the parameter.
@@ -1751,27 +1751,27 @@ Click on **Rerun a Consumer Identity Check** above to see how you submit a reque
     + `workflowId`: `LOW_RISK` (string, required) - You must include either *vendorCheck* or *workflowId* but not both. Upon onboarding, Paysafe will instruct the merchant on which parameter to use as well as which value to provide for the parameter.
 + Include Provider Responses
 
-## Consumer Identity Check Rerun
+## Customer Identity Check Rerun
 
 + `id`: `25f6dadf-176a-415f-95c9-6ff39ff697ba` (string) - This is the ID returned in the response.
 
     _Read Only_, _length<=36_
 
-+ `decision`: `SUCCESS` (enum) - This is the overall Consumer Identity Check decision returned by Paysafe, based on responses by downstream providers.
++ `decision`: `SUCCESS` (enum) - This is the overall Customer Identity Check decision returned by Paysafe, based on responses by downstream providers.
     _Read Only_
 
     + Members
-        + `SUCCESS` - The consumer has successfully passed the Consumer Identity Check.
-        + `FAIL` - The consumer has failed the Consumer Identity Check.
-        + `ERROR` - The Consumer Identity Check could not be processed. In this case you can attempt to [rerun the request](#rerunriskcheckrequest).
-        + `OUTSORT` - The Consumer Identity Check was inconclusive. The merchant should collect additional documents to verify the consumer with a manual review.
+        + `SUCCESS` - The customer has successfully passed the Customer Identity Check.
+        + `FAIL` - The customer has failed the Customer Identity Check.
+        + `ERROR` - The Customer Identity Check could not be processed. In this case you can attempt to [rerun the request](#rerunriskcheckrequest).
+        + `OUTSORT` - The Customer Identity Check was inconclusive. The merchant should collect additional documents to verify the customer with a manual review.
 
 + `merchantRefNum`: `P1234` (string) - This is the merchant reference number created by the merchant and submitted as part of the request.
 
     _Read Only_, _length<=255_
 
 + Include Profile Rerun
-+ `customerIp`: `1.1.1.1` (string) - This is the consumer's IP address.
++ `customerIp`: `1.1.1.1` (string) - This is the customer's IP address.
     _Read Only_, _length<=39_
 + One of
     + `vendorCheck`: `EID_COMPARE` (string) - This is the  You must include either *vendorCheck* or *workflowId* but not both. Upon onboarding, Paysafe will instruct the merchant on which parameter to use as well as which value to provide for the parameter.
@@ -1886,72 +1886,72 @@ Click on **Rerun a Consumer Identity Check** above to see how you submit a reque
 + 
 
 ## Previous Addresses
-+ `previousAddresses` (array) - This is an array of the consumer's previous addresses. **Note:** If *monthsAtAddress* in the *currentAddress* object is 24 or less, the Consumer Identity Check request will have a greater probability of being successful if a previous address is included.
++ `previousAddresses` (array) - This is an array of the customer's previous addresses. **Note:** If *monthsAtAddress* in the *currentAddress* object is 24 or less, the Customer Identity Check request will have a greater probability of being successful if a previous address is included.
     + (object)
         + Properties
-            + `apartment`: `11` (string) -  This is the consumer's apartment number, if applicable.
+            + `apartment`: `11` (string) -  This is the customer's apartment number, if applicable.
                 _length<=50_
-            + `street`: `100 Queen Street West` - (string, required) - This is the first line of the consumer's street address.
+            + `street`: `100 Queen Street West` - (string, required) - This is the first line of the customer's street address.
                 _length<=25_
-            + `street2`: `Building B` (string) - This is the second line of the consumer's street address, if required.
+            + `street2`: `Building B` (string) - This is the second line of the customer's street address, if required.
                 _length<=25_
             + `city`: `Toronto` (string, required) - This is the city where the address is located.
                 _length<=20_
             + `country`: `CA` (string, required) - This is the country where the address is located. See [Country Codes](#countrycodes).
                 _length=2_
-            + `state`: `ON` (string, required) - This is the state/province/region in which the consumer lived. For Canada see [Province Codes](#provincecodes). For the United States see [State Codes](#statecodes). 
+            + `state`: `ON` (string, required) - This is the state/province/region in which the customer lived. For Canada see [Province Codes](#provincecodes). For the United States see [State Codes](#statecodes). 
                 _length=2_
-            + `zip`: `M5H 2N2` (string, required) - This is the zip or postal code of the consumer's address.
+            + `zip`: `M5H 2N2` (string, required) - This is the zip or postal code of the customer's address.
                 _length<=10_
-            + `phone`: `647-788-3901` (string) - This is the consumer's phone number.
+            + `phone`: `647-788-3901` (string) - This is the customer's phone number.
                 _length<=15_
-            + `monthsAtAddress`: `50` (string) - This is the number of months the consumer lived at this address.
+            + `monthsAtAddress`: `50` (string) - This is the number of months the customer lived at this address.
                 _length<=1200_
 
 ## Previous Addresses Rerun
-+ `previousAddresses` (array) - This is an array of the consumer's previous addresses. **Note:** If *monthsAtAddress* in the *currentAddress* object is 24 or less, the Consumer Identity Check request will have a greater probability of being successful if a previous address is included.
++ `previousAddresses` (array) - This is an array of the customer's previous addresses. **Note:** If *monthsAtAddress* in the *currentAddress* object is 24 or less, the Customer Identity Check request will have a greater probability of being successful if a previous address is included.
     
     + (object)
         + Properties
-            + `apartment`: `11` (string) -  This is the consumer's apartment number, if applicable.
+            + `apartment`: `11` (string) -  This is the customer's apartment number, if applicable.
                 _Read Only_, _length<=50_
-            + `street`: `100 Queen Street West` - (string) - This is the first line of the consumer's street address.
+            + `street`: `100 Queen Street West` - (string) - This is the first line of the customer's street address.
                 _Read Only_, _length<=25_
-            + `street2`: `Building B` (string) - This is the second line of the consumer's street address, if required.
+            + `street2`: `Building B` (string) - This is the second line of the customer's street address, if required.
                 _Read Only_, _length<=25_
             + `city`: `Toronto` (string) - This is the city where the address is located.
                 _Read Only_, _length<=20_
             + `country`: `CA` (string) - This is the country where the address is located. See [Country Codes](#countrycodes).
                 _Read Only_, _length=2_
-            + `state`: `ON` (string) - This is the state/province/region in which the consumer lived. For Canada see [Province Codes](#provincecodes). For the United States see [State Codes](#statecodes). 
+            + `state`: `ON` (string) - This is the state/province/region in which the customer lived. For Canada see [Province Codes](#provincecodes). For the United States see [State Codes](#statecodes). 
                 _Read Only_, _length=2_
-            + `zip`: `M5H 2N2` (string) - This is the zip or postal code of the consumer's address.
+            + `zip`: `M5H 2N2` (string) - This is the zip or postal code of the customer's address.
                 _Read Only_, _length<=10_
-            + `phone`: `647-788-3901` (string) - This is the consumer's phone number.
+            + `phone`: `647-788-3901` (string) - This is the customer's phone number.
                 _Read Only_, _length<=15_
-            + `monthsAtAddress`: `50` (string) - This is the number of months the consumer lived at this address.
+            + `monthsAtAddress`: `50` (string) - This is the number of months the customer lived at this address.
                 _Read Only_, _length<=1200_
 
 ## Profile
 + `profile` (object, required)
     + Properties
-        + `firstName`: `John` (string, required) - This is the consumer’s first name. 
+        + `firstName`: `John` (string, required) - This is the customer’s first name. 
             _length<=15_
-        + `middleName`: `James` (string) - This is the consumer’s middle name.
+        + `middleName`: `James` (string) - This is the customer’s middle name.
             _length<=15_
-        + `lastName`: `Smith` (string, required) - This is the consumer’s last name.
+        + `lastName`: `Smith` (string, required) - This is the customer’s last name.
             _length<=25_
         + One of
-            + `ssn`: `123456789` (string) - This is the consumer's Social Security Number.
+            + `ssn`: `123456789` (string) - This is the customer's Social Security Number.
                 _length<=10_    
-            + `sin`: `123456789` (string) - This is the consumer's Social Insurance number
+            + `sin`: `123456789` (string) - This is the customer's Social Insurance number
                 _length<=9_
-        + `email`: `johnsmith@myemail.com` (string) - This is the consumer's email address.
+        + `email`: `johnsmith@myemail.com` (string) - This is the customer's email address.
             _length<=128_
         + One of
-            + `ssnLastFour`: `6789` (string) - This is the last four digits of the consumer's Social Security Number, returned in the response.
+            + `ssnLastFour`: `6789` (string) - This is the last four digits of the customer's Social Security Number, returned in the response.
                 _Read Only_, _length=4_
-            + `sinLastFour`: `6789` (string) - This is the last four digits of the consumer's Social Insurance Number, returned in the response.
+            + `sinLastFour`: `6789` (string) - This is the last four digits of the customer's Social Insurance Number, returned in the response.
                 _Read Only_, _length=4_        
         + `locale`: `en_CA` (enum) - This indicates the language of the profile.
 
@@ -1965,23 +1965,23 @@ Click on **Rerun a Consumer Identity Check** above to see how you submit a reque
 ## Profile Rerun
 + `profile` (object, required)
     + Properties
-        + `firstName`: `John` (string, required) - This is the consumer’s first name. 
+        + `firstName`: `John` (string, required) - This is the customer’s first name. 
             _Read Only_, _length<=15_
-        + `middleName`: `James` (string) - This is the consumer’s middle name.
+        + `middleName`: `James` (string) - This is the customer’s middle name.
             _Read Only_, _length<=15_
-        + `lastName`: `Smith` (string, required) - This is the consumer’s last name.
+        + `lastName`: `Smith` (string, required) - This is the customer’s last name.
             _Read Only_, _length<=25_
         + One of
-            + `ssn`: `123456789` (string) - This is the consumer's Social Security Number.
+            + `ssn`: `123456789` (string) - This is the customer's Social Security Number.
                 _Read Only_, _length<=10_    
-            + `sin`: `123456789` (string) - This is the consumer's Social Insurance number
+            + `sin`: `123456789` (string) - This is the customer's Social Insurance number
                 _Read Only_, _length<=9_
-        + `email`: `johnsmith@myemail.com` (string) - This is the consumer's email address.
+        + `email`: `johnsmith@myemail.com` (string) - This is the customer's email address.
             _Read Only_, _length<=128_
         + One of
-            + `ssnLastFour`: `6789` (string) - This is the last four digits of the consumer's Social Security Number, returned in the response.
+            + `ssnLastFour`: `6789` (string) - This is the last four digits of the customer's Social Security Number, returned in the response.
                 _Read Only_, _length=4_
-            + `sinLastFour`: `6789` (string) - This is the last four digits of the consumer's Social Insurance Number, returned in the response.
+            + `sinLastFour`: `6789` (string) - This is the last four digits of the customer's Social Insurance Number, returned in the response.
                 _Read Only_, _length=4_        
         + `locale`: `en_CA` (enum) - This indicates the language of the profile.
             _Read Only_
