@@ -440,7 +440,7 @@ With the Paysafe API you can test the following:
 |Element            |Type                                   |Description    |
 |---                |---                                    |---            |
 |id                 |string <br/>`length<=36`               |This is the *amlassist* ID generated for the request, returned in the response.|
-|status             |enum                                   |This is the risk status from the downstream provider. See the [amlassist Decision Matrix Table](#amlassisttable) for details. |
+|status             |enum                                   |This is the status from the downstream provider. See the [amlassist Decision Matrix Table](#amlassisttable) for details. |
 |response           |[response](#amlassistresponseobject)   |These are responses from downstream providers. |
 |error              |[error](#errorobject)                  |These are error details in case errors occurred. |
 
@@ -734,21 +734,6 @@ This is the raw response from the downstream provider. Paysafe uses this data in
             },
 ```
 
-<a name="atomicscoresobject" title="atomicScores Object"></a>
-## atomicScores
-
-This is part of the raw response from the downstream provider.
-
-|Element                |Type                       |Description    |
-|---                    |---                        |---       |
-|interactiveQueryScore  |string                     |This value comes in the response from the downstream provider. |
-
-```apib
-    {
-        "interactiveQueryScore": -1
-    }
-```
-
 <a name="currentaddressobject" title="currentAddress Object"></a>
 ## currentAddress
 
@@ -799,7 +784,7 @@ This is part of the raw response from the downstream provider.
 | Element                   | Type                                      | Description                                                       |
 |---------------------------|---------                                  |-------------------------------------------------------------------|
 |id                         |string <br/>`length<=36`                   |This is the *eidCompare* ID generated for the request, returned in the response. |
-|status                     |enum                                       |This is the risk status from the downstream provider. Possible values are: <ul><li>SUCCESS</li><li>FAIL</li><li>ERROR</li></ul> |
+|status                     |enum                                       |This is the status from the downstream provider. Possible values are: <ul><li>SUCCESS</li><li>FAIL</li><li>ERROR</li></ul> |
 |response                   |[response](#eidcompareresponseobject)      |   |
 |error                      |[error](#errorobject)                      | These are error details in case errors occurred. |
 
@@ -822,9 +807,6 @@ This is part of the raw response from the downstream provider.
                         "code": "C1"
                     }
                 ],
-                "atomicScores": {
-                    "interactiveQueryScore": -1
-                },
                 "decision": "Y",
                 "score": 25
             }
@@ -841,7 +823,6 @@ This is the raw response from the downstream provider. Paysafe uses this data in
 | Element               | Type    | Description                                                       |
 |-----------------------|---------|-------------------------------------------------------------------|
 |assessmentComplete     |[assessmentComplete](#assessmentcompleteobject)   |This is an array of reason codes from the downstream provider. |
-|atomicScores           |[atomicScores](#atomicscoresobject) |                                |
 |decision               |string   |This is the risk decision returned by the downstream provider. |
 |score                  |string   |This is the risk score computed by the downstream provider.   |
 
@@ -862,9 +843,6 @@ This is the raw response from the downstream provider. Paysafe uses this data in
                     "code": "C1"
                 }
             ],
-            "atomicScores": {
-                "interactiveQueryScore": -1
-            },
             "decision": "Y",
             "score": 25
         }
@@ -979,73 +957,70 @@ These are raw responses from the downstream providers.
 |eidCompare             |[eidcompare](eidcompareobject)|  |
 
 ```apib
-    {
-        "providerResponses": {
-            "eidCompare": {
-                "id": "0f1266b9-ce28-4df2-bc3f-d4b746cc1ced",
-                "status": "SUCCESS",
-                "response": {
-                    "assessmentComplete": {
-                        "reasonCodes": [{
-                                "description": "Credit file located=Adequate match",
-                                "code": "51"
-                            },
-                            {
-                                "description": "No Phone record located or poor match score",
-                                "code": "60"
-                            },
-                            {
-                                "description": "Supplied address same as the current address in the provider database",
-                                "code": "C1"
-                            }
-                        ],
-                        "atomicScores": {
-                            "interactiveQueryScore": -1
-                        },
-                        "decision": "Y",
-                        "score": 25
-                    }
-                },
-                "amlassist": {
-                    "id": "0f1266b9-ce28-4df2-bc3f-d4b746cc1ced",
-                    "status": "SUCCESS",
-                    "response": {
-                        "creditFileNumber": "65462",
-                        "isCreditFileGreaterThanThreeYearsOld": "True",
-                        "isSingleSourceHit": "True",
-                        "isDualSourceHit": "False",
-                        "isLastNameMatched": "True",
-                        "isFirstNameMatched": "True",
-                        "isMiddleNameMatched": "True",
-                        "isDateOfBirthMatch": "True",
-                        "isAddressCivicMatch": "True",
-                        "isAddressStreetNameMatch": "True",
-                        "isAddressCityMatch": "True",
-                        "isAddressPostalCodeMatch": "True",
-                        "isAddressProvinceMatch": "True",
-                        "creditFileCreationDate": {
-                            "day": "12",
-                            "month": "10",
-                            "year": "2010"
-                        },
-                        "numberOfTrades": "23",
-                        "familyName": "Roz",
-                        "singleSourceDecision": "True",
-                        "dualSourceDecision": null,
-                        "isWaterfallProcess": true,
-                        "institutionName": "institute",
-                        "accountNumber": "45487852",
-                        "isNameAndDobMatch": "True",
-                        "isNameAndAddressMatch": "True",
-                        "isNameAndAccountNumberMatch": "True",
-                        "bureauName": "Equifax Canada",
-                        "originOfCreditFile": "CANADA",
-                        "dateOfRequest": "2018/10/29 12:00 AM UTC"
-                    }
-                }
-            }
-        }
-    }
+             {
+                 "providerResponses": {
+                     "eidCompare": {
+                         "id": "0f1266b9-ce28-4df2-bc3f-d4b746cc1ced",
+                         "status": "SUCCESS",
+                         "response": {
+                             "assessmentComplete": {
+                                 "reasonCodes": [{
+                                         "description": "Credit file located=Adequate match",
+                                         "code": "51"
+                                     },
+                                     {
+                                         "description": "No Phone record located or poor match score",
+                                         "code": "60"
+                                     },
+                                     {
+                                         "description": "Supplied address same as the current address in the provider database",
+                                         "code": "C1"
+                                     }
+                                 ]
+                             },
+                             "decision": "Y",
+                             "score": 25
+                         }
+                     },
+                     "amlassist": {
+                         "id": "0f1266b9-ce28-4df2-bc3f-d4b746cc1ced",
+                         "status": "SUCCESS",
+                         "response": {
+                             "creditFileNumber": "65462",
+                             "isCreditFileGreaterThanThreeYearsOld": "True",
+                             "isSingleSourceHit": "True",
+                             "isDualSourceHit": "False",
+                             "isLastNameMatched": "True",
+                             "isFirstNameMatched": "True",
+                             "isMiddleNameMatched": "True",
+                             "isDateOfBirthMatch": "True",
+                             "isAddressCivicMatch": "True",
+                             "isAddressStreetNameMatch": "True",
+                             "isAddressCityMatch": "True",
+                             "isAddressPostalCodeMatch": "True",
+                             "isAddressProvinceMatch": "True",
+                             "creditFileCreationDate": {
+                                 "day": "12",
+                                 "month": "10",
+                                 "year": "2010"
+                             },
+                             "numberOfTrades": "23",
+                             "familyName": "Roz",
+                             "singleSourceDecision": "True",
+                             "dualSourceDecision": null,
+                             "isWaterfallProcess": true,
+                             "institutionName": "institute",
+                             "accountNumber": "45487852",
+                             "isNameAndDobMatch": "True",
+                             "isNameAndAddressMatch": "True",
+                             "isNameAndAccountNumberMatch": "True",
+                             "bureauName": "Equifax Canada",
+                             "originOfCreditFile": "CANADA",
+                             "dateOfRequest": "2018/10/29 12:00 AM UTC"
+                         }
+                     }
+                 }
+             }
 ```
 
 <a name="reasoncodesobject" title="reasonCodes Object"></a>
@@ -1268,9 +1243,6 @@ Click on **Run a Customer Identity Check** above to see two examples of a Custom
                                     "description": "Telephone exchange does not match the FSA (first three characters) of the postal code for Current Address",
                                     "code": "08"
                                 }],
-                                "atomicScores": {
-                                    "interactiveQueryScore": -1
-                                },
                                 "decision": "Y",
                                 "score": 25
                             }
@@ -1374,9 +1346,6 @@ Click on **Run a Customer Identity Check** above to see two examples of a Custom
                                     "description": "Telephone exchange does not match the FSA (first three characters) of the postal code for Current Address",
                                     "code": "08"
                                 }],
-                                "atomicScores": {
-                                    "interactiveQueryScore": -1
-                                },
                                 "decision": "Y",
                                 "score": 25
                             }
@@ -1531,9 +1500,6 @@ Click on **Rerun a Customer Identity Check** above to see how you submit a reque
                                     "description": "Telephone exchange does not match the FSA (first three characters) of the postal code for Current Address",
                                     "code": "08"
                                 }],
-                                "atomicScores": {
-                                    "interactiveQueryScore": -1
-                                },
                                 "decision": "Y",
                                 "score": 25
                             }
@@ -1671,13 +1637,6 @@ Click on **Rerun a Customer Identity Check** above to see how you submit a reque
 
     + Properties
         + Include Reason Codes
-
-## Atomic Scores
-+ `atomicScores` (object)
-    _Read Only_
-
-    + Properties
-        + `interactiveQueryScore`: `-1` (string) - This value comes in the response from the downstream provider.
 
 ## Current Address
 
@@ -1878,7 +1837,6 @@ Click on **Rerun a Customer Identity Check** above to see how you submit a reque
 
     + Properties
         + Include Assessment Complete
-        + Include Atomic Scores
         + `decision`: `Y` (string) - This is a decision from the downstream provider.
         + `score`: `25` (string) - This is a score from the downstream provider.
 
