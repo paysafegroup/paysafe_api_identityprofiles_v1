@@ -1,5 +1,5 @@
 FORMAT: 1A
-HOST: https://api.test.paysafe.com/v1/identityprofiles/
+HOST: https://api.test.paysafe.com/customeridentification/
 
 # Paysafe Customer Identity API
 
@@ -1137,7 +1137,7 @@ This call returns a status of READY if the API is available.
 # Customer Identity Check [/]
 <a name="riskcheckrequest" title="Customer Identity Check Request"></a>
 
-## Run a Customer Identity Check [POST ]
+## Run a Customer Identity Check [POST /v1/identityprofiles]
 <a name="riskcheckrequest" title="Run a Customer Identity Check"></a>
 
 Click on **Run a Customer Identity Check** above to see two examples of a Customer Identity Check request:
@@ -1417,10 +1417,10 @@ Click on **Run a Customer Identity Check** above to see two examples of a Custom
             }
 
 
-# Rerun a Customer Identity Check [/customer_identity_id/rerunfailedchecks]
+# Rerun a Customer Identity Check [/v1/identityprofiles/customer_identity_id/rerunfailedchecks]
 <a name="rerunriskcheckrequest" title="Rerun Customer Identity Check"></a>
 
-## Rerun a Customer Identity Check [POST /{customer_identity_id}/rerunfailedchecks]
+## Rerun a Customer Identity Check [POST /v1/identityprofiles/{customer_identity_id}/rerunfailedchecks]
 <a name="rerunriskcheckrequest" title="Rerun a Customer Identity Check"></a>
 
 Click on **Rerun a Customer Identity Check** above to see how you submit a request to rerun a Customer Identity Check.
