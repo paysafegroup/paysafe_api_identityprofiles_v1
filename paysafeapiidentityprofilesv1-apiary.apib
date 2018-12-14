@@ -47,7 +47,7 @@ In order to test your integration with Paysafe, use the following Test URL:
 
 For example:
 
-`https://api.test.paysafe.com/v1/identityprofiles`
+`https://api.test.paysafe.com/customeridentification/v1/identityprofiles`
 
 ## Production URL
 In order to process live requests with Paysafe, use the following Production URL:
@@ -56,7 +56,7 @@ In order to process live requests with Paysafe, use the following Production URL
 
 For example:
 
-`https://api.paysafe.com/v1/identityprofiles`
+`https://api.paysafe.com/customeridentification/v1/identityprofiles`
 
 # API
 
@@ -67,8 +67,8 @@ The Customer Identity API allows merchants to process KYC (know your customer) C
   
 **API Endpoints** 
 
- - `https://api.paysafe.com/v1/identityprofiles`
- - `https://api.paysafe.com/v1/identityprofiles/customer_identity_id/rerunfailedchecks`
+ - `https://api.paysafe.com/customeridentification/v1/identityprofiles`
+ - `https://api.paysafe.com/customeridentification/v1/identityprofiles/customer_identity_id/rerunfailedchecks`
 
 **Resource Patterns**
 
@@ -1134,7 +1134,7 @@ This call returns a status of READY if the API is available.
                 "status" : "READY"
             }
 
-# Customer Identity Check [/]
+# Customer Identity Check [/identityprofiles]
 <a name="riskcheckrequest" title="Customer Identity Check Request"></a>
 
 ## Run a Customer Identity Check [POST /v1/identityprofiles]
@@ -1417,7 +1417,7 @@ Click on **Run a Customer Identity Check** above to see two examples of a Custom
             }
 
 
-# Rerun a Customer Identity Check [/v1/identityprofiles/customer_identity_id/rerunfailedchecks]
+# Rerun a Customer Identity Check [/rerunfailedchecks]
 <a name="rerunriskcheckrequest" title="Rerun Customer Identity Check"></a>
 
 ## Rerun a Customer Identity Check [POST /v1/identityprofiles/{customer_identity_id}/rerunfailedchecks]
