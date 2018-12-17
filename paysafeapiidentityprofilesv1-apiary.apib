@@ -58,6 +58,23 @@ For example:
 
 `https://api.paysafe.com/customeridentification/v1/identityprofiles`
 
+<a name="globalinvalidcharacters" title="Global Invalid Characters"></a>
+# Global Invalid Characters
+
+You must not include any of the characters in the following table as values in any of your request parameters. If you do, your request will result in an error.
+
+|    Character    |    HEX    |    Description                     |
+|-----------------|-----------|------------------------------------|
+| "               | 22        | Double quotes (or speech marks)    |
+| ;               | 3B        | Semicolon                          |
+| ^               | 5E        | Caret, circumflex                  |
+| *               | 2A        | Asterisk                           |
+| <               | 3C        | Less than (or open angled bracket) |
+| /               | 2F        | Slash or divide                    |
+| [               | 5B        | Opening bracket                    |
+| ]               | 5D        | Closing bracket                    |
+| \               | 5C        | Backslash                          |
+
 # API
 
 The Customer Identity API allows merchants to process KYC (know your customer) Customer Identity checks on their customers using the REST protocol. The protocol uses JSON for all requests and responses. The following request types are supported:
