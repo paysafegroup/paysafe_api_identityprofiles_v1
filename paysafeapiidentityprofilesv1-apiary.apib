@@ -757,13 +757,13 @@ This is the raw response from the downstream provider. Paysafe uses this data in
 |Element            |Type                       |Description    |
 |---                |---                        |---       |
 |apartment          |string<br/>`length<=50`    |This is the customer's apartment number, if applicable.|
-|street             |string<br/>`length<=25`    |This is the first line of the customer's street address.|
-|street2            |string<br/>`length<=25`    |This is the second line of the customer's street address, if required.|
-|city               |string<br/>`length<=20`   |This is the city where the address is located.|
+|street             |string<br/>`length<=50`    |This is the first line of the customer's street address.|
+|street2            |string<br/>`length<=50`    |This is the second line of the customer's street address, if required.|
+|city               |string<br/>`length<=40`    |This is the city where the address is located.|
 |country            |string<br/>`length=2`      |This is the country where the address is located. See [Country Codes](#countrycodes).|
 |state              |string<br/>`length=2`      |This is the state/province/region in which the customer lives.<br/>For Canada see [Province Codes](#provincecodes). For the United States see [State Codes](#statecodes). Other countries have no restrictions. |
 |zip                |string<br/>`length<=10`    |This is the zip, postal, or post code of the customer's address.|
-|phone              |string<br/>`length<=15`    |This is the customer's phone number.|
+|phone              |string<br/>`length<=40`    |This is the customer's phone number.|
 |monthsAtAddress    |number<br/>`length<=1200`  |This is the number of months the customer has been living at this address.|
 
 ```apib
@@ -900,13 +900,13 @@ This is the raw response from the downstream provider. Paysafe uses this data in
 |Element            |Type                       |Description    |
 |---                |---                        |---       |
 |apartment          |string<br/>`length<=50`    |This is the customer's apartment number, if applicable.|
-|street             |string<br/>`length<=25`    |This is the first line of the customer's street address.|
-|street2            |string<br/>`length<=25`    |This is the second line of the customer's street address, if required.|
-|city               |string<br/>`length<=20`   |This is the city where the address is located.|
+|street             |string<br/>`length<=50`    |This is the first line of the customer's street address.|
+|street2            |string<br/>`length<=50`    |This is the second line of the customer's street address, if required.|
+|city               |string<br/>`length<=40`    |This is the city where the address is located.|
 |country            |string<br/>`length=2`      |This is the country where the address is located. See [Country Codes](#countrycodes).|
 |state              |string<br/>`length=2`      |This is the state/province/region where the address is located.<br/>For Canada see [Province Codes](#provincecodes). For the United States see [State Codes](#statecodes). Other countries have no restrictions. |
 |zip                |string<br/>`length<=10`    |This is the zip, postal, or post code of the customer's address.|
-|phone              |string<br/>`length<=15`    |This is the customer's phone number.|
+|phone              |string<br/>`length<=40`    |This is the customer's phone number.|
 |monthsAtAddress    |number<br/>`length<=1200`  |This is the number of months the customer lived at this address.|
 
 ```apib
@@ -926,14 +926,14 @@ This is the raw response from the downstream provider. Paysafe uses this data in
 ## profile
 |Element            |Type                               |Description    |
 |---                |---                                |---            |
-|firstName          |string <br/>`length<=15`           |This is the customer’s first name. |
-|middleName         |string <br/>`length<=15`           |This is the customer’s middle name. |
-|lastName           |string <br/>`length<=25`           |This is the customer’s last name. |
+|firstName          |string <br/>`length<=80`           |This is the customer’s first name. |
+|middleName         |string <br/>`length<=80`           |This is the customer’s middle name. |
+|lastName           |string <br/>`length<=80`           |This is the customer’s last name. |
 |ssn                |string <br/>`length<=10`           |This is the customer's Social Security Number. |
 |sin                |string <br/>`length<=9`            |This is the Canadian customer's Social Insurance Number. |
 |ssnLastFour        |string <br/>`length=4`             |This is the last four digits of the customer's Social Security Number, returned in the response. |
 |sinLastFour        |string <br/>`length=4`             |This is the last four digits of the customer's Social Insurance Number, returned in the response. |
-|email              |string<br/>`length<=128`           |This is the customer's email address.|
+|email              |string<br/>`length<=255`           |This is the customer's email address.|
 |locale             |enum                               |This indicates the language of the profile. Possible values are:<ul><li>en_CA</li><li>fr_CA</li></ul> |
 |currentAddress     |[currentAddress](#addressobject)   |This is the customer's address. |
 |dateOfBirth        |[dateOfBirth](#dateofbirthobject)  |This is the customer's date of birth.|
@@ -1661,11 +1661,11 @@ Click on **Rerun a Customer Identity Check** above to see how you submit a reque
     + `apartment`: `11` (string) -  This is the customer's apartment number, if applicable.
         _length<=50_
     + `street`: `100 Queen Street West` - (string, required) - This is the first line of the customer's street address.
-        _length<=25_
+        _length<=50_
     + `street2`: `Building B` (string) - This is the second line of the customer's street address, if required.
-        _length<=25_
+        _length<=50_
     + `city`: `Toronto` (string, required) - This is the city where the address is located.
-        _length<=20_
+        _length<=40_
     + `country`: `CA` (string, required) - This is the country where the address is located. See [Country Codes](#countrycodes).
         _length=2_
     + `state`: `ON` (string, required) - This is the state/province/region in which the customer lives. For Canada see [Province Codes](#provincecodes). For the United States see [State Codes](#statecodes). 
@@ -1673,7 +1673,7 @@ Click on **Rerun a Customer Identity Check** above to see how you submit a reque
     + `zip`: `M5H 2N2` (string, required) - This is the zip or postal code of the customer's address.
         _length<=10_
     + `phone`: `647-788-3901` (string) - This is the customer's phone number.
-        _length<=15_
+        _length<=40_
     + `monthsAtAddress`: `50` (string) - This is the number of months the customer has been living at this address.
         _length<=1200_
 
@@ -1683,11 +1683,11 @@ Click on **Rerun a Customer Identity Check** above to see how you submit a reque
     + `apartment`: `11` (string) -  This is the customer's apartment number, if applicable.
         _Read Only_, _length<=50_
     + `street`: `100 Queen Street West` - (string) - This is the first line of the customer's street address.
-        _Read Only_, _length<=25_
+        _Read Only_, _length<=50_
     + `street2`: `Building B` (string) - This is the second line of the customer's street address, if required.
-        _Read Only_, _length<=25_
+        _Read Only_, _length<=50_
     + `city`: `Toronto` (string) - This is the city where the address is located.
-        _Read Only_, _length<=255_
+        _Read Only_, _length<=40_
     + `country`: `CA` (string) - This is the country where the address is located. See [Country Codes](#countrycodes).
         _Read Only_, _length=2_
     + `state`: `ON` (string) - This is the state/province/region in which the customer lives. For Canada see [Province Codes](#provincecodes). For the United States see [State Codes](#statecodes). 
@@ -1867,11 +1867,11 @@ Click on **Rerun a Customer Identity Check** above to see how you submit a reque
             + `apartment`: `11` (string) -  This is the customer's apartment number, if applicable.
                 _length<=50_
             + `street`: `100 Queen Street West` - (string, required) - This is the first line of the customer's street address.
-                _length<=25_
+                _length<=50_
             + `street2`: `Building B` (string) - This is the second line of the customer's street address, if required.
-                _length<=25_
+                _length<=50_
             + `city`: `Toronto` (string, required) - This is the city where the address is located.
-                _length<=20_
+                _length<=40_
             + `country`: `CA` (string, required) - This is the country where the address is located. See [Country Codes](#countrycodes).
                 _length=2_
             + `state`: `ON` (string, required) - This is the state/province/region in which the customer lived. For Canada see [Province Codes](#provincecodes). For the United States see [State Codes](#statecodes). 
@@ -1879,7 +1879,7 @@ Click on **Rerun a Customer Identity Check** above to see how you submit a reque
             + `zip`: `M5H 2N2` (string, required) - This is the zip or postal code of the customer's address.
                 _length<=10_
             + `phone`: `647-788-3901` (string) - This is the customer's phone number.
-                _length<=15_
+                _length<=40_
             + `monthsAtAddress`: `50` (string) - This is the number of months the customer lived at this address.
                 _length<=1200_
 
@@ -1891,11 +1891,11 @@ Click on **Rerun a Customer Identity Check** above to see how you submit a reque
             + `apartment`: `11` (string) -  This is the customer's apartment number, if applicable.
                 _Read Only_, _length<=50_
             + `street`: `100 Queen Street West` - (string) - This is the first line of the customer's street address.
-                _Read Only_, _length<=25_
+                _Read Only_, _length<=50_
             + `street2`: `Building B` (string) - This is the second line of the customer's street address, if required.
-                _Read Only_, _length<=25_
+                _Read Only_, _length<=50_
             + `city`: `Toronto` (string) - This is the city where the address is located.
-                _Read Only_, _length<=20_
+                _Read Only_, _length<=40_
             + `country`: `CA` (string) - This is the country where the address is located. See [Country Codes](#countrycodes).
                 _Read Only_, _length=2_
             + `state`: `ON` (string) - This is the state/province/region in which the customer lived. For Canada see [Province Codes](#provincecodes). For the United States see [State Codes](#statecodes). 
@@ -1903,7 +1903,7 @@ Click on **Rerun a Customer Identity Check** above to see how you submit a reque
             + `zip`: `M5H 2N2` (string) - This is the zip or postal code of the customer's address.
                 _Read Only_, _length<=10_
             + `phone`: `647-788-3901` (string) - This is the customer's phone number.
-                _Read Only_, _length<=15_
+                _Read Only_, _length<=40_
             + `monthsAtAddress`: `50` (string) - This is the number of months the customer lived at this address.
                 _Read Only_, _length<=1200_
 
@@ -1911,18 +1911,18 @@ Click on **Rerun a Customer Identity Check** above to see how you submit a reque
 + `profile` (object, required)
     + Properties
         + `firstName`: `John` (string, required) - This is the customer’s first name. 
-            _length<=15_
+            _length<=80_
         + `middleName`: `James` (string) - This is the customer’s middle name.
-            _length<=15_
+            _length<=80_
         + `lastName`: `Smith` (string, required) - This is the customer’s last name.
-            _length<=25_
+            _length<=80_
         + One of
             + `ssn`: `123456789` (string) - This is the customer's Social Security Number.
                 _length<=10_    
             + `sin`: `123456789` (string) - This is the customer's Social Insurance number
                 _length<=9_
         + `email`: `johnsmith@myemail.com` (string) - This is the customer's email address.
-            _length<=128_
+            _length<=255_
         + One of
             + `ssnLastFour`: `6789` (string) - This is the last four digits of the customer's Social Security Number, returned in the response.
                 _Read Only_, _length=4_
@@ -1941,18 +1941,18 @@ Click on **Rerun a Customer Identity Check** above to see how you submit a reque
 + `profile` (object, required)
     + Properties
         + `firstName`: `John` (string, required) - This is the customer’s first name. 
-            _Read Only_, _length<=15_
+            _Read Only_, _length<=80_
         + `middleName`: `James` (string) - This is the customer’s middle name.
-            _Read Only_, _length<=15_
+            _Read Only_, _length<=80_
         + `lastName`: `Smith` (string, required) - This is the customer’s last name.
-            _Read Only_, _length<=25_
+            _Read Only_, _length<=80_
         + One of
             + `ssn`: `123456789` (string) - This is the customer's Social Security Number.
                 _Read Only_, _length<=10_    
             + `sin`: `123456789` (string) - This is the customer's Social Insurance number
                 _Read Only_, _length<=9_
         + `email`: `johnsmith@myemail.com` (string) - This is the customer's email address.
-            _Read Only_, _length<=128_
+            _Read Only_, _length<=255_
         + One of
             + `ssnLastFour`: `6789` (string) - This is the last four digits of the customer's Social Security Number, returned in the response.
                 _Read Only_, _length=4_
