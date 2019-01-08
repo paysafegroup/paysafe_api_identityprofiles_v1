@@ -1072,10 +1072,9 @@ These are raw responses from the downstream providers.
 
 |HTTP Status Code   |Error Code |Description|
 |---                |---        |---|
-|500                | 6007      | Gateway internal error.  |
-|502                | 6008      | Gateway responded with an error. |
-|504                | 6009      | Gateway timed out. |
-|404                | 6010      | No credit file available for given input. |
+|402                | RISK-PROFILE-1      | One or more external services are down. Please re-run a Customer Identity Check request. |
+|400                | RISK-PROFILE-2      | Your merchant account is not configured to process the payment type and currency combination you provided. |
+|409                | RISK-PROFILE-3      | The request you have submitted has already been processed. |
 
 <a name="commonerrors" title="Common Errors"></a>
 ## Common Errors
@@ -1117,7 +1116,7 @@ These are raw responses from the downstream providers.
 |400                    |5502           |Either the payment token is invalid or the corresponding profile or bank account is not active.|
 
 
-# Using the example API calls (Console Window)
+# Using the Example API Calls (Console Window)
 To configure and test the API examples, first click on one of the API calls in the API Reference section and then click **Switch to Console** in the right-hand pane. 
 Using the Console window you can update the headers, the request body, and parts of the API endpoint.
 You must update the Header to include your API Key by selecting **Headers** and then updating the **Authorization** value using the Base64
