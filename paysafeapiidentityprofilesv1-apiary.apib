@@ -761,7 +761,7 @@ This is the raw response from the downstream provider. Paysafe uses this data in
 |street2            |string<br/>`length<=50`    |This is the second line of the customer's street address, if required.|
 |city               |string<br/>`length<=40`    |This is the city where the address is located.|
 |country            |string<br/>`length=2`      |This is the country where the address is located. See [Country Codes](#countrycodes).|
-|state              |string<br/>`length=2`      |This is the state/province/region in which the customer lives.<br/>For Canada see [Province Codes](#provincecodes). For the United States see [State Codes](#statecodes). Other countries have no restrictions. |
+|state              |string<br/>`length<=40`    |This is the state/province/region in which the customer lives.<br/>For Canada see [Province Codes](#provincecodes). For the United States see [State Codes](#statecodes). Other countries have no restrictions. |
 |zip                |string<br/>`length<=10`    |This is the zip, postal, or post code of the customer's address.|
 |phone              |string<br/>`length<=40`    |This is the customer's phone number.|
 |monthsAtAddress    |number<br/>`length<=1200`  |This is the number of months the customer has been living at this address.|
@@ -904,7 +904,7 @@ This is the raw response from the downstream provider. Paysafe uses this data in
 |street2            |string<br/>`length<=50`    |This is the second line of the customer's street address, if required.|
 |city               |string<br/>`length<=40`    |This is the city where the address is located.|
 |country            |string<br/>`length=2`      |This is the country where the address is located. See [Country Codes](#countrycodes).|
-|state              |string<br/>`length=2`      |This is the state/province/region where the address is located.<br/>For Canada see [Province Codes](#provincecodes). For the United States see [State Codes](#statecodes). Other countries have no restrictions. |
+|state              |string<br/>`length<=40`    |This is the state/province/region where the address is located.<br/>For Canada see [Province Codes](#provincecodes). For the United States see [State Codes](#statecodes). Other countries have no restrictions. |
 |zip                |string<br/>`length<=10`    |This is the zip, postal, or post code of the customer's address.|
 |phone              |string<br/>`length<=40`    |This is the customer's phone number.|
 |monthsAtAddress    |number<br/>`length<=1200`  |This is the number of months the customer lived at this address.|
@@ -1669,7 +1669,7 @@ Click on **Rerun a Customer Identity Check** above to see how you submit a reque
     + `country`: `CA` (string, required) - This is the country where the address is located. See [Country Codes](#countrycodes).
         _length=2_
     + `state`: `ON` (string, required) - This is the state/province/region in which the customer lives. For Canada see [Province Codes](#provincecodes). For the United States see [State Codes](#statecodes). 
-        _length=2_
+        _length<=40_
     + `zip`: `M5H 2N2` (string, required) - This is the zip or postal code of the customer's address.
         _length<=10_
     + `phone`: `647-788-3901` (string) - This is the customer's phone number.
@@ -1875,7 +1875,7 @@ Click on **Rerun a Customer Identity Check** above to see how you submit a reque
             + `country`: `CA` (string, required) - This is the country where the address is located. See [Country Codes](#countrycodes).
                 _length=2_
             + `state`: `ON` (string, required) - This is the state/province/region in which the customer lived. For Canada see [Province Codes](#provincecodes). For the United States see [State Codes](#statecodes). 
-                _length=2_
+                _length<=40_
             + `zip`: `M5H 2N2` (string, required) - This is the zip or postal code of the customer's address.
                 _length<=10_
             + `phone`: `647-788-3901` (string) - This is the customer's phone number.
@@ -1899,7 +1899,7 @@ Click on **Rerun a Customer Identity Check** above to see how you submit a reque
             + `country`: `CA` (string) - This is the country where the address is located. See [Country Codes](#countrycodes).
                 _Read Only_, _length=2_
             + `state`: `ON` (string) - This is the state/province/region in which the customer lived. For Canada see [Province Codes](#provincecodes). For the United States see [State Codes](#statecodes). 
-                _Read Only_, _length=2_
+                _Read Only_, _length<=40_
             + `zip`: `M5H 2N2` (string) - This is the zip or postal code of the customer's address.
                 _Read Only_, _length<=10_
             + `phone`: `647-788-3901` (string) - This is the customer's phone number.
