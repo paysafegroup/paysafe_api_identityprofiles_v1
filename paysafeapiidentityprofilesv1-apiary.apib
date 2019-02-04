@@ -751,6 +751,57 @@ This is the raw response from the downstream provider. Paysafe uses this data in
             },
 ```
 
+<a name="cardobject" title="card Object"></a>
+## card
+
+When providing card information, merchants can provide either card details or a payment token for a customer already created in the system.
+
+|Element            |Type                       |Description                        |
+|---                |---                        |---                                |
+|paymentToken       |string <br/>`length<=80`   |If the payment token is provided, no other card information is necessary. |
+|cvv                |string<br/>`length=3-4`    |This is the 3- or 4-digit security code that appears on the card following the card number.|
+
+**OR**
+
+|Element            |Type                       |Description                        |
+|---                |---                        |---                                |
+|cardNum            |string <br/>`length=8-20`  |This is the card number used for the request. |
+|type               |enum                       |This is the type of card used for the request, returned in the response. Possible values are:<br/><ul><li>AM &ndash; American Express</li><li>DI &ndash; Discover</li><li>JC &ndash; JCB</li><li>MC &ndash; Mastercard</li><li>MD &ndash; Maestro</li><li>SO &ndash; Solo</li><li>VI &ndash; Visa</li><li>VD &ndash; Visa Debit</li><li>VE &ndash; Visa Electron</li></ul>
+|lastDigits         |string<br/>`length=4`      |This is the last four digits of the card used for the request, returned in the response.|
+|cardExpiry         |[cardExpiry](#cardexpiryobject)|This is the card's expiry date.|
+|cvv                |string<br/>`length=3-4`    |This is the 3- or 4-digit security code that appears on the card following the card number.|
+|track1             |string                     |This is Track 1 information read from the card's magnetic stripe.|
+|track2             |string                     |This is Track 2 information read from the card's magnetic stripe.|
+
+```apib
+    {
+    "card": {
+        "cardNum": "4111111111111111",
+        "cardExpiry": {
+            "month": 2,
+            "year": 2019
+        }
+    }
+    }
+```
+
+<a name="cardexpiryobject" title="cardExpiry Object"></a>
+## cardExpiry
+
+|Element                 |Type                   |Description|
+|---                     |---                    |---|
+|month                   |number<br/>`length=2`  |This is the card expiry month. |
+|year                    |number<br/>`length=4`  |This is the card expiry year.|
+
+```apib
+    {
+    "cardExpiry":{
+        "month": "12",
+        "year": "2020"
+    }
+    }
+```
+
 <a name="currentaddressobject" title="currentAddress Object"></a>
 ## currentAddress
 
@@ -1174,6 +1225,14 @@ Click on **Run a Customer Identity Check** above to see two examples of a Custom
 
             {
                 "merchantRefNum": "KYC_1520461749",
+                "card": {
+                    "cardNum": "4111111111111111",
+                    "cardExpiry": {
+                        "month": 2,
+                        "year": 2019
+                    },
+                    "cvv": 123
+                },
                 "profile": {
                     "firstName": "John",
                     "lastName": "Smith",
@@ -1216,6 +1275,13 @@ Click on **Run a Customer Identity Check** above to see two examples of a Custom
                 "id": "86dcb68d-cbd0-4878-8da7-ffc0e6554513",
                 "decision": "SUCCESS",
                 "merchantRefNum": "KYC_1520461749",
+                "card": {
+                    "cardNum": "************1111",
+                    "cardExpiry": {
+                        "month": 2,
+                        "year": 2019
+                    }
+                },
                 "profile": {
                     "firstName": "John",
                     "lastName": "Smith",
@@ -1277,6 +1343,14 @@ Click on **Run a Customer Identity Check** above to see two examples of a Custom
 
             {
                 "merchantRefNum": "KYC_1520461749",
+                "card": {
+                    "cardNum": "4111111111111111",
+                    "cardExpiry": {
+                        "month": 2,
+                        "year": 2019
+                    },
+                    "cvv": 123
+                },
                 "profile": {
                     "firstName": "John",
                     "lastName": "Smith",
@@ -1319,6 +1393,13 @@ Click on **Run a Customer Identity Check** above to see two examples of a Custom
                 "id": "86dcb68d-cbd0-4878-8da7-ffc0e6554513",
                 "decision": "SUCCESS",
                 "merchantRefNum": "KYC_1520461749",
+                "card": {
+                    "cardNum": "************1111",
+                    "cardExpiry": {
+                        "month": 2,
+                        "year": 2019
+                    }
+                },
                 "profile": {
                     "firstName": "John",
                     "lastName": "Smith",
@@ -1473,6 +1554,13 @@ Click on **Rerun a Customer Identity Check** above to see how you submit a reque
                 "id": "86dcb68d-cbd0-4878-8da7-ffc0e6554513",
                 "decision": "SUCCESS",
                 "merchantRefNum": "KYC_1520461749",
+                "card": {
+                    "cardNum": "************1111",
+                    "cardExpiry": {
+                        "month": 2,
+                        "year": 2019
+                    }
+                },
                 "profile": {
                     "firstName": "John",
                     "lastName": "Smith",
@@ -1654,6 +1742,35 @@ Click on **Rerun a Customer Identity Check** above to see how you submit a reque
     + Properties
         + Include Reason Codes
 
+## `Card`
+
++ One of
+
+    + card (object, required) - This is the payment token that represents the [card](#cardobject) used for the request. Only one **card** object can be included in the request.
+    
+        + Properties
+
+            + paymentToken:`LTEyMzYzMjQ3ODg` (string, required) - This is the payment token representing the card.
+                _length<=80_
+            + cvv:`123` (string, optional) - This is the 3- or 4-digit security code that appears on the card following the card number.
+                _length=3-4_
+
+    + card (object, required) - These are the details of the [card](#cardobject) used for the request. Only one **card** object can be included in the request.
+    
+        + Properties
+
+            + cardNum:`4111111111111111` (string, required) - This is the card number used for the request.
+                _length=8-20_
+            + cardExpiry (object, required) - This is the card's [expiry date](#cardexpiryobject).
+                + month:12 (number, required) - This is the card expiry month.
+                    _length=2_
+                + year:2020 (number, required) - This is the card expiry year.
+                    _length=4_
+            + cvv:`123` (string, optional) - This is the 3- or 4-digit security code that appears on the card following the card number.
+                _length=3-4_
+            + track1 (string, optional) - This is Track 1 information read from the card's magnetic stripe.
+            + track2 (string, optional) - This is Track 2 information read from the card's magnetic stripe.
+
 ## Current Address
 
 + `currentAddress` (object, required)
@@ -1717,6 +1834,7 @@ Click on **Rerun a Customer Identity Check** above to see how you submit a reque
 
     _length<=255_
 
++ Include Card
 + Include Profile
 + `customerIp`: `1.1.1.1` (string) - This is the customer's IP address.
     _length<=39_
@@ -1745,6 +1863,7 @@ Click on **Rerun a Customer Identity Check** above to see how you submit a reque
 
     _Read Only_, _length<=255_
 
++ Include Card
 + Include Profile Rerun
 + `customerIp`: `1.1.1.1` (string) - This is the customer's IP address.
     _Read Only_, _length<=39_
@@ -1963,9 +2082,9 @@ Click on **Rerun a Customer Identity Check** above to see how you submit a reque
             + Members
                 + `en_CA`
                 + `fr_CA`
-+ Include Current Address Rerun
-+ Include Date of Birth Rerun
-+ Include Previous Addresses Rerun
+        + Include Current Address Rerun
+        + Include Date of Birth Rerun
+        + Include Previous Addresses Rerun
 
 ## Provider Responses
 + `providerResponses` (object)
