@@ -459,7 +459,7 @@ With the Paysafe API you can test the following:
 |id                 |string <br/>`length<=36`               |This is the *amlassist* ID generated for the request, returned in the response.|
 |status             |enum                                   |This is the status from the downstream provider. See the [amlassist Decision Matrix Table](#amlassisttable) for details. |
 |response           |[response](#amlassistresponseobject)   |These are responses from downstream providers. |
-|error              |[error](#errorobject)                  |These are error details in case errors occurred. |
+|error              |[error](#errorobject)                  |These are error details in case errors occurred or in the case where *decision* is FAIL/ERROR. |
 
 ```apib
             {
@@ -854,7 +854,7 @@ When providing card information, merchants can provide either card details or a 
 |id                         |string <br/>`length<=36`                   |This is the *eidCompare* ID generated for the request, returned in the response. |
 |status                     |enum                                       |This is the status from the downstream provider. Possible values are: <ul><li>SUCCESS</li><li>FAIL</li><li>ERROR</li></ul> |
 |response                   |[response](#eidcompareresponseobject)      |   |
-|error                      |[error](#errorobject)                      | These are error details in case errors occurred. |
+|error                      |[error](#errorobject)                      | These are error details in case errors occurred or in the case where *decision* is FAIL/ERROR. |
 
 ```apib
     {
@@ -1121,48 +1121,34 @@ These are raw responses from the downstream providers.
 <a name="riskcheckerrors" title="Customer Identity Check Errors"></a>
 ## Customer Identity Check Errors
 
-|HTTP Status Code   |Error Code         |Description|
-|---                |---                |---|
-|402                | RISK-PROFILE-1    | One or more external services are down. Please rerun a Customer Identity Check request. |
-|400                | RISK-PROFILE-2    | Your merchant account is not configured to process the payment type and currency combination you provided. |
-|409                | RISK-PROFILE-3    | The request you have submitted has already been processed. |
+|HTTP Status Code   |Error Code             |Description|
+|---                |---                    |---|
+
+|402                | CUSTOMER-IDENTITY-1   | One or more external services are down. Please rerun a Customer Identity Check request. |
+|400                | CUSTOMER-IDENTITY-2   | Your merchant account is not configured to process the payment type and currency combination you provided. |
+|409                | CUSTOMER-IDENTITY-3   | The request you have submitted has already been processed. |
+|                   | CUSTOMER-IDENTITY-4   | The address provided is a prison or detention facility. |
+|                   | CUSTOMER-IDENTITY-5   | The person is reported to be deceased. |
+|                   | CUSTOMER-IDENTITY-6   | The person is reported to be on a PEP (politically exposed person) list or a sanctions watchlist. |
+|                   | CUSTOMER-IDENTITY-7   | The request was rejected. |
+|                   | CUSTOMER-IDENTITY-8   | There has been a high number of validation attempts for the same person or address. |
+|                   | CUSTOMER-IDENTITY-9   | An identity theft alert has been raised. |
+|                   | CUSTOMER-IDENTITY-10  | The request includes invalid input for fields. Verify the parameters and retry the request. |
+|                   | CUSTOMER-IDENTITY-11  | The minimum age validation failed. |
+|                   | CUSTOMER-IDENTITY-12  | The address provided is invalid. Verify the parameters and retry the request. |
+|                   | CUSTOMER-IDENTITY-13  | The provider identity validation failed. |
 
 <a name="commonerrors" title="Common Errors"></a>
 ## Common Errors
 |HTTP Status Code       |Error Code    |Description|
 |---                    |---           |---|
-|500                    |1000           |An internal error occurred.         |
-|502                    |1001           |An error occurred with the external processing gateway.|
-|500                    |1002           |An internal error occurred.            |
-|500                    |1003           |An internal error occurred.            |
-|500                    |1007           |An internal error occurred.            |
-|500                    |1008           |An internal error occurred.            |
-|429                    |1200           |The API call has been denied as it has exceeded the permissible call rate limit.|
-|401                    |5000           |Your merchant account authentication failed. Either your store ID/password are invalid or the IP address from which you are sending the transaction has not been authorized.|
-|400                    |5001           |The submitted currency code is invalid or your account does not support this currency.|
-|400                    |5003           |You submitted an invalid amount with your request.|
-|400                    |5004           |You submitted an invalid account type with your request.|
+|500                    |1000           |An internal error occurred. If the error persists, contact Technical Support. |
+|500                    |1001           |An error occurred with the external processing gateway.|
 |400                    |5005           |You submitted an invalid operation type with your request.|
-|400                    |5010           |The submitted country code is invalid.|
-|400                    |5016           |The merchant account you provided cannot be found.|
-|400                    |5017           |The merchant account you provided is disabled.|
-|402                    |5021           |Your transaction request has been declined.|
 |400                    |5023           |The request is not parseable.|
-|409                    |5031           |The transaction you have submitted has already been processed.|
-|401                    |5040           |Your merchant account is not configured for the transaction you attempted.|
-|400                    |5042           |The merchant reference number is missing or invalid or it exceeds the maximum permissible length.|
 |400                    |5068           |Either you submitted a request that is missing a mandatory field or the value of a field does not match the format expected.|
-|404                    |5269           |The ID(s) specified in the URL do not correspond to the values in the system.|
-|403                    |5270           |The credentials provided with the request do not have permission to access the requested data.|
 |406                    |5271           |You requested a response in the Accept header that is in an unsupported format.|
 |406                    |5272           |The Content-Type you specified in request header was submitted in an unsupported format.|
-|404                    |5273           |Your client reached our application but we were unable to service your request due to an invalid URL.|
-|401                    |5275           |The authentication credentials provided with the request have expired.|
-|401                    |5276           |The authentication credentials provided with the request provided have been disabled.|
-|401                    |5277           |The authentication credentials provided with the request have been locked due to multiple authentication failures.|
-|401                    |5278           |The authentication credentials provided with the request were not accepted for an unknown reason.|
-|401                    |5279           |The authentication credentials are invalid.|
-|401                    |5280           |The required authentication credentials were not provided.|
 |405                    |5281           |The request uses an action (e.g., GET, POST, or PUT) that is not supported by the resource.|
 |400                    |5502           |Either the payment token is invalid or the corresponding profile or bank account is not active.|
 
@@ -1276,7 +1262,7 @@ Click on **Run a Customer Identity Check** above to see two examples of a Custom
                 "decision": "SUCCESS",
                 "merchantRefNum": "KYC_1520461749",
                 "card": {
-                    "cardNum": "************1111",
+                    "lastDigits": "1111",
                     "cardExpiry": {
                         "month": 2,
                         "year": 2019
@@ -1394,7 +1380,7 @@ Click on **Run a Customer Identity Check** above to see two examples of a Custom
                 "decision": "SUCCESS",
                 "merchantRefNum": "KYC_1520461749",
                 "card": {
-                    "cardNum": "************1111",
+                    "lastDigits": "1111",
                     "cardExpiry": {
                         "month": 2,
                         "year": 2019
@@ -1555,7 +1541,7 @@ Click on **Rerun a Customer Identity Check** above to see how you submit a reque
                 "decision": "SUCCESS",
                 "merchantRefNum": "KYC_1520461749",
                 "card": {
-                    "cardNum": "************1111",
+                    "lastDigits": "1111",
                     "cardExpiry": {
                         "month": 2,
                         "year": 2019
@@ -1768,6 +1754,8 @@ Click on **Rerun a Customer Identity Check** above to see how you submit a reque
                     _length=4_
             + cvv:`123` (string, optional) - This is the 3- or 4-digit security code that appears on the card following the card number.
                 _length=3-4_
+            + lastDigits:`1111` (string) - This is the last four digits of the card used for the request, returned in the response.|
+                _Read Only, length=4_
             + track1 (string, optional) - This is Track 1 information read from the card's magnetic stripe.
             + track2 (string, optional) - This is Track 2 information read from the card's magnetic stripe.
 
