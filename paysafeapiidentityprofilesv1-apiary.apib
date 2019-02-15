@@ -986,9 +986,9 @@ This is the raw response from the downstream provider. Paysafe uses this data in
 |sinLastFour        |string <br/>`length=4`             |This is the last four digits of the customer's Social Insurance Number, returned in the response. |
 |email              |string<br/>`length<=255`           |This is the customer's email address.|
 |locale             |enum                               |This indicates the language of the profile. Possible values are:<ul><li>en_CA</li><li>fr_CA</li></ul> |
-|currentAddress     |[currentAddress](#addressobject)   |This is the customer's address. |
-|dateOfBirth        |[dateOfBirth](#dateofbirthobject)  |This is the customer's date of birth.|
-|previousAddresses  |[previousAddresses](#addressobject) | This is an array of the customer's previous addresses. <br/>**Note:** If *monthsAtAddress* in the *currentAddress* object is 24 or less, the Customer Identity Check request will have a greater probability of being successful if a previous address is included.|
+|currentAddress     |[currentAddress](#currentaddressobject)   |This is the customer's address. |
+|dateOfBirth        |[dateOfBirth](#dateobject)  |This is the customer's date of birth.|
+|previousAddresses  |[previousAddresses](#previousaddressesobject) | This is an array of the customer's previous addresses. <br/>**Note:** If *monthsAtAddress* in the *currentAddress* object is 24 or less, the Customer Identity Check request will have a greater probability of being successful if a previous address is included.|
 
 ```apib
     {
