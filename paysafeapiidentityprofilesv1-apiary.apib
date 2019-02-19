@@ -980,8 +980,8 @@ This is the raw response from the downstream provider. Paysafe uses this data in
 |firstName          |string <br/>`length<=80`           |This is the customer’s first name. |
 |middleName         |string <br/>`length<=80`           |This is the customer’s middle name. |
 |lastName           |string <br/>`length<=80`           |This is the customer’s last name. |
-|ssn                |string <br/>`length<=10`           |This is the customer's Social Security Number. |
-|sin                |string <br/>`length<=9`            |This is the Canadian customer's Social Insurance Number. |
+|ssn                |string <br/>`length=9`             |This is the customer's Social Security Number. |
+|sin                |string <br/>`length=9`             |This is the Canadian customer's Social Insurance Number. |
 |ssnLastFour        |string <br/>`length=4`             |This is the last four digits of the customer's Social Security Number, returned in the response. |
 |sinLastFour        |string <br/>`length=4`             |This is the last four digits of the customer's Social Insurance Number, returned in the response. |
 |email              |string<br/>`length<=255`           |This is the customer's email address.|
@@ -1824,7 +1824,7 @@ Click on **Rerun a Customer Identity Check** above to see how you submit a reque
 + Include Card
 + Include Profile
 + `customerIp`: `1.1.1.1` (string) - This is the customer's IP address.
-    _length<=39_
+    _length<=18_
 + One of
     + `vendorCheck`: `EID_COMPARE` (string, required) - You must include either *vendorCheck* or *workflowId* but not both. Upon onboarding, Paysafe will instruct the merchant on which parameter to use as well as which value to provide for the parameter.
         _length<=80_
@@ -1853,7 +1853,7 @@ Click on **Rerun a Customer Identity Check** above to see how you submit a reque
 + Include Card
 + Include Profile Rerun
 + `customerIp`: `1.1.1.1` (string) - This is the customer's IP address.
-    _Read Only_, _length<=39_
+    _Read Only_, _length<=18_
 + One of
     + `vendorCheck`: `EID_COMPARE` (string) - This is the  You must include either *vendorCheck* or *workflowId* but not both. Upon onboarding, Paysafe will instruct the merchant on which parameter to use as well as which value to provide for the parameter.
         _Read Only_, _length<=80_
@@ -2023,9 +2023,9 @@ Click on **Rerun a Customer Identity Check** above to see how you submit a reque
             _length<=80_
         + One of
             + `ssn`: `123456789` (string) - This is the customer's Social Security Number.
-                _length<=10_    
+                _length=9_    
             + `sin`: `123456789` (string) - This is the customer's Social Insurance number
-                _length<=9_
+                _length=9_
         + `email`: `johnsmith@myemail.com` (string) - This is the customer's email address.
             _length<=255_
         + One of
@@ -2053,9 +2053,9 @@ Click on **Rerun a Customer Identity Check** above to see how you submit a reque
             _Read Only_, _length<=80_
         + One of
             + `ssn`: `123456789` (string) - This is the customer's Social Security Number.
-                _Read Only_, _length<=10_    
+                _Read Only_, _length=9_    
             + `sin`: `123456789` (string) - This is the customer's Social Insurance number
-                _Read Only_, _length<=9_
+                _Read Only_, _length=9_
         + `email`: `johnsmith@myemail.com` (string) - This is the customer's email address.
             _Read Only_, _length<=255_
         + One of
