@@ -980,8 +980,8 @@ This is the raw response from the downstream provider. Paysafe uses this data in
 |firstName          |string <br/>`length<=80`           |This is the customer’s first name. |
 |middleName         |string <br/>`length<=80`           |This is the customer’s middle name. |
 |lastName           |string <br/>`length<=80`           |This is the customer’s last name. |
-|ssn                |string <br/>`length<=10`           |This is the customer's Social Security Number. |
-|sin                |string <br/>`length<=9`            |This is the Canadian customer's Social Insurance Number. |
+|ssn                |string <br/>`length=9`             |This is the customer's Social Security Number. |
+|sin                |string <br/>`length=9`             |This is the Canadian customer's Social Insurance Number. |
 |ssnLastFour        |string <br/>`length=4`             |This is the last four digits of the customer's Social Security Number, returned in the response. |
 |sinLastFour        |string <br/>`length=4`             |This is the last four digits of the customer's Social Insurance Number, returned in the response. |
 |email              |string<br/>`length<=255`           |This is the customer's email address.|
@@ -1758,6 +1758,22 @@ Click on **Rerun a Customer Identity Check** above to see how you submit a reque
             + track1 (string, optional) - This is Track 1 information read from the card's magnetic stripe.
             + track2 (string, optional) - This is Track 2 information read from the card's magnetic stripe.
 
+## `Card Rerun`
+
++  card (object) - These are the details of the [card](#cardobject) used for the request. Only one **card** object can be included in the request.
+    _Read Only_
+    
+    + Properties
+
+        + cardExpiry (object) - This is the card's [expiry date](#cardexpiryobject).
+            _Read Only_
+            + month:12 (number) - This is the card expiry month.
+                _length=2_
+            + year:2020 (number) - This is the card expiry year.
+                _length=4_
+        + lastDigits:`1111` (string) - This is the last four digits of the card used for the request, returned in the response.|
+            _Read Only, length=4_
+
 ## Current Address
 
 + `currentAddress` (object, required)
@@ -1783,6 +1799,7 @@ Click on **Rerun a Customer Identity Check** above to see how you submit a reque
 ## Current Address Rerun
 
 + `currentAddress` (object)
+    _Read Only_
     + `apartment`: `11` (string) -  This is the customer's apartment number, if applicable.
         _Read Only_, _length<=50_
     + `street`: `100 Queen Street West` - (string) - This is the first line of the customer's street address.
@@ -1824,7 +1841,7 @@ Click on **Rerun a Customer Identity Check** above to see how you submit a reque
 + Include Card
 + Include Profile
 + `customerIp`: `1.1.1.1` (string) - This is the customer's IP address.
-    _length<=39_
+    _length<=18_
 + One of
     + `vendorCheck`: `EID_COMPARE` (string, required) - You must include either *vendorCheck* or *workflowId* but not both. Upon onboarding, Paysafe will instruct the merchant on which parameter to use as well as which value to provide for the parameter.
         _length<=80_
@@ -1850,10 +1867,10 @@ Click on **Rerun a Customer Identity Check** above to see how you submit a reque
 
     _Read Only_, _length<=255_
 
-+ Include Card
++ Include Card Rerun
 + Include Profile Rerun
 + `customerIp`: `1.1.1.1` (string) - This is the customer's IP address.
-    _Read Only_, _length<=39_
+    _Read Only_, _length<=18_
 + One of
     + `vendorCheck`: `EID_COMPARE` (string) - This is the  You must include either *vendorCheck* or *workflowId* but not both. Upon onboarding, Paysafe will instruct the merchant on which parameter to use as well as which value to provide for the parameter.
         _Read Only_, _length<=80_
@@ -1874,6 +1891,7 @@ Click on **Rerun a Customer Identity Check** above to see how you submit a reque
 ## Date of Birth Rerun
 
 + `dateOfBirth` (object)
+    _Read Only_
     + `day`: `25` (number) - This is the date day.
         _Read Only_, _length=2_, _max=31_
     + `month`: `12` (number) - This is the date month.
@@ -1989,9 +2007,10 @@ Click on **Rerun a Customer Identity Check** above to see how you submit a reque
                 _length<=1200_
 
 ## Previous Addresses Rerun
-+ `previousAddresses` (array) - This is an array of the customer's previous addresses. **Note:** If *monthsAtAddress* in the *currentAddress* object is 24 or less, the Customer Identity Check request will have a greater probability of being successful if a previous address is included.
++ `previousAddresses` (array) - This is an array of the customer's previous addresses.
     
     + (object)
+        _Read Only_ 
         + Properties
             + `apartment`: `11` (string) -  This is the customer's apartment number, if applicable.
                 _Read Only_, _length<=50_
@@ -2023,9 +2042,9 @@ Click on **Rerun a Customer Identity Check** above to see how you submit a reque
             _length<=80_
         + One of
             + `ssn`: `123456789` (string) - This is the customer's Social Security Number.
-                _length<=10_    
+                _length=9_    
             + `sin`: `123456789` (string) - This is the customer's Social Insurance number
-                _length<=9_
+                _length=9_
         + `email`: `johnsmith@myemail.com` (string) - This is the customer's email address.
             _length<=255_
         + One of
@@ -2043,19 +2062,15 @@ Click on **Rerun a Customer Identity Check** above to see how you submit a reque
         + Include Previous Addresses
 
 ## Profile Rerun
-+ `profile` (object, required)
++ `profile` (object)
+    _Read Only_
     + Properties
-        + `firstName`: `John` (string, required) - This is the customer’s first name. 
+        + `firstName`: `John` (string) - This is the customer’s first name. 
             _Read Only_, _length<=80_
         + `middleName`: `James` (string) - This is the customer’s middle name.
             _Read Only_, _length<=80_
-        + `lastName`: `Smith` (string, required) - This is the customer’s last name.
+        + `lastName`: `Smith` (string) - This is the customer’s last name.
             _Read Only_, _length<=80_
-        + One of
-            + `ssn`: `123456789` (string) - This is the customer's Social Security Number.
-                _Read Only_, _length<=10_    
-            + `sin`: `123456789` (string) - This is the customer's Social Insurance number
-                _Read Only_, _length<=9_
         + `email`: `johnsmith@myemail.com` (string) - This is the customer's email address.
             _Read Only_, _length<=255_
         + One of
