@@ -456,7 +456,7 @@ With the Paysafe API you can test the following:
 ## amlassist
 |Element            |Type                                   |Description    |
 |---                |---                                    |---            |
-|id                 |string <br/>`length<=36`               |This is the *amlassist* ID generated for the request, returned in the response.|
+|id                 |string <br/>`length=36`                |This is the *amlassist* ID generated for the request, returned in the response.|
 |status             |enum                                   |This is the status from the downstream provider. See the [amlassist Decision Matrix Table](#amlassisttable) for details. |
 |response           |[response](#amlassistresponseobject)   |These are responses from downstream providers. |
 |error              |[error](#errorobject)                  |These are error details in case errors occurred or in the case where *decision* is FAIL/ERROR. |
@@ -851,7 +851,7 @@ When providing card information, merchants can provide either card details or a 
 ## eidcompare
 | Element                   | Type                                      | Description                                                       |
 |---------------------------|---------                                  |-------------------------------------------------------------------|
-|id                         |string <br/>`length<=36`                   |This is the *eidCompare* ID generated for the request, returned in the response. |
+|id                         |string <br/>`length=36`                    |This is the *eidCompare* ID generated for the request, returned in the response. |
 |status                     |enum                                       |This is the status from the downstream provider. Possible values are: <ul><li>SUCCESS</li><li>FAIL</li><li>ERROR</li></ul> |
 |response                   |[response](#eidcompareresponseobject)      |   |
 |error                      |[error](#errorobject)                      | These are error details in case errors occurred or in the case where *decision* is FAIL/ERROR. |
@@ -1669,7 +1669,7 @@ Click on **Rerun a Customer Identity Check** above to see how you submit a reque
 
     + Properties
         + `id`: `d4b746cc1ced-ce28-4df2-bc3f-d4b746cc1ced-0f1266b9` (string) - This is the ID generated for the request, returned in the response.
-            _Read Only_, _length<=36_
+            _Read Only_, _length=36_
         + `status`: `SUCCESS` (enum) - This is the risk decision.
             
             + Members
@@ -1731,32 +1731,32 @@ Click on **Rerun a Customer Identity Check** above to see how you submit a reque
 
 + One of
 
-    + card (object, required) - This is the payment token that represents the [card](#cardobject) used for the request. Only one **card** object can be included in the request.
+    + card (object) - This is the payment token that represents the [card](#cardobject) used for the request. Only one **card** object can be included in the request.
     
         + Properties
 
-            + paymentToken:`LTEyMzYzMjQ3ODg` (string, required) - This is the payment token representing the card.
+            + paymentToken:`LTEyMzYzMjQ3ODg` (string) - This is the payment token representing the card. Either the *paymentToken* or the *cardNum* is required if the optional *card* object is included.
                 _length<=80_
-            + cvv:`123` (string, optional) - This is the 3- or 4-digit security code that appears on the card following the card number.
+            + cvv:`123` (string) - This is the 3- or 4-digit security code that appears on the card following the card number.
                 _length=3-4_
 
-    + card (object, required) - These are the details of the [card](#cardobject) used for the request. Only one **card** object can be included in the request.
+    + card (object) - These are the details of the [card](#cardobject) used for the request. Only one **card** object can be included in the request.
     
         + Properties
 
-            + cardNum:`4111111111111111` (string, required) - This is the card number used for the request.
+            + cardNum:`4111111111111111` (string, required) - This is the card number used for the request. Either the *cardNum* or the *paymentToken* is required if the optional *card* object is included.
                 _length=8-20_
-            + cardExpiry (object, required) - This is the card's [expiry date](#cardexpiryobject).
-                + month:12 (number, required) - This is the card expiry month.
+            + cardExpiry (object) - This is the card's [expiry date](#cardexpiryobject).
+                + month:12 (number) - This is the card expiry month.
                     _length=2_
-                + year:2020 (number, required) - This is the card expiry year.
+                + year:2020 (number) - This is the card expiry year.
                     _length=4_
-            + cvv:`123` (string, optional) - This is the 3- or 4-digit security code that appears on the card following the card number.
+            + cvv:`123` (string) - This is the 3- or 4-digit security code that appears on the card following the card number.
                 _length=3-4_
             + lastDigits:`1111` (string) - This is the last four digits of the card used for the request, returned in the response.|
                 _Read Only, length=4_
-            + track1 (string, optional) - This is Track 1 information read from the card's magnetic stripe.
-            + track2 (string, optional) - This is Track 2 information read from the card's magnetic stripe.
+            + track1 (string) - This is Track 1 information read from the card's magnetic stripe.
+            + track2 (string) - This is Track 2 information read from the card's magnetic stripe.
 
 ## `Card Rerun`
 
@@ -1823,7 +1823,7 @@ Click on **Rerun a Customer Identity Check** above to see how you submit a reque
 
 + `id`: `25f6dadf-176a-415f-95c9-6ff39ff697ba` (string) - This is the ID returned in the response.
 
-    _Read Only_, _length<=36_
+    _Read Only_, _length=36_
 
 + `decision`: `SUCCESS` (enum) - This is the overall Customer Identity Check decision returned by Paysafe, based on responses by downstream providers.
     _Read Only_
@@ -1852,7 +1852,7 @@ Click on **Rerun a Customer Identity Check** above to see how you submit a reque
 
 + `id`: `25f6dadf-176a-415f-95c9-6ff39ff697ba` (string) - This is the ID returned in the response.
 
-    _Read Only_, _length<=36_
+    _Read Only_, _length=36_
 
 + `decision`: `SUCCESS` (enum) - This is the overall Customer Identity Check decision returned by Paysafe, based on responses by downstream providers.
     _Read Only_
@@ -1962,7 +1962,7 @@ Click on **Rerun a Customer Identity Check** above to see how you submit a reque
     
     + Properties
         + `id`: `0f1266b9-ce28-4df2-bc3f-d4b746cc1ced` (string) - This is the ID generated for the request, returned in the response.
-            _length<=36_
+            _length=36_
         + `status`: `SUCCESS` (enum) - This is the risk decision.
             
             + Members
