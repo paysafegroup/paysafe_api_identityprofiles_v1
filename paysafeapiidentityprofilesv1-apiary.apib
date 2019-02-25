@@ -852,7 +852,7 @@ When providing card information, merchants can provide either card details or a 
 | Element                   | Type                                      | Description                                                       |
 |---------------------------|---------                                  |-------------------------------------------------------------------|
 |id                         |string <br/>`length=36`                    |This is the *eidCompare* ID generated for the request, returned in the response. |
-|status                     |enum                                       |This is the status from the downstream provider. Possible values are: <ul><li>SUCCESS</li><li>FAIL</li><li>ERROR</li></ul> |
+|status                     |enum                                       |This is the status from the downstream provider. Possible values are: <ul><li>SUCCESS</li><li>FAIL</li><li>ERROR</li><li>OUTSORT</li><li>SUCCESS_VERIFY</li></ul> |
 |response                   |[response](#eidcompareresponseobject)      |   |
 |error                      |[error](#errorobject)                      | These are error details in case errors occurred or in the case where *decision* is FAIL/ERROR. |
 
@@ -1969,6 +1969,8 @@ Click on **Rerun a Customer Identity Check** above to see how you submit a reque
                 - SUCCESS
                 - FAIL
                 - ERROR
+                - OUTSORT
+                - SUCCESS_VERIFY
         + Include EID Compare Response
 
 ## EID Compare Response
