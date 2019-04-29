@@ -466,62 +466,89 @@ With the Paysafe API you can test the following:
                 "id": "0f1266b9-ce28-4df2-bc3f-d4b746cc1ced",
                 "status": "SUCCESS",
                 "response": {
-                    "isSingleSourceHit": "true",
-                    "isDualSourceHit": "false",
+                    "isSingleSourceHit": true,
+                    "isDualSourceHit": true,
                     "decision": "SUCCESS",
                     "singleSourceDecision": "N",
-                    "dualSourceDecision": "N",
+                    "dualSourceDecision": "Y",
                     "isWaterfallProcess": true,
                     "originOfCreditFile": "CANADA",
-                    "numberOfTrades": "1",
+                    "numberOfTrades": 2,
                     "singleSourceResult": {
-                        "isLastNameMatched": "true",
-                        "isFirstNameMatched": "true",
-                        "isMiddleNameMatched": "true",
-                        "isSuffixNameMatched": "true",
-                        "isAddressCivicMatch": "True",
-                        "isAddressStreetNameMatch": "True",
-                        "isAddressCityMatch": "True",
-                        "isAddressPostalCodeMatch": "True",
-                        "isAddressProvinceMatch": "True",
-                        "isDateOfBirthMatch": "True",
-                        "currentAddressReportedDate": "201811",
-                        "dateOfBirthAsReported": "19711130",
-                        "nameAsReported": "SMITH, JANE",
-                        "addressAsReported": "11,DORVAL AVE,DORVAL,QC,H3S1G4"
+                        "isLastNameMatched": true,
+                        "isFirstNameMatched": true,
+                        "isMiddleNameMatched": true,
+                        "isSuffixNameMatch": false,
+                        "isAddressCivicMatch": true,
+                        "isAddressStreetNameMatch": true,
+                        "isAddressCityMatch": true,
+                        "isAddressPostalCodeMatch": true,
+                        "isAddressProvinceMatch": true,
+                        "isDateOfBirthMatch": false,
+                        "currentAddressReportedDate": "201904",
+                        "dateOfBirthAsReported": "19711105",
+                        "nameAsReported": "KING,SANDRA,MARGOT,JR",
+                        "addressAsReported": "4280,ATLEE AVE,BURNABY,BC,V5G3R6"
                     },
                     "dualSourceResult": [{
-                        "isLastNameMatched": "true",
-                        "isFirstNameMatched": "true",
-                        "isMiddleNameMatched": "true",
-                        "isSuffixNameMatched": "true",
-                        "isAddressCivicMatch": "True",
-                        "isAddressStreetNameMatch": "True",
-                        "isAddressCityMatch": "True",
-                        "isAddressPostalCodeMatch": "True",
-                        "isAddressProvinceMatch": "True",
-                        "isDateOfBirthMatch": "True",
-                        "isAccountNumberMatch": false,
-                        "isNameAndDobMatch": true,
-                        "isNameAndAddressMatch": false,
-                        "isNameAndAccountMatch": false,
-                        "tradeStatus": "O",
-                        "dateOfBirthAsReported": "19711130",
-                        "memberNumber": "481BB01426",
-                        "dateLastReported": "20180901",
-                        "dateOpened": "20170802",
-                        "institutionName": "CIBC",
-                        "accountNumber": "123456789011111",
-                        "familyName": "CANADIAN IMPERIAL BANK-CMMRC",
-                        "nameAsReported": "SMITH, JANE",
-                        "addressAsReported": "11,DORVAL AVE,DORVAL,QC,H3S1G4"
-                    }],
-                    "bureauName": "Equifax Canada",
-                    "dateOfRequest": "2018/10/29 12:00 AM UTC",
-                    "creditFileNumber": "65462",
-                    "isCreditFileGreaterThanThreeYearsOld": "true",
-                    "verificationTime": "2018/11/15 10:58 AM UTC",
-                    "creditFileCreationDate": "2016/01/01 12:00 AM UTC"
+                            "isLastNameMatched": true,
+                            "isFirstNameMatched": true,
+                            "isMiddleNameMatched": true,
+                            "isSuffixNameMatch": false,
+                            "isAddressCivicMatch": true,
+                            "isAddressStreetNameMatch": true,
+                            "isAddressCityMatch": true,
+                            "isAddressPostalCodeMatch": true,
+                            "isAddressProvinceMatch": true,
+                            "isDateOfBirthMatch": false,
+                            "isAccountNumberMatch": false,
+                            "isNameAndDobMatch": false,
+                            "isNameAndAddressMatch": true,
+                            "isNameAndAccountMatch": false,
+                            "tradeStatus": "O",
+                            "dateOfBirthAsReported": "19711105",
+                            "memberNumber": "001ON02776",
+                            "dateLastReported": "20190331",
+                            "dateOpened": "20161201",
+                            "institutionName": "S. CARTES DESJARDINS",
+                            "accountNumber": "123456789044431",
+                            "familyName": "DESJARDINS GROUP",
+                            "nameAsReported": "KING,SANDRA,MARGOT,",
+                            "addressAsReported": "4280 ATLEE AVE ,BURNABY,BC,V5G3R6"
+                        },
+                        {
+                            "isLastNameMatched": true,
+                            "isFirstNameMatched": true,
+                            "isMiddleNameMatched": true,
+                            "isSuffixNameMatch": false,
+                            "isAddressCivicMatch": true,
+                            "isAddressStreetNameMatch": true,
+                            "isAddressCityMatch": true,
+                            "isAddressPostalCodeMatch": true,
+                            "isAddressProvinceMatch": true,
+                            "isDateOfBirthMatch": false,
+                            "isAccountNumberMatch": false,
+                            "isNameAndDobMatch": true,
+                            "isNameAndAddressMatch": false,
+                            "isNameAndAccountMatch": false,
+                            "tradeStatus": "O",
+                            "dateOfBirthAsReported": "19711105",
+                            "memberNumber": "481BB01426",
+                            "dateLastReported": "20190331",
+                            "dateOpened": "20161201",
+                            "institutionName": "CIBC",
+                            "accountNumber": "123456789011131",
+                            "familyName": "CANADIAN IMPERIAL BANK-CMMRC",
+                            "nameAsReported": "KING,SANDRA,MARGOT,",
+                            "addressAsReported": "4280 ATLEE AVE ,BURNABY,BC,V5G3R6"
+                        }
+                    ],
+                    "bureauName": "Equifax  inc.",
+                    "dateOfRequest": "2019/04/25 12:00 AM UTC",
+                    "creditFileNumber": "50165927",
+                    "isCreditFileGreaterThanThreeYearsOld": "false",
+                    "verificationTime": "2019/04/25 09:19 PM UTC",
+                    "creditFileCreationDate": "2018/01/01 12:00 AM UTC"
                 }
             }
 ```
@@ -567,62 +594,89 @@ This is the raw response from the downstream provider. Paysafe uses this data in
 ```apib
             {
                 "response": {
-                    "isSingleSourceHit": "true",
-                    "isDualSourceHit": "false",
+                    "isSingleSourceHit": true,
+                    "isDualSourceHit": true,
                     "decision": "SUCCESS",
                     "singleSourceDecision": "N",
-                    "dualSourceDecision": "N",
+                    "dualSourceDecision": "Y",
                     "isWaterfallProcess": true,
                     "originOfCreditFile": "CANADA",
-                    "numberOfTrades": "1",
+                    "numberOfTrades": 2,
                     "singleSourceResult": {
-                        "isLastNameMatched": "true",
-                        "isFirstNameMatched": "true",
-                        "isMiddleNameMatched": "true",
-                        "isSuffixNameMatched": "true",
-                        "isAddressCivicMatch": "True",
-                        "isAddressStreetNameMatch": "True",
-                        "isAddressCityMatch": "True",
-                        "isAddressPostalCodeMatch": "True",
-                        "isAddressProvinceMatch": "True",
-                        "isDateOfBirthMatch": "True",
-                        "currentAddressReportedDate": "201811",
-                        "dateOfBirthAsReported": "19711130",
-                        "nameAsReported": "SMITH, JANE",
-                        "addressAsReported": "11,DORVAL AVE,DORVAL,QC,H3S1G4"
+                        "isLastNameMatched": true,
+                        "isFirstNameMatched": true,
+                        "isMiddleNameMatched": true,
+                        "isSuffixNameMatch": false,
+                        "isAddressCivicMatch": true,
+                        "isAddressStreetNameMatch": true,
+                        "isAddressCityMatch": true,
+                        "isAddressPostalCodeMatch": true,
+                        "isAddressProvinceMatch": true,
+                        "isDateOfBirthMatch": false,
+                        "currentAddressReportedDate": "201904",
+                        "dateOfBirthAsReported": "19711105",
+                        "nameAsReported": "KING,SANDRA,MARGOT,JR",
+                        "addressAsReported": "4280,ATLEE AVE,BURNABY,BC,V5G3R6"
                     },
                     "dualSourceResult": [{
-                        "isLastNameMatched": "true",
-                        "isFirstNameMatched": "true",
-                        "isMiddleNameMatched": "true",
-                        "isSuffixNameMatched": "true",
-                        "isAddressCivicMatch": "True",
-                        "isAddressStreetNameMatch": "True",
-                        "isAddressCityMatch": "True",
-                        "isAddressPostalCodeMatch": "True",
-                        "isAddressProvinceMatch": "True",
-                        "isDateOfBirthMatch": "True",
-                        "isAccountNumberMatch": false,
-                        "isNameAndDobMatch": true,
-                        "isNameAndAddressMatch": false,
-                        "isNameAndAccountMatch": false,
-                        "tradeStatus": "O",
-                        "dateOfBirthAsReported": "19711130",
-                        "memberNumber": "481BB01426",
-                        "dateLastReported": "20180901",
-                        "dateOpened": "20170802",
-                        "institutionName": "CIBC",
-                        "accountNumber": "123456789011111",
-                        "familyName": "CANADIAN IMPERIAL BANK-CMMRC",
-                        "nameAsReported": "SMITH, JANE",
-                        "addressAsReported": "11,DORVAL AVE,DORVAL,QC,H3S1G4"
-                    }],
-                    "bureauName": "Equifax Canada",
-                    "dateOfRequest": "2018/10/29 12:00 AM UTC",
-                    "creditFileNumber": "65462",
-                    "isCreditFileGreaterThanThreeYearsOld": "True",
-                    "verificationTime": "2018/11/15 10:58 AM UTC",
-                    "creditFileCreationDate": "2016/01/01 12:00 AM UTC"
+                            "isLastNameMatched": true,
+                            "isFirstNameMatched": true,
+                            "isMiddleNameMatched": true,
+                            "isSuffixNameMatch": false,
+                            "isAddressCivicMatch": true,
+                            "isAddressStreetNameMatch": true,
+                            "isAddressCityMatch": true,
+                            "isAddressPostalCodeMatch": true,
+                            "isAddressProvinceMatch": true,
+                            "isDateOfBirthMatch": false,
+                            "isAccountNumberMatch": false,
+                            "isNameAndDobMatch": false,
+                            "isNameAndAddressMatch": true,
+                            "isNameAndAccountMatch": false,
+                            "tradeStatus": "O",
+                            "dateOfBirthAsReported": "19711105",
+                            "memberNumber": "001ON02776",
+                            "dateLastReported": "20190331",
+                            "dateOpened": "20161201",
+                            "institutionName": "S. CARTES DESJARDINS",
+                            "accountNumber": "123456789044431",
+                            "familyName": "DESJARDINS GROUP",
+                            "nameAsReported": "KING,SANDRA,MARGOT,",
+                            "addressAsReported": "4280 ATLEE AVE ,BURNABY,BC,V5G3R6"
+                        },
+                        {
+                            "isLastNameMatched": true,
+                            "isFirstNameMatched": true,
+                            "isMiddleNameMatched": true,
+                            "isSuffixNameMatch": false,
+                            "isAddressCivicMatch": true,
+                            "isAddressStreetNameMatch": true,
+                            "isAddressCityMatch": true,
+                            "isAddressPostalCodeMatch": true,
+                            "isAddressProvinceMatch": true,
+                            "isDateOfBirthMatch": false,
+                            "isAccountNumberMatch": false,
+                            "isNameAndDobMatch": true,
+                            "isNameAndAddressMatch": false,
+                            "isNameAndAccountMatch": false,
+                            "tradeStatus": "O",
+                            "dateOfBirthAsReported": "19711105",
+                            "memberNumber": "481BB01426",
+                            "dateLastReported": "20190331",
+                            "dateOpened": "20161201",
+                            "institutionName": "CIBC",
+                            "accountNumber": "123456789011131",
+                            "familyName": "CANADIAN IMPERIAL BANK-CMMRC",
+                            "nameAsReported": "KING,SANDRA,MARGOT,",
+                            "addressAsReported": "4280 ATLEE AVE ,BURNABY,BC,V5G3R6"
+                        }
+                    ],
+                    "bureauName": "Equifax  inc.",
+                    "dateOfRequest": "2019/04/25 12:00 AM UTC",
+                    "creditFileNumber": "50165927",
+                    "isCreditFileGreaterThanThreeYearsOld": "false",
+                    "verificationTime": "2019/04/25 09:19 PM UTC",
+                    "creditFileCreationDate": "2018/01/01 12:00 AM UTC"
                 }
             }
 ```
@@ -1025,70 +1079,122 @@ These are raw responses from the downstream providers.
 |eidCompare             |[eidcompare](eidcompareobject)|  |
 
 ```apib
-             {
-                 "providerResponses": {
-                     "eidCompare": {
-                         "id": "0f1266b9-ce28-4df2-bc3f-d4b746cc1ced",
-                         "status": "SUCCESS",
-                         "response": {
-                             "assessmentComplete": {
-                                 "reasonCodes": [{
-                                         "description": "Credit file located=Adequate match",
-                                         "code": "51"
-                                     },
-                                     {
-                                         "description": "No Phone record located or poor match score",
-                                         "code": "60"
-                                     },
-                                     {
-                                         "description": "Supplied address same as the current address in the provider database",
-                                         "code": "C1"
-                                     }
-                                 ]
-                             },
-                             "decision": "Y",
-                             "score": 25
-                         }
-                     },
-                     "amlassist": {
-                         "id": "0f1266b9-ce28-4df2-bc3f-d4b746cc1ced",
-                         "status": "SUCCESS",
-                         "response": {
-                             "creditFileNumber": "65462",
-                             "isCreditFileGreaterThanThreeYearsOld": "True",
-                             "isSingleSourceHit": "True",
-                             "isDualSourceHit": "False",
-                             "isLastNameMatched": "True",
-                             "isFirstNameMatched": "True",
-                             "isMiddleNameMatched": "True",
-                             "isDateOfBirthMatch": "True",
-                             "isAddressCivicMatch": "True",
-                             "isAddressStreetNameMatch": "True",
-                             "isAddressCityMatch": "True",
-                             "isAddressPostalCodeMatch": "True",
-                             "isAddressProvinceMatch": "True",
-                             "creditFileCreationDate": {
-                                 "day": "12",
-                                 "month": "10",
-                                 "year": "2010"
-                             },
-                             "numberOfTrades": "23",
-                             "familyName": "Roz",
-                             "singleSourceDecision": "True",
-                             "dualSourceDecision": null,
-                             "isWaterfallProcess": true,
-                             "institutionName": "institute",
-                             "accountNumber": "45487852",
-                             "isNameAndDobMatch": "True",
-                             "isNameAndAddressMatch": "True",
-                             "isNameAndAccountNumberMatch": "True",
-                             "bureauName": "Equifax Canada",
-                             "originOfCreditFile": "CANADA",
-                             "dateOfRequest": "2018/10/29 12:00 AM UTC"
-                         }
-                     }
-                 }
-             }
+            {
+                "providerResponses": {
+                    "eidCompare": {
+                        "id": "0f1266b9-ce28-4df2-bc3f-d4b746cc1ced",
+                        "status": "SUCCESS",
+                        "response": {
+                            "assessmentComplete": {
+                                "reasonCodes": [{
+                                        "description": "Credit file located=Adequate match",
+                                        "code": "51"
+                                    },
+                                    {
+                                        "description": "No Phone record located or poor match score",
+                                        "code": "60"
+                                    },
+                                    {
+                                        "description": "Supplied address same as the current address in the provider database",
+                                        "code": "C1"
+                                    }
+                                ]
+                            },
+                            "decision": "Y",
+                            "score": 25
+                        }
+                    },
+                    "amlassist": {
+                        "id": "0f1266b9-ce28-4df2-bc3f-d4b746cc1ced",
+                        "status": "SUCCESS",
+                        "response": {
+                            "isSingleSourceHit": true,
+                            "isDualSourceHit": true,
+                            "decision": "SUCCESS",
+                            "singleSourceDecision": "N",
+                            "dualSourceDecision": "Y",
+                            "isWaterfallProcess": true,
+                            "originOfCreditFile": "CANADA",
+                            "numberOfTrades": 2,
+                            "singleSourceResult": {
+                                "isLastNameMatched": true,
+                                "isFirstNameMatched": true,
+                                "isMiddleNameMatched": true,
+                                "isSuffixNameMatch": false,
+                                "isAddressCivicMatch": true,
+                                "isAddressStreetNameMatch": true,
+                                "isAddressCityMatch": true,
+                                "isAddressPostalCodeMatch": true,
+                                "isAddressProvinceMatch": true,
+                                "isDateOfBirthMatch": false,
+                                "currentAddressReportedDate": "201904",
+                                "dateOfBirthAsReported": "19711105",
+                                "nameAsReported": "KING,SANDRA,MARGOT,JR",
+                                "addressAsReported": "4280,ATLEE AVE,BURNABY,BC,V5G3R6"
+                            },
+                            "dualSourceResult": [{
+                                    "isLastNameMatched": true,
+                                    "isFirstNameMatched": true,
+                                    "isMiddleNameMatched": true,
+                                    "isSuffixNameMatch": false,
+                                    "isAddressCivicMatch": true,
+                                    "isAddressStreetNameMatch": true,
+                                    "isAddressCityMatch": true,
+                                    "isAddressPostalCodeMatch": true,
+                                    "isAddressProvinceMatch": true,
+                                    "isDateOfBirthMatch": false,
+                                    "isAccountNumberMatch": false,
+                                    "isNameAndDobMatch": false,
+                                    "isNameAndAddressMatch": true,
+                                    "isNameAndAccountMatch": false,
+                                    "tradeStatus": "O",
+                                    "dateOfBirthAsReported": "19711105",
+                                    "memberNumber": "001ON02776",
+                                    "dateLastReported": "20190331",
+                                    "dateOpened": "20161201",
+                                    "institutionName": "S. CARTES DESJARDINS",
+                                    "accountNumber": "123456789044431",
+                                    "familyName": "DESJARDINS GROUP",
+                                    "nameAsReported": "KING,SANDRA,MARGOT,",
+                                    "addressAsReported": "4280 ATLEE AVE ,BURNABY,BC,V5G3R6"
+                                },
+                                {
+                                    "isLastNameMatched": true,
+                                    "isFirstNameMatched": true,
+                                    "isMiddleNameMatched": true,
+                                    "isSuffixNameMatch": false,
+                                    "isAddressCivicMatch": true,
+                                    "isAddressStreetNameMatch": true,
+                                    "isAddressCityMatch": true,
+                                    "isAddressPostalCodeMatch": true,
+                                    "isAddressProvinceMatch": true,
+                                    "isDateOfBirthMatch": false,
+                                    "isAccountNumberMatch": false,
+                                    "isNameAndDobMatch": true,
+                                    "isNameAndAddressMatch": false,
+                                    "isNameAndAccountMatch": false,
+                                    "tradeStatus": "O",
+                                    "dateOfBirthAsReported": "19711105",
+                                    "memberNumber": "481BB01426",
+                                    "dateLastReported": "20190331",
+                                    "dateOpened": "20161201",
+                                    "institutionName": "CIBC",
+                                    "accountNumber": "123456789011131",
+                                    "familyName": "CANADIAN IMPERIAL BANK-CMMRC",
+                                    "nameAsReported": "KING,SANDRA,MARGOT,",
+                                    "addressAsReported": "4280 ATLEE AVE ,BURNABY,BC,V5G3R6"
+                                }
+                            ],
+                            "bureauName": "Equifax  inc.",
+                            "dateOfRequest": "2019/04/25 12:00 AM UTC",
+                            "creditFileNumber": "50165927",
+                            "isCreditFileGreaterThanThreeYearsOld": "false",
+                            "verificationTime": "2019/04/25 09:19 PM UTC",
+                            "creditFileCreationDate": "2018/01/01 12:00 AM UTC"
+                        }
+                    }
+                }
+            }
 ```
 
 <a name="reasoncodesobject" title="reasonCodes Object"></a>
@@ -1327,28 +1433,23 @@ Click on **Run a Customer Identity Check** above to see two examples of a Custom
     + Body
 
             {
-                "merchantRefNum": "KYC_1520461749",
+                "customerIp": "10.10.1.2",
+                "merchantRefNum": "923892",
+                "workflowId": "LOW_RISK",
                 "card": {
-                    "cardNum": "4111111111111111",
-                    "cardExpiry": {
-                        "month": 2,
-                        "year": 2019
-                    },
-                    "cvv": 123
+                    "cardNum": "4111111111111111"
                 },
                 "profile": {
-                    "firstName": "John",
-                    "lastName": "Smith",
-                    "email": "john.smith@myemail.com",
+                    "firstName": "SANDRA",
+                    "middleName": "MARGOT",
+                    "lastName": "KING",
                     "currentAddress": {
-                        "street": "100 Queen Street West",
-                        "street2": "Unit 201",
-                        "city": "Toronto",
-                        "state": "ON",
+                        "street": "4280 ATLEE AVE",
+                        "city": "BURNABY",
+                        "zip": "V5G3R6",
+                        "state": "BC",
                         "country": "CA",
-                        "zip": "M5H 2N2",
-                        "monthsAtAddress": "20",
-                        "phone": "647-788-3901"
+                        "phone": "4502000607"
                     },
                     "previousAddresses": [{
                         "city": "Calgary",
@@ -1360,142 +1461,258 @@ Click on **Run a Customer Identity Check** above to see two examples of a Custom
                         "monthsAtAddress": "30"
                     }],
                     "dateOfBirth": {
-                        "day": "25",
-                        "month": "12",
-                        "year": "1980"
+                        "day": "05",
+                        "month": "11",
+                        "year": "1971"
                     },
-                    "sin": "123456789"
-                },
-                "customerIp": "1.1.1.1",
-                "workflowId": "LOW_RISK"
+                    "sin": "923456789",
+                    "locale": "en_CA"
+                }
             }
             
 + Response 200 (application/json)
 
     + Body
 
-            {
-                "id": "86dcb68d-cbd0-4878-8da7-ffc0e6554513",
-                "decision": "SUCCESS",
-                "merchantRefNum": "KYC_1520461749",
-                "card": {
-                    "lastDigits": "1111",
-                    "cardExpiry": {
-                        "month": 2,
-                        "year": 2019
-                    }
-                },
-                "profile": {
-                    "firstName": "John",
-                    "lastName": "Smith",
-                    "email": "john.smith@myemail.com",
-                    "currentAddress": {
-                        "street": "100 Queen Street West",
-                        "street2": "Unit 201",
-                        "city": "Toronto",
-                        "state": "ON",
-                        "country": "CA",
-                        "zip": "M5H 2N2",
-                        "monthsAtAddress": "20",
-                        "phone": "647-788-3901"
-                    },
-                    "previousAddresses": [{
-                        "city": "Calgary",
-                        "state": "AB",
-                        "street": "2124 Westchester street",
-                        "street2": "string",
-                        "zip": "M2H 2G6",
-                        "country": "CA",
-                        "monthsAtAddress": "30"
-                    }],
-                    "dateOfBirth": {
-                        "day": "25",
-                        "month": "12",
-                        "year": "1980"
-                    },
-                    "sinLastFour": "6789"
-                },
-                "customerIp": "1.1.1.1",
-                "workflowId": "LOW_RISK",
-                "providerResponses": {
-                    "eidCompare": {
-                        "id": "0f1266b9-ce28-4df2-bc3f-d4b746cc1ced",
-                        "status": "SUCCESS",
-                        "response": {
-            
-                            "assessmentComplete": {
-                                "reasonCodes": [{
-                                    "description": "Telephone exchange does not match the FSA (first three characters) of the postal code for Current Address",
-                                    "code": "08"
-                                }],
-                                "decision": "Y",
-                                "score": 25
-                            }
-                        },
-                        "amlassist": {
-                            "id": "amlassistResId",
-                            "status": "SUCCESS",
-                            "response": {
-                                "isSingleSourceHit": "true",
-                                "isDualSourceHit": "false",
-                                "decision": "SUCCESS",
-                                "singleSourceDecision": "N",
-                                "dualSourceDecision": "N",
-                                "isWaterfallProcess": true,
-                                "originOfCreditFile": "CANADA",
-                                "numberOfTrades": "1",
-                                "singleSourceResult": {
-                                    "isLastNameMatched": "true",
-                                    "isFirstNameMatched": "true",
-                                    "isMiddleNameMatched": "true",
-                                    "isSuffixNameMatched": "true",
-                                    "isAddressCivicMatch": "True",
-                                    "isAddressStreetNameMatch": "True",
-                                    "isAddressCityMatch": "True",
-                                    "isAddressPostalCodeMatch": "True",
-                                    "isAddressProvinceMatch": "True",
-                                    "isDateOfBirthMatch": "True",
-                                    "currentAddressReportedDate": "201811",
-                                    "dateOfBirthAsReported": "19711130",
-                                    "nameAsReported": "SMITH, JANE",
-                                    "addressAsReported": "11,DORVAL AVE,DORVAL,QC,H3S1G4"
-                                },
-                                "dualSourceResult": [{
-                                    "isLastNameMatched": "true",
-                                    "isFirstNameMatched": "true",
-                                    "isMiddleNameMatched": "true",
-                                    "isSuffixNameMatched": "true",
-                                    "isAddressCivicMatch": "True",
-                                    "isAddressStreetNameMatch": "True",
-                                    "isAddressCityMatch": "True",
-                                    "isAddressPostalCodeMatch": "True",
-                                    "isAddressProvinceMatch": "True",
-                                    "isDateOfBirthMatch": "True",
-                                    "isAccountNumberMatch": false,
-                                    "isNameAndDobMatch": true,
-                                    "isNameAndAddressMatch": false,
-                                    "isNameAndAccountMatch": false,
-                                    "tradeStatus": "O",
-                                    "dateOfBirthAsReported": "19711130",
-                                    "memberNumber": "481BB01426",
-                                    "dateLastReported": "20180901",
-                                    "dateOpened": "20170802",
-                                    "institutionName": "CIBC",
-                                    "accountNumber": "123456789011111",
-                                    "familyName": "CANADIAN IMPERIAL BANK-CMMRC",
-                                    "nameAsReported": "SMITH, JANE",
-                                    "addressAsReported": "11,DORVAL AVE,DORVAL,QC,H3S1G4"
-                                }],
-                                "bureauName": "Equifax Canada",
-                                "dateOfRequest": "2018/10/29 12:00 AM UTC",
-                                "creditFileNumber": "65462",
-                                "isCreditFileGreaterThanThreeYearsOld": "true",
-                                "verificationTime": "2018/11/15 10:58 AM UTC",
-                                "creditFileCreationDate": "2016/01/01 12:00 AM UTC"
-                            }
+            {  
+               "id":"654edc83-2c1c-4f07-b83d-a079b3f76517",
+               "decision":"SUCCESS",
+               "customerIp":"10.10.1.2",
+               "merchantRefNum":"923892",
+               "card":{  
+                  "cardNum":"4111111111111111"
+               },
+               "profile":{  
+                  "firstName":"SANDRA",
+                  "middleName":"MARGOT",
+                  "lastName":"KING",
+                  "dateOfBirth":{  
+                     "day":"05",
+                     "month":"11",
+                     "year":"1971"
+                  },
+                  "locale":"en_CA",
+                  "currentAddress":{  
+                     "street":"4280 ATLEE AVE",
+                     "city":"BURNABY",
+                     "zip":"V5G3R6",
+                     "state":"BC",
+                     "country":"CA",
+                     "phone":"4502000607"
+                  },
+                  "previousAddresses":[  
+                     {  
+                        "city":"Calgary",
+                        "state":"AB",
+                        "street":"2124 Westchester street",
+                        "street2":"string",
+                        "zip":"M2H 2G6",
+                        "country":"CA",
+                        "monthsAtAddress":"30"
+                     }
+                  ],
+                  "sin":"123456789"
+               },
+               "workflowId":"LOW_RISK",
+               "providerResponses":{  
+                  "eidCompare":{  
+                     "id":"ef65c1f1-0a9e-451c-8d3e-2c5075ffa71b",
+                     "status":"SUCCESS",
+                     "response":{  
+                        "assessmentComplete":{  
+                           "reasonCodes":[  
+                              {  
+                                 "description":"Address Standardization Warning Present for Current Address",
+                                 "code":"05"
+                              },
+                              {  
+                                 "description":"Telephone exchange does not match the FSA (first three characters) of the postal code for Current Address",
+                                 "code":"08"
+                              },
+                              {  
+                                 "description":"Current address is new within 30 days on the credit file",
+                                 "code":"46"
+                              },
+                              {  
+                                 "description":"Credit file located=Adequate match",
+                                 "code":"51"
+                              },
+                              {  
+                                 "description":"No Phone record located or poor match score",
+                                 "code":"60"
+                              },
+                              {  
+                                 "description":"Supplied address same as the current address in the Equifax database",
+                                 "code":"C1"
+                              },
+                              {  
+                                 "description":"Address Standardization warning present for current address returned from Equifax database",
+                                 "code":"C5"
+                              },
+                              {  
+                                 "description":"Credit file history is equal to or greater than six months",
+                                 "code":"CG"
+                              },
+                              {  
+                                 "description":"Input Date of Birth - is a match to Date of Birth on the credit file",
+                                 "code":"D1"
+                              },
+                              {  
+                                 "description":"Input Age Matches the Calculated Age on the Credit File",
+                                 "code":"D6"
+                              },
+                              {  
+                                 "description":"Calculated Age on the Credit File is 18 or Greater",
+                                 "code":"D8"
+                              },
+                              {  
+                                 "description":"Calculated Age on the Credit File is 19 or Greater",
+                                 "code":"DA"
+                              },
+                              {  
+                                 "description":"No Equifax Watch List match found",
+                                 "code":"E0"
+                              },
+                              {  
+                                 "description":"Age of Credit file is greater than or equal to three years",
+                                 "code":"FE"
+                              },
+                              {  
+                                 "description":"Age of Credit file is greater than or equal to six months",
+                                 "code":"FG"
+                              },
+                              {  
+                                 "description":"Inquiry Phone Number not found in phone database",
+                                 "code":"TD"
+                              },
+                              {  
+                                 "description":"The telephone area code does not correspond to the province code of the current address",
+                                 "code":"TY"
+                              }
+                           ],
+                           "score":25
                         }
-                    }
-                }
+                     }
+                  },
+                  "amlAssist":{  
+                     "id":"f5148fc6-436c-4beb-9ea1-533cdd945ccd",
+                     "decision":"SUCCESS",
+                     "merchantRefNum":"923892",
+                     "profile":{  
+                        "firstName":"SANDRA",
+                        "middleName":"MARGOT",
+                        "lastName":"KING",
+                        "dateOfBirth":{  
+                           "day":"05",
+                           "month":"11",
+                           "year":"1971"
+                        },
+                        "locale":"en_CA",
+                        "currentAddress":{  
+                           "street":"4280 ATLEE AVE",
+                           "city":"BURNABY",
+                           "zip":"V5G3R6",
+                           "state":"BC",
+                           "country":"CA",
+                           "phone":"4502000607"
+                        }
+                     },
+                     "customerIp":"10.10.1.2",
+                     "vendorCheck":"AMLASSIST",
+                     "providerResponses":{  
+                        "amlAssist":{  
+                           "id":"20a479c5-1040-463e-b33e-843e3be9da2b",
+                           "status":"SUCCESS",
+                           "response":{  
+                              "isSingleSourceHit":true,
+                              "isDualSourceHit":true,
+                              "isWaterfallProcess":true,
+                              "singleSourceDecision":"N",
+                              "dualSourceDecision":"Y",
+                              "originOfCreditFile":"CANADA",
+                              "numberOfTrades":2,
+                              "singleSourceResult":{  
+                                 "isLastNameMatched":true,
+                                 "isFirstNameMatched":true,
+                                 "isMiddleNameMatched":true,
+                                 "isSuffixNameMatch":false,
+                                 "isAddressCivicMatch":true,
+                                 "isAddressStreetNameMatch":true,
+                                 "isAddressCityMatch":true,
+                                 "isAddressPostalCodeMatch":true,
+                                 "isAddressProvinceMatch":true,
+                                 "isDateOfBirthMatch":true,
+                                 "currentAddressReportedDate":"201904",
+                                 "dateOfBirthAsReported":"19711105",
+                                 "nameAsReported":"KING,SANDRA,MARGOT,JR",
+                                 "addressAsReported":"4280,ATLEE AVE,BURNABY,BC,V5G3R6"
+                              },
+                              "dualSourceResult":[  
+                                 {  
+                                    "isLastNameMatched":true,
+                                    "isFirstNameMatched":true,
+                                    "isMiddleNameMatched":true,
+                                    "isSuffixNameMatch":false,
+                                    "isAddressCivicMatch":true,
+                                    "isAddressStreetNameMatch":true,
+                                    "isAddressCityMatch":true,
+                                    "isAddressPostalCodeMatch":true,
+                                    "isAddressProvinceMatch":true,
+                                    "isDateOfBirthMatch":true,
+                                    "isAccountNumberMatch":false,
+                                    "isNameAndDobMatch":false,
+                                    "isNameAndAddressMatch":true,
+                                    "isNameAndAccountMatch":false,
+                                    "tradeStatus":"O",
+                                    "dateOfBirthAsReported":"19711105",
+                                    "memberNumber":"001ON02776",
+                                    "dateLastReported":"20190331",
+                                    "dateOpened":"20161201",
+                                    "institutionName":"S. CARTES DESJARDINS",
+                                    "accountNumber":"123456789044431",
+                                    "familyName":"DESJARDINS GROUP",
+                                    "nameAsReported":"KING,SANDRA,MARGOT,",
+                                    "addressAsReported":"4280 ATLEE AVE ,BURNABY,BC,V5G3R6"
+                                 },
+                                 {  
+                                    "isLastNameMatched":true,
+                                    "isFirstNameMatched":true,
+                                    "isMiddleNameMatched":true,
+                                    "isSuffixNameMatch":false,
+                                    "isAddressCivicMatch":true,
+                                    "isAddressStreetNameMatch":true,
+                                    "isAddressCityMatch":true,
+                                    "isAddressPostalCodeMatch":true,
+                                    "isAddressProvinceMatch":true,
+                                    "isDateOfBirthMatch":true,
+                                    "isAccountNumberMatch":false,
+                                    "isNameAndDobMatch":true,
+                                    "isNameAndAddressMatch":false,
+                                    "isNameAndAccountMatch":false,
+                                    "tradeStatus":"O",
+                                    "dateOfBirthAsReported":"19711105",
+                                    "memberNumber":"481BB01426",
+                                    "dateLastReported":"20190331",
+                                    "dateOpened":"20161201",
+                                    "institutionName":"CIBC",
+                                    "accountNumber":"123456789011131",
+                                    "familyName":"CANADIAN IMPERIAL BANK-CMMRC",
+                                    "nameAsReported":"KING,SANDRA,MARGOT,",
+                                    "addressAsReported":"4280 ATLEE AVE ,BURNABY,BC,V5G3R6"
+                                 }
+                              ],
+                              "bureauName":"Equifax  inc.",
+                              "dateOfRequest":"2019/04/29 12:00 AM UTC",
+                              "creditFileNumber":"50165927",
+                              "isCreditFileGreaterThanThreeYearsOld":false,
+                              "verificationTime":"2019/04/29 01:06 PM UTC",
+                              "creditFileCreationDate":"2018/01/01 12:00 AM UTC",
+                              "decision":"SUCCESS"
+                           }
+                        }
+                     }
+                  }
+               }
             }
 
 
@@ -1535,128 +1752,245 @@ Click on **Rerun a Customer Identity Check** above to see how you submit a reque
 
     + Body
 
-            {
-                "id": "86dcb68d-cbd0-4878-8da7-ffc0e6554513",
-                "decision": "SUCCESS",
-                "merchantRefNum": "KYC_1520461749",
-                "card": {
-                    "lastDigits": "1111",
-                    "cardExpiry": {
-                        "month": 2,
-                        "year": 2019
-                    }
-                },
-                "profile": {
-                    "firstName": "John",
-                    "lastName": "Smith",
-                    "email": "john.smith@myemail.com",
-                    "currentAddress": {
-                        "street": "100 Queen Street West",
-                        "street2": "Unit 201",
-                        "city": "Toronto",
-                        "state": "ON",
-                        "country": "CA",
-                        "zip": "M5H 2N2",
-                        "monthsAtAddress": "20",
-                        "phone": "647-788-3901"
-                    },
-                    "previousAddresses": [{
-                        "city": "Calgary",
-                        "state": "AB",
-                        "street": "2124 Westchester street",
-                        "street2": "string",
-                        "zip": "M2H 2G6",
-                        "country": "CA",
-                        "monthsAtAddress": "30"
-                    }],
-                    "dateOfBirth": {
-                        "day": "25",
-                        "month": "12",
-                        "year": "1980"
-                    },
-                    "sinLastFour": "6789"
-                },
-                "customerIp": "1.1.1.1",
-                "workflowId": "LOW_RISK",
-                "providerResponses": {
-                    "eidCompare": {
-                        "id": "0f1266b9-ce28-4df2-bc3f-d4b746cc1ced",
-                        "status": "SUCCESS",
-                        "response": {
-            
-                            "assessmentComplete": {
-                                "reasonCodes": [{
-                                    "description": "Telephone exchange does not match the FSA (first three characters) of the postal code for Current Address",
-                                    "code": "08"
-                                }],
-                                "decision": "Y",
-                                "score": 25
-                            }
-                        },
-                        "amlassist": {
-                            "id": "amlassistResId",
-                            "status": "SUCCESS",
-                            "response": {
-                                "isSingleSourceHit": "true",
-                                "isDualSourceHit": "false",
-                                "decision": "SUCCESS",
-                                "singleSourceDecision": "N",
-                                "dualSourceDecision": "N",
-                                "isWaterfallProcess": true,
-                                "originOfCreditFile": "CANADA",
-                                "numberOfTrades": "1",
-                                "singleSourceResult": {
-                                    "isLastNameMatched": "true",
-                                    "isFirstNameMatched": "true",
-                                    "isMiddleNameMatched": "true",
-                                    "isSuffixNameMatched": "true",
-                                    "isAddressCivicMatch": "True",
-                                    "isAddressStreetNameMatch": "True",
-                                    "isAddressCityMatch": "True",
-                                    "isAddressPostalCodeMatch": "True",
-                                    "isAddressProvinceMatch": "True",
-                                    "isDateOfBirthMatch": "True",
-                                    "currentAddressReportedDate": "201811",
-                                    "dateOfBirthAsReported": "19711130",
-                                    "nameAsReported": "SMITH, JANE",
-                                    "addressAsReported": "11,DORVAL AVE,DORVAL,QC,H3S1G4"
-                                },
-                                "dualSourceResult": [{
-                                    "isLastNameMatched": "true",
-                                    "isFirstNameMatched": "true",
-                                    "isMiddleNameMatched": "true",
-                                    "isSuffixNameMatched": "true",
-                                    "isAddressCivicMatch": "True",
-                                    "isAddressStreetNameMatch": "True",
-                                    "isAddressCityMatch": "True",
-                                    "isAddressPostalCodeMatch": "True",
-                                    "isAddressProvinceMatch": "True",
-                                    "isDateOfBirthMatch": "True",
-                                    "isAccountNumberMatch": false,
-                                    "isNameAndDobMatch": true,
-                                    "isNameAndAddressMatch": false,
-                                    "isNameAndAccountMatch": false,
-                                    "tradeStatus": "O",
-                                    "dateOfBirthAsReported": "19711130",
-                                    "memberNumber": "481BB01426",
-                                    "dateLastReported": "20180901",
-                                    "dateOpened": "20170802",
-                                    "institutionName": "CIBC",
-                                    "accountNumber": "123456789011111",
-                                    "familyName": "CANADIAN IMPERIAL BANK-CMMRC",
-                                    "nameAsReported": "SMITH, JANE",
-                                    "addressAsReported": "11,DORVAL AVE,DORVAL,QC,H3S1G4"
-                                }],
-                                "bureauName": "Equifax Canada",
-                                "dateOfRequest": "2018/10/29 12:00 AM UTC",
-                                "creditFileNumber": "65462",
-                                "isCreditFileGreaterThanThreeYearsOld": "true",
-                                "verificationTime": "2018/11/15 10:58 AM UTC",
-                                "creditFileCreationDate": "2016/01/01 12:00 AM UTC"
-                            }
+            {  
+               "id":"86dcb68d-cbd0-4878-8da7-ffc0e6554513",
+               "decision":"SUCCESS",
+               "customerIp":"10.10.1.2",
+               "merchantRefNum":"923892",
+               "card":{  
+                  "cardNum":"4111111111111111"
+               },
+               "profile":{  
+                  "firstName":"SANDRA",
+                  "middleName":"MARGOT",
+                  "lastName":"KING",
+                  "dateOfBirth":{  
+                     "day":"05",
+                     "month":"11",
+                     "year":"1971"
+                  },
+                  "locale":"en_CA",
+                  "currentAddress":{  
+                     "street":"4280 ATLEE AVE",
+                     "city":"BURNABY",
+                     "zip":"V5G3R6",
+                     "state":"BC",
+                     "country":"CA",
+                     "phone":"4502000607"
+                  },
+                  "previousAddresses":[  
+                     {  
+                        "city":"Calgary",
+                        "state":"AB",
+                        "street":"2124 Westchester street",
+                        "street2":"string",
+                        "zip":"M2H 2G6",
+                        "country":"CA",
+                        "monthsAtAddress":"30"
+                     }
+                  ],
+                  "sin":"123456789"
+               },
+               "workflowId":"LOW_RISK",
+               "providerResponses":{  
+                  "eidCompare":{  
+                     "id":"ef65c1f1-0a9e-451c-8d3e-2c5075ffa71b",
+                     "status":"SUCCESS",
+                     "response":{  
+                        "assessmentComplete":{  
+                           "reasonCodes":[  
+                              {  
+                                 "description":"Address Standardization Warning Present for Current Address",
+                                 "code":"05"
+                              },
+                              {  
+                                 "description":"Telephone exchange does not match the FSA (first three characters) of the postal code for Current Address",
+                                 "code":"08"
+                              },
+                              {  
+                                 "description":"Current address is new within 30 days on the credit file",
+                                 "code":"46"
+                              },
+                              {  
+                                 "description":"Credit file located=Adequate match",
+                                 "code":"51"
+                              },
+                              {  
+                                 "description":"No Phone record located or poor match score",
+                                 "code":"60"
+                              },
+                              {  
+                                 "description":"Supplied address same as the current address in the Equifax database",
+                                 "code":"C1"
+                              },
+                              {  
+                                 "description":"Address Standardization warning present for current address returned from Equifax database",
+                                 "code":"C5"
+                              },
+                              {  
+                                 "description":"Credit file history is equal to or greater than six months",
+                                 "code":"CG"
+                              },
+                              {  
+                                 "description":"Input Date of Birth - is a match to Date of Birth on the credit file",
+                                 "code":"D1"
+                              },
+                              {  
+                                 "description":"Input Age Matches the Calculated Age on the Credit File",
+                                 "code":"D6"
+                              },
+                              {  
+                                 "description":"Calculated Age on the Credit File is 18 or Greater",
+                                 "code":"D8"
+                              },
+                              {  
+                                 "description":"Calculated Age on the Credit File is 19 or Greater",
+                                 "code":"DA"
+                              },
+                              {  
+                                 "description":"No Equifax Watch List match found",
+                                 "code":"E0"
+                              },
+                              {  
+                                 "description":"Age of Credit file is greater than or equal to three years",
+                                 "code":"FE"
+                              },
+                              {  
+                                 "description":"Age of Credit file is greater than or equal to six months",
+                                 "code":"FG"
+                              },
+                              {  
+                                 "description":"Inquiry Phone Number not found in phone database",
+                                 "code":"TD"
+                              },
+                              {  
+                                 "description":"The telephone area code does not correspond to the province code of the current address",
+                                 "code":"TY"
+                              }
+                           ],
+                           "score":25
                         }
-                    }
-                }
+                     }
+                  },
+                  "amlAssist":{  
+                     "id":"f5148fc6-436c-4beb-9ea1-533cdd945ccd",
+                     "decision":"SUCCESS",
+                     "merchantRefNum":"923892",
+                     "profile":{  
+                        "firstName":"SANDRA",
+                        "middleName":"MARGOT",
+                        "lastName":"KING",
+                        "dateOfBirth":{  
+                           "day":"05",
+                           "month":"11",
+                           "year":"1971"
+                        },
+                        "locale":"en_CA",
+                        "currentAddress":{  
+                           "street":"4280 ATLEE AVE",
+                           "city":"BURNABY",
+                           "zip":"V5G3R6",
+                           "state":"BC",
+                           "country":"CA",
+                           "phone":"4502000607"
+                        }
+                     },
+                     "customerIp":"10.10.1.2",
+                     "vendorCheck":"AMLASSIST",
+                     "providerResponses":{  
+                        "amlAssist":{  
+                           "id":"20a479c5-1040-463e-b33e-843e3be9da2b",
+                           "status":"SUCCESS",
+                           "response":{  
+                              "isSingleSourceHit":true,
+                              "isDualSourceHit":true,
+                              "isWaterfallProcess":true,
+                              "singleSourceDecision":"N",
+                              "dualSourceDecision":"Y",
+                              "originOfCreditFile":"CANADA",
+                              "numberOfTrades":2,
+                              "singleSourceResult":{  
+                                 "isLastNameMatched":true,
+                                 "isFirstNameMatched":true,
+                                 "isMiddleNameMatched":true,
+                                 "isSuffixNameMatch":false,
+                                 "isAddressCivicMatch":true,
+                                 "isAddressStreetNameMatch":true,
+                                 "isAddressCityMatch":true,
+                                 "isAddressPostalCodeMatch":true,
+                                 "isAddressProvinceMatch":true,
+                                 "isDateOfBirthMatch":true,
+                                 "currentAddressReportedDate":"201904",
+                                 "dateOfBirthAsReported":"19711105",
+                                 "nameAsReported":"KING,SANDRA,MARGOT,JR",
+                                 "addressAsReported":"4280,ATLEE AVE,BURNABY,BC,V5G3R6"
+                              },
+                              "dualSourceResult":[  
+                                 {  
+                                    "isLastNameMatched":true,
+                                    "isFirstNameMatched":true,
+                                    "isMiddleNameMatched":true,
+                                    "isSuffixNameMatch":false,
+                                    "isAddressCivicMatch":true,
+                                    "isAddressStreetNameMatch":true,
+                                    "isAddressCityMatch":true,
+                                    "isAddressPostalCodeMatch":true,
+                                    "isAddressProvinceMatch":true,
+                                    "isDateOfBirthMatch":true,
+                                    "isAccountNumberMatch":false,
+                                    "isNameAndDobMatch":false,
+                                    "isNameAndAddressMatch":true,
+                                    "isNameAndAccountMatch":false,
+                                    "tradeStatus":"O",
+                                    "dateOfBirthAsReported":"19711105",
+                                    "memberNumber":"001ON02776",
+                                    "dateLastReported":"20190331",
+                                    "dateOpened":"20161201",
+                                    "institutionName":"S. CARTES DESJARDINS",
+                                    "accountNumber":"123456789044431",
+                                    "familyName":"DESJARDINS GROUP",
+                                    "nameAsReported":"KING,SANDRA,MARGOT,",
+                                    "addressAsReported":"4280 ATLEE AVE ,BURNABY,BC,V5G3R6"
+                                 },
+                                 {  
+                                    "isLastNameMatched":true,
+                                    "isFirstNameMatched":true,
+                                    "isMiddleNameMatched":true,
+                                    "isSuffixNameMatch":false,
+                                    "isAddressCivicMatch":true,
+                                    "isAddressStreetNameMatch":true,
+                                    "isAddressCityMatch":true,
+                                    "isAddressPostalCodeMatch":true,
+                                    "isAddressProvinceMatch":true,
+                                    "isDateOfBirthMatch":true,
+                                    "isAccountNumberMatch":false,
+                                    "isNameAndDobMatch":true,
+                                    "isNameAndAddressMatch":false,
+                                    "isNameAndAccountMatch":false,
+                                    "tradeStatus":"O",
+                                    "dateOfBirthAsReported":"19711105",
+                                    "memberNumber":"481BB01426",
+                                    "dateLastReported":"20190331",
+                                    "dateOpened":"20161201",
+                                    "institutionName":"CIBC",
+                                    "accountNumber":"123456789011131",
+                                    "familyName":"CANADIAN IMPERIAL BANK-CMMRC",
+                                    "nameAsReported":"KING,SANDRA,MARGOT,",
+                                    "addressAsReported":"4280 ATLEE AVE ,BURNABY,BC,V5G3R6"
+                                 }
+                              ],
+                              "bureauName":"Equifax  inc.",
+                              "dateOfRequest":"2019/04/29 12:00 AM UTC",
+                              "creditFileNumber":"50165927",
+                              "isCreditFileGreaterThanThreeYearsOld":false,
+                              "verificationTime":"2019/04/29 01:06 PM UTC",
+                              "creditFileCreationDate":"2018/01/01 12:00 AM UTC",
+                              "decision":"SUCCESS"
+                           }
+                        }
+                     }
+                  }
+               }
             }
 
 # Data Structures
