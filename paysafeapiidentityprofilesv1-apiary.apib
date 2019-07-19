@@ -813,7 +813,6 @@ When providing card information, merchants can provide either card details or a 
 |Element            |Type                       |Description                        |
 |---                |---                        |---                                |
 |paymentToken       |string <br/>`length<=80`   |If the payment token is provided, no other card information is necessary. |
-|cvv                |string<br/>`length=3-4`    |This is the 3- or 4-digit security code that appears on the card following the card number.|
 
 **OR**
 
@@ -823,9 +822,6 @@ When providing card information, merchants can provide either card details or a 
 |type               |enum                       |This is the type of card used for the request, returned in the response. Possible values are:<br/><ul><li>AM &ndash; American Express</li><li>DI &ndash; Discover</li><li>JC &ndash; JCB</li><li>MC &ndash; Mastercard</li><li>MD &ndash; Maestro</li><li>SO &ndash; Solo</li><li>VI &ndash; Visa</li><li>VD &ndash; Visa Debit</li><li>VE &ndash; Visa Electron</li></ul>
 |lastDigits         |string<br/>`length=4`      |This is the last four digits of the card used for the request, returned in the response.|
 |cardExpiry         |[cardExpiry](#cardexpiryobject)|This is the card's expiry date.|
-|cvv                |string<br/>`length=3-4`    |This is the 3- or 4-digit security code that appears on the card following the card number.|
-|track1             |string                     |This is Track 1 information read from the card's magnetic stripe.|
-|track2             |string                     |This is Track 2 information read from the card's magnetic stripe.|
 
 ```apib
     {
@@ -1317,12 +1313,7 @@ Click on **Run a Customer Identity Check** above to see two examples of a Custom
             {
                 "merchantRefNum": "KYC_1520461749",
                 "card": {
-                    "cardNum": "4111111111111111",
-                    "cardExpiry": {
-                        "month": 2,
-                        "year": 2019
-                    },
-                    "cvv": 123
+                    "cardNum": "4111111111111111"
                 },
                 "profile": {
                     "firstName": "John",
@@ -1367,11 +1358,7 @@ Click on **Run a Customer Identity Check** above to see two examples of a Custom
                 "decision": "SUCCESS",
                 "merchantRefNum": "KYC_1520461749",
                 "card": {
-                    "lastDigits": "1111",
-                    "cardExpiry": {
-                        "month": 2,
-                        "year": 2019
-                    }
+                    "cardNum":"############1111"
                 },
                 "profile": {
                     "firstName": "John",
@@ -1480,7 +1467,7 @@ Click on **Run a Customer Identity Check** above to see two examples of a Custom
                "customerIp":"10.10.1.2",
                "merchantRefNum":"923892",
                "card":{  
-                  "cardNum":"4111111111111111"
+                  "cardNum":"############1111"
                },
                "profile":{  
                   "firstName":"SANDRA",
@@ -1758,7 +1745,7 @@ Click on **Rerun a Customer Identity Check** above to see how you submit a reque
                "customerIp":"10.10.1.2",
                "merchantRefNum":"923892",
                "card":{  
-                  "cardNum":"4111111111111111"
+                  "cardNum":"############1111"
                },
                "profile":{  
                   "firstName":"SANDRA",
@@ -2071,9 +2058,7 @@ Click on **Rerun a Customer Identity Check** above to see how you submit a reque
 
             + paymentToken:`LTEyMzYzMjQ3ODg` (string) - This is the payment token representing the card. Either the *paymentToken* or the *cardNum* is required if the optional *card* object is included.
                 _length<=80_
-            + cvv:`123` (string) - This is the 3- or 4-digit security code that appears on the card following the card number.
-                _length=3-4_
-
+            
     + card (object) - These are the details of the [card](#cardobject) used for the request. Only one **card** object can be included in the request.
     
         + Properties
@@ -2085,13 +2070,9 @@ Click on **Rerun a Customer Identity Check** above to see how you submit a reque
                     _length=2_
                 + year:2020 (number) - This is the card expiry year.
                     _length=4_
-            + cvv:`123` (string) - This is the 3- or 4-digit security code that appears on the card following the card number.
-                _length=3-4_
             + lastDigits:`1111` (string) - This is the last four digits of the card used for the request, returned in the response.|
                 _Read Only, length=4_
-            + track1 (string) - This is Track 1 information read from the card's magnetic stripe.
-            + track2 (string) - This is Track 2 information read from the card's magnetic stripe.
-
+            
 ## `Card Rerun`
 
 +  card (object) - These are the details of the [card](#cardobject) used for the request. Only one **card** object can be included in the request.
@@ -2099,15 +2080,15 @@ Click on **Rerun a Customer Identity Check** above to see how you submit a reque
     
     + Properties
 
+        + cardNum:`############1111` (string) - This is the masked card number returned in response. 
+                _length=8-20_
         + cardExpiry (object) - This is the card's [expiry date](#cardexpiryobject).
             _Read Only_
             + month:12 (number) - This is the card expiry month.
                 _length=2_
             + year:2020 (number) - This is the card expiry year.
                 _length=4_
-        + lastDigits:`1111` (string) - This is the last four digits of the card used for the request, returned in the response.|
-            _Read Only, length=4_
-
+        
 ## Current Address
 
 + `currentAddress` (object, required)
