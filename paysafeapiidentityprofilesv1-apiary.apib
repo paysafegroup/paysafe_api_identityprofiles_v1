@@ -813,22 +813,18 @@ When providing card information, merchants can provide either card details or a 
 |Element            |Type                       |Description                        |
 |---                |---                        |---                                |
 |paymentToken       |string <br/>`length<=80`   |If the payment token is provided, no other card information is necessary. |
-<!--|cvv                |string<br/>`length=3-4`    |This is the 3- or 4-digit security code that appears on the card following the card number.|-->
 
 **OR**
 
 |Element            |Type                       |Description                        |
 |---                |---                        |---                                |
 |cardNum            |string <br/>`length=8-20`  |This is the card number used for the request. |
-|type               |enum                       |This is the type of card used for the request, returned in the response. Possible values are:<br/><ul><li>AM &ndash; American Express</li><li>DI &ndash; Discover</li><li>JC &ndash; JCB</li><li>MC &ndash; Mastercard</li><li>MD &ndash; Maestro</li><li>SO &ndash; Solo</li><li>VI &ndash; Visa</li><li>VD &ndash; Visa Debit</li><li>VE &ndash; Visa Electron</li></ul>
-|cardCategory       |string<br/> `length=8-10`  |This is the card category|
+|cardType           |enum                       |This is the type of card used for the request, returned in the response. Possible values are:<br/><ul><li>AM &ndash; American Express</li><li>DI &ndash; Discover</li><li>JC &ndash; JCB</li><li>MC &ndash; Mastercard</li><li>MD &ndash; Maestro</li><li>SO &ndash; Solo</li><li>VI &ndash; Visa</li><li>VD &ndash; Visa Debit</li><li>VE &ndash; Visa Electron</li></ul>
+|cardCategory       |enum                       |This denotes the card category. Possible values are:<ul><li>CREDIT = Credit card</li><li>DEBIT = Debit card</li><li>PREPAID = Prepaid card</li><li>UNKNOWN = BIN not found in database</li></ul>|
 |lastDigits         |string<br/>`length=4`      |This is the last four digits of the card used for the request, returned in the response.|
 |cardExpiry         |[cardExpiry](#cardexpiryobject)|This is the card's expiry date.|
 |holderName         |string<br/> `length=10`    |This is card holder name.|
 |cardBin            |string <br/> `length=6`    |This is card BIN, typically the first six digits| 
-<!--|cvv                |string<br/>`length=3-4`    |This is the 3- or 4-digit security code that appears on the card following the card number.|
-|track1             |string                     |This is Track 1 information read from the card's magnetic stripe.|
-|track2             |string                     |This is Track 2 information read from the card's magnetic stripe.|-->
 
 ```apib
     {
@@ -1233,7 +1229,7 @@ These are raw responses from the downstream providers.
 |HTTP Status Code   |Error Code             |Description|
 |---                |---                    |---|
 |402                | CUSTOMER-IDENTITY-1   | One or more external services are down. Please rerun a Customer Identity Check request. |
-|400                | CUSTOMER-IDENTITY-2   | Your merchant account is not configured to process the payment type and currency combination you provided. |
+|400                | CUSTOMER-IDENTITY-2   | Your merchant account is not configured to perform the identity verification. Please contact Paysafe Technical Support. |
 |409                | CUSTOMER-IDENTITY-3   | The request you have submitted has already been processed. |
 |200                | CUSTOMER-IDENTITY-4   | The address provided is a prison or detention facility. |
 |200                | CUSTOMER-IDENTITY-5   | The person is reported to be deceased. |
@@ -1326,7 +1322,7 @@ Click on **Run a Customer Identity Check** above to see two examples of a Custom
                         "month": 2,
                         "year": 2019
                     },
-                    "cvv": 123
+                    
                 },
                 "profile": {
                     "firstName": "John",
@@ -1997,6 +1993,289 @@ Click on **Rerun a Customer Identity Check** above to see how you submit a reque
                }
             }
 
+# Run a Customer Identity Check Lookup [/identitychecklookup]
+<a name="identitychecklookup" title="Run a Customer Identity Check Lookup"></a>
+
+## Run a Customer Identity Check Lookup using Merchant Reference Number [GET /v1/identityprofiles/merchantrefnum/{merchantRefNum}]
+<a name="riskcheckrequestlookup" title="Run a Customer Identity Check Lookup using Merchant Reference Number"></a>
+
+Click on **Run a Customer Identity Check Lookup using Merchant Reference Number** above to see how to look up a customer identity check request using the Merchant Reference Number.
+
++ Parameters
+    + merchantRefNum:`P1234` (string, required) - This is the merchant reference number created by the merchant and submitted as part of the request.
+
++ Request Customer Identity Check Lookup Using Merchant Reference Number (application/json)
+
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Body
+
+            {
+               "id": "id-12344555",
+               "decision": "SUCCESS",
+               "merchantRefNum": "KYC_1520461749",
+               "profile": {
+                  "firstName": "James",
+                  "middleName": "",
+                  "lastName": "TESTHETFIELD",
+                  "email": "jamesr@email.com",
+                  "currentAddress": {
+                     "street": "270 rue Olier",
+                     "street2": "",
+                     "city": "Chicoutimi",
+                     "state": "QC",
+                     "country": "CA",
+                     "zip": "G7G 4J3",
+                     "phone": "1234567890"
+                  },
+                  "dateOfBirth": {
+                     "day": "15",
+                     "month": "3",
+                     "year": "1976"
+                  },
+                  "ssnLastFour": "3123",
+                  "sinLastFour": "3123"
+               },
+               "card": {
+                  "lastDigits": "1111",
+                  "cardExpiry": {
+                     "month": 1,
+                     "year": 2020
+                  },
+                  "paymentToken": "LTEyMzYzMjQ3ODg"
+               },
+               "customerIp": "1.1.1.1",
+               "workflowId": "LOW_RISK",
+               "vendorCheck": "AMLAssist",
+               "providerResponses": {
+                  "eidcompare": {
+                     "id": "eidcomapreResId",
+                     "status": "SUCCESS",
+                     "response": {
+                        "assessmentComplete": {
+                           "reasonCodes": [
+                              {
+                                 "description": "Telephone exchange does not match the FSA (first three characters) of the postal code for Current Address",
+                                 "code": "08"
+                              }
+                           ],
+                           "atomicScores": {
+                              "interactiveQueryScore": -1
+                           },
+                           "decision": "Y",
+                           "score": 25
+                        }
+                     }
+                  },
+                  "amlassist": {
+                     "id": "amlassistResId",
+                     "status": "SUCCESS",
+                     "response": {
+                        "creditFileNumber": "65462",
+                        "isSingleSourceHit": true,
+                        "isDualSourceHit": true,
+                        "decision": "SUCCESS",
+                        "singleSourceDecision": "Y",
+                        "dualSourceDecision": "Y",
+                        "isWaterfallProcess": true,
+                        "originOfCreditFile": "CANADA",
+                        "creditFileCreationDate": "2016/01/01 12:00 AM UTC",
+                        "numberOfTrades": 1,
+                        "singleSourceResult": {
+                           "isLastNameMatched": true,
+                           "isFirstNameMatched": true,
+                           "isMiddleNameMatched": false,
+                           "isSuffixNameMatch": false,
+                           "isAddressCivicMatch": true,
+                           "isAddressStreetNameMatch": true,
+                           "isAddressCityMatch": true,
+                           "isAddressPostalCodeMatch": true,
+                           "isAddressProvinceMatch": true,
+                           "isDateOfBirthMatch": false,
+                           "currentAddressReportedDate": "201811",
+                           "dateOfBirthAsReported": "19810115",
+                           "nameAsReported": "YTHREEAML,HELEN,,JR",
+                           "addressAsReported": "3,YONESTREET,TORONTO,ON,M3H3P3"
+                        },
+                        "dualSourceResult": [
+                           {
+                              "isLastNameMatched": true,
+                              "isFirstNameMatched": true,
+                              "isMiddleNameMatched": false,
+                              "isSuffixNameMatch": false,
+                              "isAddressCivicMatch": true,
+                              "isAddressStreetNameMatch": false,
+                              "isAddressCityMatch": true,
+                              "isAddressPostalCodeMatch": true,
+                              "isAddressProvinceMatch": true,
+                              "isDateOfBirthMatch": false,
+                              "isAccountNumberMatch": false,
+                              "isNameAndDOBMatch": false,
+                              "isNameAndAddressMatch": true,
+                              "isNameAndAccountMatch": false,
+                              "tradeStatus": "O",
+                              "dateOfBirthAsReported": "19810115",
+                              "memberNumber": "481ON01463",
+                              "dateLastReported": "20180901",
+                              "dateOpened": "20060805",
+                              "institutionName": "CANADIAN TIRE BANK",
+                              "accountNumber": "123456789011103",
+                              "familyName": "CANADIAN TIRE CORPORATION LIMITED",
+                              "nameAsReported": "YTHREEAML,HELEN,,JR",
+                              "addressAsReported": "3 YTHREEAML ,TORONTO,ON,M3H3P3"
+                           }
+                        ],
+                        "verificationTime": "2018/11/13 07:54 AM UTC"
+                     }
+                  }
+               }
+            }
+
+
+## Run a Customer Identity Check Lookup using ID [GET /v1/identityprofiles/{id}]
+<a name="riskcheckrequestlookupid" title="Run a Customer Identity Check Lookup using ID"></a>
+
+Click on **Run a Customer Identity Check Lookup using ID** above to see how to look up a customer identity check request using the ID.
+
++ Parameters
+    + `id`: `d4b746cc1ced-ce28-4df2-bc3f-d4b746cc1ced-0f1266b9` (string) - This is the ID generated for the request, returned in the response.
+
++ Request Customer Identity Check Lookup Using ID (application/json)
+
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Body
+
+            {
+              "id": "id-12344555",
+              "decision": "SUCCESS",
+              "merchantRefNum": "KYC_1520461749",
+              "profile": {
+                "firstName": "James",
+                "middleName": "",
+                "lastName": "TESTHETFIELD",
+                "email": "jamesr@email.com",
+                "currentAddress": {
+                  "street": "270 rue Olier",
+                  "street2": "",
+                  "city": "Chicoutimi",
+                  "state": "QC",
+                  "country": "CA",
+                  "zip": "G7G 4J3",
+                  "phone": "1234567890"
+                },
+                "dateOfBirth": {
+                  "day": "15",
+                  "month": "3",
+                  "year": "1976"
+                },
+                "ssnLastFour": "3123",
+                "sinLastFour": "3123"
+              },
+              "card": {
+                "lastDigits": "1111",
+                "cardExpiry": {
+                  "month": 1,
+                  "year": 2020
+                },
+                "paymentToken": "LTEyMzYzMjQ3ODg"
+              },
+              "customerIp": "1.1.1.1",
+              "workflowId": "LOW_RISK",
+              "vendorCheck": "AMLAssist",
+              "providerResponses": {
+                "eidcompare": {
+                  "id": "eidcomapreResId",
+                  "status": "SUCCESS",
+                  "response": {
+                    "assessmentComplete": {
+                      "reasonCodes": [
+                        {
+                          "description": "Telephone exchange does not match the FSA (first three characters) of the postal code for Current Address",
+                          "code": "08"
+                        }
+                      ],
+                      "atomicScores": {
+                        "interactiveQueryScore": -1
+                      },
+                      "decision": "Y",
+                      "score": 25
+                    }
+                  }
+                },
+                "amlassist": {
+                  "id": "amlassistResId",
+                  "status": "SUCCESS",
+                  "response": {
+                    "creditFileNumber": "65462",
+                    "isSingleSourceHit": true,
+                    "isDualSourceHit": true,
+                    "decision": "SUCCESS",
+                    "singleSourceDecision": "Y",
+                    "dualSourceDecision": "Y",
+                    "isWaterfallProcess": true,
+                    "originOfCreditFile": "CANADA",
+                    "creditFileCreationDate": "2016/01/01 12:00 AM UTC",
+                    "numberOfTrades": 1,
+                    "singleSourceResult": {
+                      "isLastNameMatched": true,
+                      "isFirstNameMatched": true,
+                      "isMiddleNameMatched": false,
+                      "isSuffixNameMatch": false,
+                      "isAddressCivicMatch": true,
+                      "isAddressStreetNameMatch": true,
+                      "isAddressCityMatch": true,
+                      "isAddressPostalCodeMatch": true,
+                      "isAddressProvinceMatch": true,
+                      "isDateOfBirthMatch": false,
+                      "currentAddressReportedDate": "201811",
+                      "dateOfBirthAsReported": "19810115",
+                      "nameAsReported": "YTHREEAML,HELEN,,JR",
+                      "addressAsReported": "3,YONESTREET,TORONTO,ON,M3H3P3"
+                    },
+                    "dualSourceResult": [
+                      {
+                        "isLastNameMatched": true,
+                        "isFirstNameMatched": true,
+                        "isMiddleNameMatched": false,
+                        "isSuffixNameMatch": false,
+                        "isAddressCivicMatch": true,
+                        "isAddressStreetNameMatch": false,
+                        "isAddressCityMatch": true,
+                        "isAddressPostalCodeMatch": true,
+                        "isAddressProvinceMatch": true,
+                        "isDateOfBirthMatch": false,
+                        "isAccountNumberMatch": false,
+                        "isNameAndDOBMatch": false,
+                        "isNameAndAddressMatch": true,
+                        "isNameAndAccountMatch": false,
+                        "tradeStatus": "O",
+                        "dateOfBirthAsReported": "19810115",
+                        "memberNumber": "481ON01463",
+                        "dateLastReported": "20180901",
+                        "dateOpened": "20060805",
+                        "institutionName": "CANADIAN TIRE BANK",
+                        "accountNumber": "123456789011103",
+                        "familyName": "CANADIAN TIRE CORPORATION LIMITED",
+                        "nameAsReported": "YTHREEAML,HELEN,,JR",
+                        "addressAsReported": "3 YTHREEAML ,TORONTO,ON,M3H3P3"
+                      }
+                    ],
+                    "verificationTime": "2018/11/13 07:54 AM UTC"
+                  }
+                }
+              }
+            }
+
+
 # Data Structures
 
 ## AML Assist
@@ -2075,29 +2354,32 @@ Click on **Rerun a Customer Identity Check** above to see how you submit a reque
 
             + paymentToken:`LTEyMzYzMjQ3ODg` (string) - This is the payment token representing the card. Either the *paymentToken* or the *cardNum* is required if the optional *card* object is included.
                 _length<=80_
-          <!--  + cvv:`123` (string) - This is the 3- or 4-digit security code that appears on the card following the card number.
-                _length=3-4_
-            -->
+          
     + card (object) - These are the details of the [card](#cardobject) used for the request. Only one **card** object can be included in the request.
     
         + Properties
 
             + cardNum:`4111111111111111` (string, required) - This is the card number used for the request. Either the *cardNum* or the *paymentToken* is required if the optional *card* object is included.
                 _length=8-20_
-            + cardType:`VI` (enum) - This is type of card used for the request.
-             + Members
-                - `DC` – Diners Club
-                - `DI` – Discover
-                - `JC` – JCB
-                - `MC` – MasterCard
-                - `MD` – Maestro
-                - `SF` – Swiff
-                - `SO` – Solo
-                - `VI` – Visa
-                - `VD` – Visa Debit
-                - `VE` – Visa Electron
-                - `AM` – American Express
-           + cardCategory: `xksadhka` (string) - This is card category of card. 
+            + cardType:`AM` (enum) - This is type of card used for the request.
+                + Members
+                - AM - American Express
+                - DC - Diners Club
+                - DI - Discover
+                - JC - JCB
+                - MC - MasterCard
+                - MD - Maestro
+                - SF - Swiff
+                - SO - Solo
+                - VI - Visa
+                - VD - Visa Debit
+                - VE - Visa Electron
+            + cardCategory:`CREDIT` (enum) - This denotes the card category.
+                + Members
+                - CREDIT - Credit card
+                - DEBIT - Debit card 
+                - PREPAID - Prepaid card
+                - UNKNOWN - BIN not found in database 
            + lastDigits:`1111` (string) - This is the last four digits of the card used for the request, returned in the response.|
                 _Read Only, length=4_
             + cardExpiry (object) - This is the card's [expiry date](#cardexpiryobject).
@@ -2109,12 +2391,7 @@ Click on **Rerun a Customer Identity Check** above to see how you submit a reque
             + holderName: `John Doe` (string) - This is card holder name.
             + cardBin: `123456` (string) - This is the card BIN, typically the first six digits.
                 _length=6_
-      <!--  + track1 (string) - This is Track 1 information read from the card's magnetic stripe.
-            + track2 (string) - This is Track 2 information read from the card's magnetic stripe.
-            + cvv:`123` (string) - This is the 3- or 4-digit security code that appears on the card following the card number.
-                _length=3-4_
-                -->
-
+      
 ## `Card Rerun`
 
 +  card (object) - These are the details of the [card](#cardobject) used for the request. Only one **card** object can be included in the request.
