@@ -813,19 +813,18 @@ When providing card information, merchants can provide either card details or a 
 |Element            |Type                       |Description                        |
 |---                |---                        |---                                |
 |paymentToken       |string <br/>`length<=80`   |If the payment token is provided, no other card information is necessary. |
-|cvv                |string<br/>`length=3-4`    |This is the 3- or 4-digit security code that appears on the card following the card number.|
 
 **OR**
 
 |Element            |Type                       |Description                        |
 |---                |---                        |---                                |
 |cardNum            |string <br/>`length=8-20`  |This is the card number used for the request. |
-|type               |enum                       |This is the type of card used for the request, returned in the response. Possible values are:<br/><ul><li>AM &ndash; American Express</li><li>DI &ndash; Discover</li><li>JC &ndash; JCB</li><li>MC &ndash; Mastercard</li><li>MD &ndash; Maestro</li><li>SO &ndash; Solo</li><li>VI &ndash; Visa</li><li>VD &ndash; Visa Debit</li><li>VE &ndash; Visa Electron</li></ul>
+|cardType           |enum                       |This is the type of card used for the request, returned in the response. Possible values are:<br/><ul><li>AM &ndash; American Express</li><li>DI &ndash; Discover</li><li>JC &ndash; JCB</li><li>MC &ndash; Mastercard</li><li>MD &ndash; Maestro</li><li>SO &ndash; Solo</li><li>VI &ndash; Visa</li><li>VD &ndash; Visa Debit</li><li>VE &ndash; Visa Electron</li></ul>
+|cardCategory       |enum                       |This denotes the card category. Possible values are:<ul><li>CREDIT = Credit card</li><li>DEBIT = Debit card</li><li>PREPAID = Prepaid card</li><li>UNKNOWN = BIN not found in database</li></ul>|
 |lastDigits         |string<br/>`length=4`      |This is the last four digits of the card used for the request, returned in the response.|
 |cardExpiry         |[cardExpiry](#cardexpiryobject)|This is the card's expiry date.|
-|cvv                |string<br/>`length=3-4`    |This is the 3- or 4-digit security code that appears on the card following the card number.|
-|track1             |string                     |This is Track 1 information read from the card's magnetic stripe.|
-|track2             |string                     |This is Track 2 information read from the card's magnetic stripe.|
+|holderName         |string<br/> `length=10`    |This is card holder name.|
+|cardBin            |string <br/> `length=6`    |This is card BIN, typically the first six digits| 
 
 ```apib
     {
@@ -1230,7 +1229,7 @@ These are raw responses from the downstream providers.
 |HTTP Status Code   |Error Code             |Description|
 |---                |---                    |---|
 |402                | CUSTOMER-IDENTITY-1   | One or more external services are down. Please rerun a Customer Identity Check request. |
-|400                | CUSTOMER-IDENTITY-2   | Your merchant account is not configured to process the payment type and currency combination you provided. |
+|400                | CUSTOMER-IDENTITY-2   | Your merchant account is not configured to perform the identity verification. Please contact Paysafe Technical Support. |
 |409                | CUSTOMER-IDENTITY-3   | The request you have submitted has already been processed. |
 |200                | CUSTOMER-IDENTITY-4   | The address provided is a prison or detention facility. |
 |200                | CUSTOMER-IDENTITY-5   | The person is reported to be deceased. |
@@ -1263,6 +1262,7 @@ To configure and test the API examples, first click on one of the API calls in t
 Using the Console window you can update the headers, the request body, and parts of the API endpoint.
 You must update the Header to include your API Key by selecting **Headers** and then updating the **Authorization** value using the Base64
 version of your API key. To get your API key, log in to the test version of the Merchant Back Office and choose **Settings > API Key**. 
+
 Click **View Base 64 Encoded** and copy the key to your clipboard. Paste the key after the word Basic to replace the text YOUR-BASE64-ENCODED-API-KEY.
 When you are ready to test your example, you can choose between the Production and Mock server environment:
 * Production server – This calls the resource on Paysafe's Test system. 
@@ -1315,113 +1315,139 @@ Click on **Run a Customer Identity Check** above to see two examples of a Custom
     + Body
 
             {
-                "merchantRefNum": "KYC_1520461749",
-                "card": {
-                    "cardNum": "4111111111111111",
-                    "cardExpiry": {
-                        "month": 2,
-                        "year": 2019
-                    },
-                    "cvv": 123
+              "customerIp": "10.10.1.2",
+              "merchantRefNum": "c5156cac186e4ade5f99",
+              "vendorCheck": "EID_COMPARE",
+              "profile": {
+                "firstName": "JOHN",
+                "lastName": "DOE",
+                "currentAddress": {
+                  "street": "17 ROCKWOOD DR",
+                  "city": "SCARBOROUGH",
+                  "state": "ON",
+                  "country": "CA",
+                  "zip": "M1M3M9",
+                  "phone": "4502000607"
                 },
-                "profile": {
-                    "firstName": "John",
-                    "lastName": "Smith",
-                    "email": "john.smith@myemail.com",
-                    "currentAddress": {
-                        "street": "100 Queen Street West",
-                        "street2": "Unit 201",
-                        "city": "Toronto",
-                        "state": "ON",
-                        "country": "CA",
-                        "zip": "M5H 2N2",
-                        "monthsAtAddress": "20",
-                        "phone": "647-788-3901"
-                    },
-                    "previousAddresses": [{
-                        "city": "Calgary",
-                        "state": "AB",
-                        "street": "2124 Westchester street",
-                        "street2": "string",
-                        "zip": "M2H 2G6",
-                        "country": "CA",
-                        "monthsAtAddress": "30"
-                    }],
-                    "dateOfBirth": {
-                        "day": "25",
-                        "month": "12",
-                        "year": "1980"
-                    },
-                    "sin": "123456789"
+                "dateOfBirth": {
+                  "day": "01",
+                  "month": "03",
+                  "year": "1975"
                 },
-                "customerIp": "1.1.1.1",
-                "vendorCheck": "EID_COMPARE"
+                "locale": "en_CA"
+              },
+              "sin": "923456789",
+              "card": {
+                "cardNum": "371449635398431"
+              }
             }
-            
+
 + Response 200 (application/json)
 
     + Body
 
             {
-                "id": "86dcb68d-cbd0-4878-8da7-ffc0e6554513",
-                "decision": "SUCCESS",
-                "merchantRefNum": "KYC_1520461749",
-                "card": {
-                    "lastDigits": "1111",
-                    "cardExpiry": {
-                        "month": 2,
-                        "year": 2019
-                    }
+              "id": "a2cd6b05-1489-4efd-a9d7-bd085719c13d",
+              "decision": "SUCCESS",
+              "merchantRefNum": "c5156cac186e4ade5f99",
+              "profile": {
+                "firstName": "JOHN",
+                "lastName": "DOE",
+                "dateOfBirth": {
+                  "day": "01",
+                  "month": "03",
+                  "year": "1975"
                 },
-                "profile": {
-                    "firstName": "John",
-                    "lastName": "Smith",
-                    "email": "john.smith@myemail.com",
-                    "currentAddress": {
-                        "street": "100 Queen Street West",
-                        "street2": "Unit 201",
-                        "city": "Toronto",
-                        "state": "ON",
-                        "country": "CA",
-                        "zip": "M5H 2N2",
-                        "monthsAtAddress": "20",
-                        "phone": "647-788-3901"
-                    },
-                    "previousAddresses": [{
-                        "city": "Calgary",
-                        "state": "AB",
-                        "street": "2124 Westchester street",
-                        "street2": "string",
-                        "zip": "M2H 2G6",
-                        "country": "CA",
-                        "monthsAtAddress": "30"
-                    }],
-                    "dateOfBirth": {
-                        "day": "25",
-                        "month": "12",
-                        "year": "1980"
-                    },
-                    "sinLastFour": "6789"
-                },
-                "customerIp": "1.1.1.1",
-                "vendorCheck": "EID_COMPARE",
-                "providerResponses": {
-                    "eidCompare": {
-                        "id": "0f1266b9-ce28-4df2-bc3f-d4b746cc1ced",
-                        "status": "SUCCESS",
-                        "response": {
-            
-                            "assessmentComplete": {
-                                "reasonCodes": [{
-                                    "description": "Telephone exchange does not match the FSA (first three characters) of the postal code for Current Address",
-                                    "code": "08"
-                                }],
-                                "decision": "Y",
-                                "score": 25
-                            }
-                        }
-                    }
+                "locale": "en_CA",
+                "currentAddress": {
+                  "street": "17 ROCKWOOD DR",
+                  "city": "SCARBOROUGH",
+                  "zip": "M1M3M9",
+                  "state": "ON",
+                  "country": "CA",
+                  "phone": "4502000607"
                 }
+              },
+              "card": {
+                "lastDigits": "8431",
+                "cardNum": "###########8431"
+              },
+              "customerIp": "10.10.1.2",
+              "vendorCheck": "EID_COMPARE",
+              "providerResponses": {
+                "eidCompare": {
+                  "id": "ddd2424d-82f3-44af-87e9-e7570efe9d6f",
+                  "status": "SUCCESS",
+                  "response": {
+                    "assessmentComplete": {
+                      "reasonCodes": [
+                        {
+                          "description": "Credit file located=Adequate match",
+                          "code": "51"
+                        },
+                        {
+                          "description": "Credit Card Number=Verified",
+                          "code": "55"
+                        },
+                        {
+                          "description": "No Phone record located or poor match score",
+                          "code": "60"
+                        },
+                        {
+                          "description": "Supplied address same as the current address in the Equifax database",
+                          "code": "C1"
+                        },
+                        {
+                          "description": "Unable to confirm credit file history",
+                          "code": "CI"
+                        },
+                        {
+                          "description": "Input Date of Birth - is a match to Date of Birth on the credit file",
+                          "code": "D1"
+                        },
+                        {
+                          "description": "Input Age Matches the Calculated Age on the Credit File",
+                          "code": "D6"
+                        },
+                        {
+                          "description": "Calculated Age on the Credit File is 18 or Greater",
+                          "code": "D8"
+                        },
+                        {
+                          "description": "Calculated Age on the Credit File is 19 or Greater",
+                          "code": "DA"
+                        },
+                        {
+                          "description": "Age of Credit file is greater than or equal to three years",
+                          "code": "FE"
+                        },
+                        {
+                          "description": "Age of Credit file is greater than or equal to six months",
+                          "code": "FG"
+                        },
+                        {
+                          "description": "No Match on OFAC.",
+                          "code": "ON"
+                        },
+                        {
+                          "description": "WARNING: Phone Number found in the Phone Database - Inquiry Address and last name do not match to the address and last name listed in the phone database",
+                          "code": "TJ"
+                        },
+                        {
+                          "description": "WARNING: Inquiry Telephone Number has been associated with more than one name or address ",
+                          "code": "TN"
+                        },
+                        {
+                          "description": "The telephone area code does not correspond to the province code of the current address",
+                          "code": "TY"
+                        }
+                      ],
+                      "decision": "Y",
+                      "score": 25
+                    }
+                  }
+                }
+              }
             }
 
 + Request Customer Identity Check Using workflowId (application/json)
@@ -1433,286 +1459,203 @@ Click on **Run a Customer Identity Check** above to see two examples of a Custom
     + Body
 
             {
-                "customerIp": "10.10.1.2",
-                "merchantRefNum": "923892",
-                "workflowId": "LOW_RISK",
-                "card": {
-                    "cardNum": "4111111111111111"
+              "customerIp": "10.10.1.2",
+              "merchantRefNum": "d1eb008b610bbefa1440",
+              "workflowId": "LOW_RISK",
+              "profile": {
+                "firstName": "JOHN",
+                "lastName": "DOE",
+                "currentAddress": {
+                  "street": "17 ROCKWOOD DR",
+                  "city": "SCARBOROUGH",
+                  "state": "ON",
+                  "country": "CA",
+                  "zip": "M1M3M9",
+                  "phone": "4502000607"
                 },
-                "profile": {
-                    "firstName": "SANDRA",
-                    "middleName": "MARGOT",
-                    "lastName": "KING",
-                    "currentAddress": {
-                        "street": "4280 ATLEE AVE",
-                        "city": "BURNABY",
-                        "zip": "V5G3R6",
-                        "state": "BC",
-                        "country": "CA",
-                        "phone": "4502000607"
-                    },
-                    "previousAddresses": [{
-                        "city": "Calgary",
-                        "state": "AB",
-                        "street": "2124 Westchester street",
-                        "street2": "string",
-                        "zip": "M2H 2G6",
-                        "country": "CA",
-                        "monthsAtAddress": "30"
-                    }],
-                    "dateOfBirth": {
-                        "day": "05",
-                        "month": "11",
-                        "year": "1971"
-                    },
-                    "sin": "923456789",
-                    "locale": "en_CA"
-                }
+                "dateOfBirth": {
+                  "day": "01",
+                  "month": "03",
+                  "year": "1975"
+                },
+                "locale": "en_CA"
+              },
+              "sin": "923456789",
+              "card": {
+                "cardNum": "371449635398431"
+              }
             }
             
 + Response 200 (application/json)
 
     + Body
 
-            {  
-               "id":"654edc83-2c1c-4f07-b83d-a079b3f76517",
-               "decision":"SUCCESS",
-               "customerIp":"10.10.1.2",
-               "merchantRefNum":"923892",
-               "card":{  
-                  "cardNum":"4111111111111111"
-               },
-               "profile":{  
-                  "firstName":"SANDRA",
-                  "middleName":"MARGOT",
-                  "lastName":"KING",
-                  "dateOfBirth":{  
-                     "day":"05",
-                     "month":"11",
-                     "year":"1971"
-                  },
-                  "locale":"en_CA",
-                  "currentAddress":{  
-                     "street":"4280 ATLEE AVE",
-                     "city":"BURNABY",
-                     "zip":"V5G3R6",
-                     "state":"BC",
-                     "country":"CA",
-                     "phone":"4502000607"
-                  },
-                  "previousAddresses":[  
-                     {  
-                        "city":"Calgary",
-                        "state":"AB",
-                        "street":"2124 Westchester street",
-                        "street2":"string",
-                        "zip":"M2H 2G6",
-                        "country":"CA",
-                        "monthsAtAddress":"30"
-                     }
-                  ],
-                  "sin":"123456789"
-               },
-               "workflowId":"LOW_RISK",
-               "providerResponses":{  
-                  "eidCompare":{  
-                     "id":"ef65c1f1-0a9e-451c-8d3e-2c5075ffa71b",
-                     "status":"SUCCESS",
-                     "response":{  
-                        "assessmentComplete":{  
-                           "reasonCodes":[  
-                              {  
-                                 "description":"Address Standardization Warning Present for Current Address",
-                                 "code":"05"
-                              },
-                              {  
-                                 "description":"Telephone exchange does not match the FSA (first three characters) of the postal code for Current Address",
-                                 "code":"08"
-                              },
-                              {  
-                                 "description":"Current address is new within 30 days on the credit file",
-                                 "code":"46"
-                              },
-                              {  
-                                 "description":"Credit file located=Adequate match",
-                                 "code":"51"
-                              },
-                              {  
-                                 "description":"No Phone record located or poor match score",
-                                 "code":"60"
-                              },
-                              {  
-                                 "description":"Supplied address same as the current address in the Equifax database",
-                                 "code":"C1"
-                              },
-                              {  
-                                 "description":"Address Standardization warning present for current address returned from Equifax database",
-                                 "code":"C5"
-                              },
-                              {  
-                                 "description":"Credit file history is equal to or greater than six months",
-                                 "code":"CG"
-                              },
-                              {  
-                                 "description":"Input Date of Birth - is a match to Date of Birth on the credit file",
-                                 "code":"D1"
-                              },
-                              {  
-                                 "description":"Input Age Matches the Calculated Age on the Credit File",
-                                 "code":"D6"
-                              },
-                              {  
-                                 "description":"Calculated Age on the Credit File is 18 or Greater",
-                                 "code":"D8"
-                              },
-                              {  
-                                 "description":"Calculated Age on the Credit File is 19 or Greater",
-                                 "code":"DA"
-                              },
-                              {  
-                                 "description":"No Equifax Watch List match found",
-                                 "code":"E0"
-                              },
-                              {  
-                                 "description":"Age of Credit file is greater than or equal to three years",
-                                 "code":"FE"
-                              },
-                              {  
-                                 "description":"Age of Credit file is greater than or equal to six months",
-                                 "code":"FG"
-                              },
-                              {  
-                                 "description":"Inquiry Phone Number not found in phone database",
-                                 "code":"TD"
-                              },
-                              {  
-                                 "description":"The telephone area code does not correspond to the province code of the current address",
-                                 "code":"TY"
-                              }
-                           ],
-                           "score":25
-                        }
-                     }
-                  },
-                  "amlAssist":{  
-                     "id":"f5148fc6-436c-4beb-9ea1-533cdd945ccd",
-                     "decision":"SUCCESS",
-                     "merchantRefNum":"923892",
-                     "profile":{  
-                        "firstName":"SANDRA",
-                        "middleName":"MARGOT",
-                        "lastName":"KING",
-                        "dateOfBirth":{  
-                           "day":"05",
-                           "month":"11",
-                           "year":"1971"
+            {
+              "id": "1129bdf9-6c88-4135-b88a-9599fbaed5a6",
+              "decision": "SUCCESS",
+              "merchantRefNum": "d1eb008b610bbefa1440",
+              "profile": {
+                "firstName": "JOHN",
+                "lastName": "DOE",
+                "dateOfBirth": {
+                  "day": "01",
+                  "month": "03",
+                  "year": "1975"
+                },
+                "locale": "en_CA",
+                "currentAddress": {
+                  "street": "17 ROCKWOOD DR",
+                  "city": "SCARBOROUGH",
+                  "zip": "M1M3M9",
+                  "state": "ON",
+                  "country": "CA",
+                  "phone": "4502000607"
+                }
+              },
+              "card": {
+                "lastDigits": "8431",
+                "cardNum": "###########8431"
+              },
+              "customerIp": "10.10.1.2",
+              "workflowId": "LQ_KYC",
+              "providerResponses": {
+                "eidCompare": {
+                  "id": "cad322d5-1a5e-4c7f-8f52-e1e11888e5eb",
+                  "status": "SUCCESS",
+                  "response": {
+                    "assessmentComplete": {
+                      "reasonCodes": [
+                        {
+                          "description": "Credit file located=Adequate match",
+                          "code": "51"
                         },
-                        "locale":"en_CA",
-                        "currentAddress":{  
-                           "street":"4280 ATLEE AVE",
-                           "city":"BURNABY",
-                           "zip":"V5G3R6",
-                           "state":"BC",
-                           "country":"CA",
-                           "phone":"4502000607"
+                        {
+                          "description": "Credit Card Number=Verified",
+                          "code": "55"
+                        },
+                        {
+                          "description": "No Phone record located or poor match score",
+                          "code": "60"
+                        },
+                        {
+                          "description": "Supplied address same as the current address in the Equifax database",
+                          "code": "C1"
+                        },
+                        {
+                          "description": "Unable to confirm credit file history",
+                          "code": "CI"
+                        },
+                        {
+                          "description": "Input Date of Birth - is a match to Date of Birth on the credit file",
+                          "code": "D1"
+                        },
+                        {
+                          "description": "Input Age Matches the Calculated Age on the Credit File",
+                          "code": "D6"
+                        },
+                        {
+                          "description": "Calculated Age on the Credit File is 18 or Greater",
+                          "code": "D8"
+                        },
+                        {
+                          "description": "Calculated Age on the Credit File is 19 or Greater",
+                          "code": "DA"
+                        },
+                        {
+                          "description": "Age of Credit file is greater than or equal to three years",
+                          "code": "FE"
+                        },
+                        {
+                          "description": "Age of Credit file is greater than or equal to six months",
+                          "code": "FG"
+                        },
+                        {
+                          "description": "No Match on OFAC.",
+                          "code": "ON"
+                        },
+                        {
+                          "description": "WARNING: Phone Number found in the Phone Database - Inquiry Address and last name do not match to the address and last name listed in the phone database",
+                          "code": "TJ"
+                        },
+                        {
+                          "description": "WARNING: Inquiry Telephone Number has been associated with more than one name or address ",
+                          "code": "TN"
+                        },
+                        {
+                          "description": "The telephone area code does not correspond to the province code of the current address",
+                          "code": "TY"
                         }
-                     },
-                     "customerIp":"10.10.1.2",
-                     "vendorCheck":"AMLASSIST",
-                     "providerResponses":{  
-                        "amlAssist":{  
-                           "id":"20a479c5-1040-463e-b33e-843e3be9da2b",
-                           "status":"SUCCESS",
-                           "response":{  
-                              "isSingleSourceHit":true,
-                              "isDualSourceHit":true,
-                              "isWaterfallProcess":true,
-                              "singleSourceDecision":"N",
-                              "dualSourceDecision":"Y",
-                              "originOfCreditFile":"CANADA",
-                              "numberOfTrades":2,
-                              "singleSourceResult":{  
-                                 "isLastNameMatched":true,
-                                 "isFirstNameMatched":true,
-                                 "isMiddleNameMatched":true,
-                                 "isSuffixNameMatch":false,
-                                 "isAddressCivicMatch":true,
-                                 "isAddressStreetNameMatch":true,
-                                 "isAddressCityMatch":true,
-                                 "isAddressPostalCodeMatch":true,
-                                 "isAddressProvinceMatch":true,
-                                 "isDateOfBirthMatch":true,
-                                 "currentAddressReportedDate":"201904",
-                                 "dateOfBirthAsReported":"19711105",
-                                 "nameAsReported":"KING,SANDRA,MARGOT,JR",
-                                 "addressAsReported":"4280,ATLEE AVE,BURNABY,BC,V5G3R6"
-                              },
-                              "dualSourceResult":[  
-                                 {  
-                                    "isLastNameMatched":true,
-                                    "isFirstNameMatched":true,
-                                    "isMiddleNameMatched":true,
-                                    "isSuffixNameMatch":false,
-                                    "isAddressCivicMatch":true,
-                                    "isAddressStreetNameMatch":true,
-                                    "isAddressCityMatch":true,
-                                    "isAddressPostalCodeMatch":true,
-                                    "isAddressProvinceMatch":true,
-                                    "isDateOfBirthMatch":true,
-                                    "isAccountNumberMatch":false,
-                                    "isNameAndDobMatch":false,
-                                    "isNameAndAddressMatch":true,
-                                    "isNameAndAccountMatch":false,
-                                    "tradeStatus":"O",
-                                    "dateOfBirthAsReported":"19711105",
-                                    "memberNumber":"001ON02776",
-                                    "dateLastReported":"20190331",
-                                    "dateOpened":"20161201",
-                                    "institutionName":"S. CARTES DESJARDINS",
-                                    "accountNumber":"123456789044431",
-                                    "familyName":"DESJARDINS GROUP",
-                                    "nameAsReported":"KING,SANDRA,MARGOT,",
-                                    "addressAsReported":"4280 ATLEE AVE ,BURNABY,BC,V5G3R6"
-                                 },
-                                 {  
-                                    "isLastNameMatched":true,
-                                    "isFirstNameMatched":true,
-                                    "isMiddleNameMatched":true,
-                                    "isSuffixNameMatch":false,
-                                    "isAddressCivicMatch":true,
-                                    "isAddressStreetNameMatch":true,
-                                    "isAddressCityMatch":true,
-                                    "isAddressPostalCodeMatch":true,
-                                    "isAddressProvinceMatch":true,
-                                    "isDateOfBirthMatch":true,
-                                    "isAccountNumberMatch":false,
-                                    "isNameAndDobMatch":true,
-                                    "isNameAndAddressMatch":false,
-                                    "isNameAndAccountMatch":false,
-                                    "tradeStatus":"O",
-                                    "dateOfBirthAsReported":"19711105",
-                                    "memberNumber":"481BB01426",
-                                    "dateLastReported":"20190331",
-                                    "dateOpened":"20161201",
-                                    "institutionName":"CIBC",
-                                    "accountNumber":"123456789011131",
-                                    "familyName":"CANADIAN IMPERIAL BANK-CMMRC",
-                                    "nameAsReported":"KING,SANDRA,MARGOT,",
-                                    "addressAsReported":"4280 ATLEE AVE ,BURNABY,BC,V5G3R6"
-                                 }
-                              ],
-                              "bureauName":"Equifax  inc.",
-                              "dateOfRequest":"2019/04/29 12:00 AM UTC",
-                              "creditFileNumber":"50165927",
-                              "isCreditFileGreaterThanThreeYearsOld":false,
-                              "verificationTime":"2019/04/29 01:06 PM UTC",
-                              "creditFileCreationDate":"2018/01/01 12:00 AM UTC",
-                              "decision":"SUCCESS"
-                           }
-                        }
-                     }
+                      ],
+                      "decision": "Y",
+                      "score": 25
+                    }
                   }
-               }
+                },
+                "amlAssist": {
+                  "id": "c3456890-ad55-49e8-bea8-4ba9eae54d11",
+                  "status": "SUCCESS",
+                  "response": {
+                    "isSingleSourceHit": true,
+                    "isDualSourceHit": true,
+                    "isWaterfallProcess": true,
+                    "singleSourceDecision": "Y",
+                    "dualSourceDecision": "Y",
+                    "originOfCreditFile": "CANADA",
+                    "numberOfTrades": 1,
+                    "singleSourceResult": {
+                      "isLastNameMatched": true,
+                      "isFirstNameMatched": true,
+                      "isMiddleNameMatched": false,
+                      "isSuffixNameMatch": false,
+                      "isAddressCivicMatch": true,
+                      "isAddressStreetNameMatch": false,
+                      "isAddressCityMatch": true,
+                      "isAddressPostalCodeMatch": false,
+                      "isAddressProvinceMatch": true,
+                      "isDateOfBirthMatch": true,
+                      "currentAddressReportedDate": "201810",
+                      "dateOfBirthAsReported": "19810115",
+                      "nameAsReported": "DOE,JOHN,,",
+                      "addressAsReported": "17 ROCKWOOD DR,SCARBOROUGH,ON,M1M3M9"
+                    },
+                    "dualSourceResult": [
+                      {
+                        "isLastNameMatched": true,
+                        "isFirstNameMatched": true,
+                        "isMiddleNameMatched": false,
+                        "isSuffixNameMatch": false,
+                        "isAddressCivicMatch": true,
+                        "isAddressStreetNameMatch": false,
+                        "isAddressCityMatch": true,
+                        "isAddressPostalCodeMatch": false,
+                        "isAddressProvinceMatch": true,
+                        "isDateOfBirthMatch": true,
+                        "isAccountNumberMatch": true,
+                        "isNameAndDobMatch": true,
+                        "isNameAndAddressMatch": true,
+                        "isNameAndAccountMatch": true,
+                        "tradeStatus": "O",
+                        "dateOfBirthAsReported": "19810115",
+                        "memberNumber": "481ON01463",
+                        "dateLastReported": "20180801",
+                        "dateOpened": "20060705",
+                        "institutionName": "CANADIAN TIRE BANK",
+                        "accountNumber": "###########1103",
+                        "familyName": "CANADIAN TIRE CORPORATION LIMITED",
+                        "nameAsReported": "DOE,JOHN,,",
+                        "addressAsReported": "17 ROCKWOOD DR,SCARBOROUGH,ON,M1M3M9"
+                      }
+                    ],
+                    "bureauName": "Equifax inc.",
+                    "dateOfRequest": "2018/10/30 12:00 AM UTC",
+                    "creditFileNumber": "49983026",
+                    "isCreditFileGreaterThanThreeYearsOld": true,
+                    "verificationTime": "2019/12/09 10:55 AM UTC",
+                    "creditFileCreationDate": "2010/01/01 12:00 AM UTC",
+                    "decision": "SUCCESS"
+                  }
+                }
+              }
             }
 
 
@@ -1752,246 +1695,551 @@ Click on **Rerun a Customer Identity Check** above to see how you submit a reque
 
     + Body
 
-            {  
-               "id":"86dcb68d-cbd0-4878-8da7-ffc0e6554513",
-               "decision":"SUCCESS",
-               "customerIp":"10.10.1.2",
-               "merchantRefNum":"923892",
-               "card":{  
-                  "cardNum":"4111111111111111"
-               },
-               "profile":{  
-                  "firstName":"SANDRA",
-                  "middleName":"MARGOT",
-                  "lastName":"KING",
-                  "dateOfBirth":{  
-                     "day":"05",
-                     "month":"11",
-                     "year":"1971"
-                  },
-                  "locale":"en_CA",
-                  "currentAddress":{  
-                     "street":"4280 ATLEE AVE",
-                     "city":"BURNABY",
-                     "zip":"V5G3R6",
-                     "state":"BC",
-                     "country":"CA",
-                     "phone":"4502000607"
-                  },
-                  "previousAddresses":[  
-                     {  
-                        "city":"Calgary",
-                        "state":"AB",
-                        "street":"2124 Westchester street",
-                        "street2":"string",
-                        "zip":"M2H 2G6",
-                        "country":"CA",
-                        "monthsAtAddress":"30"
-                     }
-                  ],
-                  "sin":"123456789"
-               },
-               "workflowId":"LOW_RISK",
-               "providerResponses":{  
-                  "eidCompare":{  
-                     "id":"ef65c1f1-0a9e-451c-8d3e-2c5075ffa71b",
-                     "status":"SUCCESS",
-                     "response":{  
-                        "assessmentComplete":{  
-                           "reasonCodes":[  
-                              {  
-                                 "description":"Address Standardization Warning Present for Current Address",
-                                 "code":"05"
-                              },
-                              {  
-                                 "description":"Telephone exchange does not match the FSA (first three characters) of the postal code for Current Address",
-                                 "code":"08"
-                              },
-                              {  
-                                 "description":"Current address is new within 30 days on the credit file",
-                                 "code":"46"
-                              },
-                              {  
-                                 "description":"Credit file located=Adequate match",
-                                 "code":"51"
-                              },
-                              {  
-                                 "description":"No Phone record located or poor match score",
-                                 "code":"60"
-                              },
-                              {  
-                                 "description":"Supplied address same as the current address in the Equifax database",
-                                 "code":"C1"
-                              },
-                              {  
-                                 "description":"Address Standardization warning present for current address returned from Equifax database",
-                                 "code":"C5"
-                              },
-                              {  
-                                 "description":"Credit file history is equal to or greater than six months",
-                                 "code":"CG"
-                              },
-                              {  
-                                 "description":"Input Date of Birth - is a match to Date of Birth on the credit file",
-                                 "code":"D1"
-                              },
-                              {  
-                                 "description":"Input Age Matches the Calculated Age on the Credit File",
-                                 "code":"D6"
-                              },
-                              {  
-                                 "description":"Calculated Age on the Credit File is 18 or Greater",
-                                 "code":"D8"
-                              },
-                              {  
-                                 "description":"Calculated Age on the Credit File is 19 or Greater",
-                                 "code":"DA"
-                              },
-                              {  
-                                 "description":"No Equifax Watch List match found",
-                                 "code":"E0"
-                              },
-                              {  
-                                 "description":"Age of Credit file is greater than or equal to three years",
-                                 "code":"FE"
-                              },
-                              {  
-                                 "description":"Age of Credit file is greater than or equal to six months",
-                                 "code":"FG"
-                              },
-                              {  
-                                 "description":"Inquiry Phone Number not found in phone database",
-                                 "code":"TD"
-                              },
-                              {  
-                                 "description":"The telephone area code does not correspond to the province code of the current address",
-                                 "code":"TY"
-                              }
-                           ],
-                           "score":25
-                        }
-                     }
-                  },
-                  "amlAssist":{  
-                     "id":"f5148fc6-436c-4beb-9ea1-533cdd945ccd",
-                     "decision":"SUCCESS",
-                     "merchantRefNum":"923892",
-                     "profile":{  
-                        "firstName":"SANDRA",
-                        "middleName":"MARGOT",
-                        "lastName":"KING",
-                        "dateOfBirth":{  
-                           "day":"05",
-                           "month":"11",
-                           "year":"1971"
+            {
+              "id": "86dcb68d-cbd0-4878-8da7-ffc0e6554513",
+              "decision": "SUCCESS",
+              "merchantRefNum": "6006de11d768f196eead",
+              "profile": {
+                "firstName": "JOHN",
+                "lastName": "DOE",
+                "dateOfBirth": {
+                  "day": "01",
+                  "month": "03",
+                  "year": "1975"
+                },
+                "locale": "en_CA",
+                "currentAddress": {
+                  "street": "17 ROCKWOOD DR",
+                  "city": "SCARBOROUGH",
+                  "zip": "M1M3M9",
+                  "state": "ON",
+                  "country": "CA",
+                  "phone": "4502000607"
+                }
+              },
+              "card": {
+                "lastDigits": "8431",
+                "cardNum": "###########8431"
+              },
+              "customerIp": "10.10.1.2",
+              "workflowId": "LQ_KYC",
+              "providerResponses": {
+                "eidCompare": {
+                  "id": "b43cfd65-10e1-4440-9595-2f224198a7f0",
+                  "status": "SUCCESS",
+                  "response": {
+                    "assessmentComplete": {
+                      "reasonCodes": [
+                        {
+                          "description": "Credit file located=Adequate match",
+                          "code": "51"
                         },
-                        "locale":"en_CA",
-                        "currentAddress":{  
-                           "street":"4280 ATLEE AVE",
-                           "city":"BURNABY",
-                           "zip":"V5G3R6",
-                           "state":"BC",
-                           "country":"CA",
-                           "phone":"4502000607"
+                        {
+                          "description": "Credit Card Number=Verified",
+                          "code": "55"
+                        },
+                        {
+                          "description": "No Phone record located or poor match score",
+                          "code": "60"
+                        },
+                        {
+                          "description": "Supplied address same as the current address in the Equifax database",
+                          "code": "C1"
+                        },
+                        {
+                          "description": "Unable to confirm credit file history",
+                          "code": "CI"
+                        },
+                        {
+                          "description": "Input Date of Birth - is a match to Date of Birth on the credit file",
+                          "code": "D1"
+                        },
+                        {
+                          "description": "Input Age Matches the Calculated Age on the Credit File",
+                          "code": "D6"
+                        },
+                        {
+                          "description": "Calculated Age on the Credit File is 18 or Greater",
+                          "code": "D8"
+                        },
+                        {
+                          "description": "Calculated Age on the Credit File is 19 or Greater",
+                          "code": "DA"
+                        },
+                        {
+                          "description": "Age of Credit file is greater than or equal to three years",
+                          "code": "FE"
+                        },
+                        {
+                          "description": "Age of Credit file is greater than or equal to six months",
+                          "code": "FG"
+                        },
+                        {
+                          "description": "No Match on OFAC.",
+                          "code": "ON"
+                        },
+                        {
+                          "description": "WARNING: Phone Number found in the Phone Database - Inquiry Address and last name do not match to the address and last name listed in the phone database",
+                          "code": "TJ"
+                        },
+                        {
+                          "description": "WARNING: Inquiry Telephone Number has been associated with more than one name or address ",
+                          "code": "TN"
+                        },
+                        {
+                          "description": "The telephone area code does not correspond to the province code of the current address",
+                          "code": "TY"
                         }
-                     },
-                     "customerIp":"10.10.1.2",
-                     "vendorCheck":"AMLASSIST",
-                     "providerResponses":{  
-                        "amlAssist":{  
-                           "id":"20a479c5-1040-463e-b33e-843e3be9da2b",
-                           "status":"SUCCESS",
-                           "response":{  
-                              "isSingleSourceHit":true,
-                              "isDualSourceHit":true,
-                              "isWaterfallProcess":true,
-                              "singleSourceDecision":"N",
-                              "dualSourceDecision":"Y",
-                              "originOfCreditFile":"CANADA",
-                              "numberOfTrades":2,
-                              "singleSourceResult":{  
-                                 "isLastNameMatched":true,
-                                 "isFirstNameMatched":true,
-                                 "isMiddleNameMatched":true,
-                                 "isSuffixNameMatch":false,
-                                 "isAddressCivicMatch":true,
-                                 "isAddressStreetNameMatch":true,
-                                 "isAddressCityMatch":true,
-                                 "isAddressPostalCodeMatch":true,
-                                 "isAddressProvinceMatch":true,
-                                 "isDateOfBirthMatch":true,
-                                 "currentAddressReportedDate":"201904",
-                                 "dateOfBirthAsReported":"19711105",
-                                 "nameAsReported":"KING,SANDRA,MARGOT,JR",
-                                 "addressAsReported":"4280,ATLEE AVE,BURNABY,BC,V5G3R6"
-                              },
-                              "dualSourceResult":[  
-                                 {  
-                                    "isLastNameMatched":true,
-                                    "isFirstNameMatched":true,
-                                    "isMiddleNameMatched":true,
-                                    "isSuffixNameMatch":false,
-                                    "isAddressCivicMatch":true,
-                                    "isAddressStreetNameMatch":true,
-                                    "isAddressCityMatch":true,
-                                    "isAddressPostalCodeMatch":true,
-                                    "isAddressProvinceMatch":true,
-                                    "isDateOfBirthMatch":true,
-                                    "isAccountNumberMatch":false,
-                                    "isNameAndDobMatch":false,
-                                    "isNameAndAddressMatch":true,
-                                    "isNameAndAccountMatch":false,
-                                    "tradeStatus":"O",
-                                    "dateOfBirthAsReported":"19711105",
-                                    "memberNumber":"001ON02776",
-                                    "dateLastReported":"20190331",
-                                    "dateOpened":"20161201",
-                                    "institutionName":"S. CARTES DESJARDINS",
-                                    "accountNumber":"123456789044431",
-                                    "familyName":"DESJARDINS GROUP",
-                                    "nameAsReported":"KING,SANDRA,MARGOT,",
-                                    "addressAsReported":"4280 ATLEE AVE ,BURNABY,BC,V5G3R6"
-                                 },
-                                 {  
-                                    "isLastNameMatched":true,
-                                    "isFirstNameMatched":true,
-                                    "isMiddleNameMatched":true,
-                                    "isSuffixNameMatch":false,
-                                    "isAddressCivicMatch":true,
-                                    "isAddressStreetNameMatch":true,
-                                    "isAddressCityMatch":true,
-                                    "isAddressPostalCodeMatch":true,
-                                    "isAddressProvinceMatch":true,
-                                    "isDateOfBirthMatch":true,
-                                    "isAccountNumberMatch":false,
-                                    "isNameAndDobMatch":true,
-                                    "isNameAndAddressMatch":false,
-                                    "isNameAndAccountMatch":false,
-                                    "tradeStatus":"O",
-                                    "dateOfBirthAsReported":"19711105",
-                                    "memberNumber":"481BB01426",
-                                    "dateLastReported":"20190331",
-                                    "dateOpened":"20161201",
-                                    "institutionName":"CIBC",
-                                    "accountNumber":"123456789011131",
-                                    "familyName":"CANADIAN IMPERIAL BANK-CMMRC",
-                                    "nameAsReported":"KING,SANDRA,MARGOT,",
-                                    "addressAsReported":"4280 ATLEE AVE ,BURNABY,BC,V5G3R6"
-                                 }
-                              ],
-                              "bureauName":"Equifax  inc.",
-                              "dateOfRequest":"2019/04/29 12:00 AM UTC",
-                              "creditFileNumber":"50165927",
-                              "isCreditFileGreaterThanThreeYearsOld":false,
-                              "verificationTime":"2019/04/29 01:06 PM UTC",
-                              "creditFileCreationDate":"2018/01/01 12:00 AM UTC",
-                              "decision":"SUCCESS"
-                           }
-                        }
-                     }
+                      ],
+                      "decision": "Y",
+                      "score": 25
+                    }
                   }
-               }
+                },
+                "amlAssist": {
+                  "id": "1dc44ac3-d57e-490d-b57e-cf466061ea09",
+                  "status": "SUCCESS",
+                  "response": {
+                    "isSingleSourceHit": true,
+                    "isDualSourceHit": true,
+                    "isWaterfallProcess": true,
+                    "singleSourceDecision": "Y",
+                    "dualSourceDecision": "Y",
+                    "originOfCreditFile": "CANADA",
+                    "numberOfTrades": 1,
+                    "singleSourceResult": {
+                      "isLastNameMatched": true,
+                      "isFirstNameMatched": true,
+                      "isMiddleNameMatched": false,
+                      "isSuffixNameMatch": false,
+                      "isAddressCivicMatch": true,
+                      "isAddressStreetNameMatch": false,
+                      "isAddressCityMatch": true,
+                      "isAddressPostalCodeMatch": false,
+                      "isAddressProvinceMatch": true,
+                      "isDateOfBirthMatch": true,
+                      "currentAddressReportedDate": "201810",
+                      "dateOfBirthAsReported": "19810115",
+                      "nameAsReported": "DOE,JOHN,,",
+                      "addressAsReported": "17 ROCKWOOD DR,SCARBOROUGH,ON,M1M3M9"
+                    },
+                    "dualSourceResult": [
+                      {
+                        "isLastNameMatched": true,
+                        "isFirstNameMatched": true,
+                        "isMiddleNameMatched": false,
+                        "isSuffixNameMatch": false,
+                        "isAddressCivicMatch": true,
+                        "isAddressStreetNameMatch": false,
+                        "isAddressCityMatch": true,
+                        "isAddressPostalCodeMatch": false,
+                        "isAddressProvinceMatch": true,
+                        "isDateOfBirthMatch": true,
+                        "isAccountNumberMatch": true,
+                        "isNameAndDobMatch": true,
+                        "isNameAndAddressMatch": true,
+                        "isNameAndAccountMatch": true,
+                        "tradeStatus": "O",
+                        "dateOfBirthAsReported": "19810115",
+                        "memberNumber": "481ON01463",
+                        "dateLastReported": "20180801",
+                        "dateOpened": "20060705",
+                        "institutionName": "CANADIAN TIRE BANK",
+                        "accountNumber": "###########1103",
+                        "familyName": "CANADIAN TIRE CORPORATION LIMITED",
+                        "nameAsReported": "DOE,JOHN,,",
+                        "addressAsReported": "17 ROCKWOOD DR,SCARBOROUGH,ON,M1M3M9"
+                      }
+                    ],
+                    "bureauName": "Equifax inc.",
+                    "dateOfRequest": "2018/10/30 12:00 AM UTC",
+                    "creditFileNumber": "49983026",
+                    "isCreditFileGreaterThanThreeYearsOld": true,
+                    "verificationTime": "2019/12/09 12:18 PM UTC",
+                    "creditFileCreationDate": "2010/01/01 12:00 AM UTC",
+                    "decision": "SUCCESS"
+                  }
+                }
+              }
             }
+ 
+
+# Run a Customer Identity Check Lookup [/identitychecklookup]
+<a name="identitychecklookup" title="Run a Customer Identity Check Lookup"></a>
+
+## Run a Customer Identity Check Lookup using Merchant Reference Number [GET /v1/identityprofiles/merchantrefnum/{merchantRefNum}]
+<a name="riskcheckrequestlookup" title="Run a Customer Identity Check Lookup using Merchant Reference Number"></a>
+
+Click on **Run a Customer Identity Check Lookup using Merchant Reference Number** above to see how to look up and obtain the details of a past customer identity check request using the Merchant Reference Number.
+
++ Parameters
+    + merchantRefNum:`P1234` (string, required) - This is the merchant reference number created by the merchant and submitted as part of the request.
+
++ Request Customer Identity Check Lookup Using Merchant Reference Number (application/json)
+
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Body
+
+            {
+              "id": "464484ef-a399-45b5-bec9-17d08f4660d5",
+              "decision": "SUCCESS",
+              "merchantRefNum": "P1234",
+              "profile": {
+                "firstName": "JOHN",
+                "lastName": "DOE",
+                "dateOfBirth": {
+                  "day": "01",
+                  "month": "03",
+                  "year": "1975"
+                },
+                "locale": "en_CA",
+                "currentAddress": {
+                  "street": "17 ROCKWOOD DR",
+                  "city": "SCARBOROUGH",
+                  "zip": "M1M3M9",
+                  "state": "ON",
+                  "country": "CA",
+                  "phone": "4502000607"
+                }
+              },
+              "card": {
+                "lastDigits": "8431",
+                "cardNum": "###########8431"
+              },
+              "customerIp": "10.10.1.2",
+              "workflowId": "LQ_KYC",
+              "providerResponses": {
+                "eidCompare": {
+                  "id": "b43cfd65-10e1-4440-9595-2f224198a7f0",
+                  "status": "SUCCESS",
+                  "response": {
+                    "assessmentComplete": {
+                      "reasonCodes": [
+                        {
+                          "description": "Credit file located=Adequate match",
+                          "code": "51"
+                        },
+                        {
+                          "description": "Credit Card Number=Verified",
+                          "code": "55"
+                        },
+                        {
+                          "description": "No Phone record located or poor match score",
+                          "code": "60"
+                        },
+                        {
+                          "description": "Supplied address same as the current address in the Equifax database",
+                          "code": "C1"
+                        },
+                        {
+                          "description": "Unable to confirm credit file history",
+                          "code": "CI"
+                        },
+                        {
+                          "description": "Input Date of Birth - is a match to Date of Birth on the credit file",
+                          "code": "D1"
+                        },
+                        {
+                          "description": "Input Age Matches the Calculated Age on the Credit File",
+                          "code": "D6"
+                        },
+                        {
+                          "description": "Calculated Age on the Credit File is 18 or Greater",
+                          "code": "D8"
+                        },
+                        {
+                          "description": "Calculated Age on the Credit File is 19 or Greater",
+                          "code": "DA"
+                        },
+                        {
+                          "description": "Age of Credit file is greater than or equal to three years",
+                          "code": "FE"
+                        },
+                        {
+                          "description": "Age of Credit file is greater than or equal to six months",
+                          "code": "FG"
+                        },
+                        {
+                          "description": "No Match on OFAC.",
+                          "code": "ON"
+                        },
+                        {
+                          "description": "WARNING: Phone Number found in the Phone Database - Inquiry Address and last name do not match to the address and last name listed in the phone database",
+                          "code": "TJ"
+                        },
+                        {
+                          "description": "WARNING: Inquiry Telephone Number has been associated with more than one name or address ",
+                          "code": "TN"
+                        },
+                        {
+                          "description": "The telephone area code does not correspond to the province code of the current address",
+                          "code": "TY"
+                        }
+                      ],
+                      "decision": "Y",
+                      "score": 25
+                    }
+                  }
+                },
+                "amlAssist": {
+                  "id": "1dc44ac3-d57e-490d-b57e-cf466061ea09",
+                  "status": "SUCCESS",
+                  "response": {
+                    "isSingleSourceHit": true,
+                    "isDualSourceHit": true,
+                    "isWaterfallProcess": true,
+                    "singleSourceDecision": "Y",
+                    "dualSourceDecision": "Y",
+                    "originOfCreditFile": "CANADA",
+                    "numberOfTrades": 1,
+                    "singleSourceResult": {
+                      "isLastNameMatched": true,
+                      "isFirstNameMatched": true,
+                      "isMiddleNameMatched": false,
+                      "isSuffixNameMatch": false,
+                      "isAddressCivicMatch": true,
+                      "isAddressStreetNameMatch": false,
+                      "isAddressCityMatch": true,
+                      "isAddressPostalCodeMatch": false,
+                      "isAddressProvinceMatch": true,
+                      "isDateOfBirthMatch": true,
+                      "currentAddressReportedDate": "201810",
+                      "dateOfBirthAsReported": "19810115",
+                      "nameAsReported": "DOE,JOHN,,",
+                      "addressAsReported": "17 ROCKWOOD DR,SCARBOROUGH,ON,M1M3M9"
+                    },
+                    "dualSourceResult": [
+                      {
+                        "isLastNameMatched": true,
+                        "isFirstNameMatched": true,
+                        "isMiddleNameMatched": false,
+                        "isSuffixNameMatch": false,
+                        "isAddressCivicMatch": true,
+                        "isAddressStreetNameMatch": false,
+                        "isAddressCityMatch": true,
+                        "isAddressPostalCodeMatch": false,
+                        "isAddressProvinceMatch": true,
+                        "isDateOfBirthMatch": true,
+                        "isAccountNumberMatch": true,
+                        "isNameAndDobMatch": true,
+                        "isNameAndAddressMatch": true,
+                        "isNameAndAccountMatch": true,
+                        "tradeStatus": "O",
+                        "dateOfBirthAsReported": "19810115",
+                        "memberNumber": "481ON01463",
+                        "dateLastReported": "20180801",
+                        "dateOpened": "20060705",
+                        "institutionName": "CANADIAN TIRE BANK",
+                        "accountNumber": "###########1103",
+                        "familyName": "CANADIAN TIRE CORPORATION LIMITED",
+                        "nameAsReported": "DOE,JOHN,,",
+                        "addressAsReported": "17 ROCKWOOD DR,SCARBOROUGH,ON,M1M3M9"
+                      }
+                    ],
+                    "bureauName": "Equifax inc.",
+                    "dateOfRequest": "2018/10/30 12:00 AM UTC",
+                    "creditFileNumber": "49983026",
+                    "isCreditFileGreaterThanThreeYearsOld": true,
+                    "verificationTime": "2019/12/09 12:18 PM UTC",
+                    "creditFileCreationDate": "2010/01/01 12:00 AM UTC",
+                    "decision": "SUCCESS"
+                  }
+                }
+              }
+            }
+
+
+## Run a Customer Identity Check Lookup using ID [GET /v1/identityprofiles/{customer_identity_id}]
+<a name="riskcheckrequestlookupid" title="Run a Customer Identity Check Lookup using ID"></a>
+
+Click on **Run a Customer Identity Check Lookup using ID** above to see how to look up and obtain the details of a past customer identity check request using the ID.
+
++ Parameters
+    + `customer_identity_id`: `d4b746cc1ced-ce28-4df2-bc3f-d4b746cc1ced-0f1266b9` (string) - This is the ID generated for the request, returned in the response.
+
++ Request Customer Identity Check Lookup Using ID (application/json)
+
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Body
+
+            {
+              "id": "d4b746cc1ced-ce28-4df2-bc3f-d4b746cc1ced-0f1266b9",
+              "decision": "SUCCESS",
+              "merchantRefNum": "P1234",
+              "profile": {
+                "firstName": "JOHN",
+                "lastName": "DOE",
+                "dateOfBirth": {
+                  "day": "01",
+                  "month": "03",
+                  "year": "1975"
+                },
+                "locale": "en_CA",
+                "currentAddress": {
+                  "street": "17 ROCKWOOD DR",
+                  "city": "SCARBOROUGH",
+                  "zip": "M1M3M9",
+                  "state": "ON",
+                  "country": "CA",
+                  "phone": "4502000607"
+                }
+              },
+              "card": {
+                "lastDigits": "8431",
+                "cardNum": "###########8431"
+              },
+              "customerIp": "10.10.1.2",
+              "workflowId": "LQ_KYC",
+              "providerResponses": {
+                "eidCompare": {
+                  "id": "b43cfd65-10e1-4440-9595-2f224198a7f0",
+                  "status": "SUCCESS",
+                  "response": {
+                    "assessmentComplete": {
+                      "reasonCodes": [
+                        {
+                          "description": "Credit file located=Adequate match",
+                          "code": "51"
+                        },
+                        {
+                          "description": "Credit Card Number=Verified",
+                          "code": "55"
+                        },
+                        {
+                          "description": "No Phone record located or poor match score",
+                          "code": "60"
+                        },
+                        {
+                          "description": "Supplied address same as the current address in the Equifax database",
+                          "code": "C1"
+                        },
+                        {
+                          "description": "Unable to confirm credit file history",
+                          "code": "CI"
+                        },
+                        {
+                          "description": "Input Date of Birth - is a match to Date of Birth on the credit file",
+                          "code": "D1"
+                        },
+                        {
+                          "description": "Input Age Matches the Calculated Age on the Credit File",
+                          "code": "D6"
+                        },
+                        {
+                          "description": "Calculated Age on the Credit File is 18 or Greater",
+                          "code": "D8"
+                        },
+                        {
+                          "description": "Calculated Age on the Credit File is 19 or Greater",
+                          "code": "DA"
+                        },
+                        {
+                          "description": "Age of Credit file is greater than or equal to three years",
+                          "code": "FE"
+                        },
+                        {
+                          "description": "Age of Credit file is greater than or equal to six months",
+                          "code": "FG"
+                        },
+                        {
+                          "description": "No Match on OFAC.",
+                          "code": "ON"
+                        },
+                        {
+                          "description": "WARNING: Phone Number found in the Phone Database - Inquiry Address and last name do not match to the address and last name listed in the phone database",
+                          "code": "TJ"
+                        },
+                        {
+                          "description": "WARNING: Inquiry Telephone Number has been associated with more than one name or address ",
+                          "code": "TN"
+                        },
+                        {
+                          "description": "The telephone area code does not correspond to the province code of the current address",
+                          "code": "TY"
+                        }
+                      ],
+                      "decision": "Y",
+                      "score": 25
+                    }
+                  }
+                },
+                "amlAssist": {
+                  "id": "1dc44ac3-d57e-490d-b57e-cf466061ea09",
+                  "status": "SUCCESS",
+                  "response": {
+                    "isSingleSourceHit": true,
+                    "isDualSourceHit": true,
+                    "isWaterfallProcess": true,
+                    "singleSourceDecision": "Y",
+                    "dualSourceDecision": "Y",
+                    "originOfCreditFile": "CANADA",
+                    "numberOfTrades": 1,
+                    "singleSourceResult": {
+                      "isLastNameMatched": true,
+                      "isFirstNameMatched": true,
+                      "isMiddleNameMatched": false,
+                      "isSuffixNameMatch": false,
+                      "isAddressCivicMatch": true,
+                      "isAddressStreetNameMatch": false,
+                      "isAddressCityMatch": true,
+                      "isAddressPostalCodeMatch": false,
+                      "isAddressProvinceMatch": true,
+                      "isDateOfBirthMatch": true,
+                      "currentAddressReportedDate": "201810",
+                      "dateOfBirthAsReported": "19810115",
+                      "nameAsReported": "DOE,JOHN,,",
+                      "addressAsReported": "17 ROCKWOOD DR,SCARBOROUGH,ON,M1M3M9"
+                    },
+                    "dualSourceResult": [
+                      {
+                        "isLastNameMatched": true,
+                        "isFirstNameMatched": true,
+                        "isMiddleNameMatched": false,
+                        "isSuffixNameMatch": false,
+                        "isAddressCivicMatch": true,
+                        "isAddressStreetNameMatch": false,
+                        "isAddressCityMatch": true,
+                        "isAddressPostalCodeMatch": false,
+                        "isAddressProvinceMatch": true,
+                        "isDateOfBirthMatch": true,
+                        "isAccountNumberMatch": true,
+                        "isNameAndDobMatch": true,
+                        "isNameAndAddressMatch": true,
+                        "isNameAndAccountMatch": true,
+                        "tradeStatus": "O",
+                        "dateOfBirthAsReported": "19810115",
+                        "memberNumber": "481ON01463",
+                        "dateLastReported": "20180801",
+                        "dateOpened": "20060705",
+                        "institutionName": "CANADIAN TIRE BANK",
+                        "accountNumber": "###########1103",
+                        "familyName": "CANADIAN TIRE CORPORATION LIMITED",
+                        "nameAsReported": "DOE,JOHN,,",
+                        "addressAsReported": "17 ROCKWOOD DR,SCARBOROUGH,ON,M1M3M9"
+                      }
+                    ],
+                    "bureauName": "Equifax inc.",
+                    "dateOfRequest": "2018/10/30 12:00 AM UTC",
+                    "creditFileNumber": "49983026",
+                    "isCreditFileGreaterThanThreeYearsOld": true,
+                    "verificationTime": "2019/12/09 12:18 PM UTC",
+                    "creditFileCreationDate": "2010/01/01 12:00 AM UTC",
+                    "decision": "SUCCESS"
+                  }
+                }
+              }
+            }
+
 
 # Data Structures
 
@@ -2071,27 +2319,44 @@ Click on **Rerun a Customer Identity Check** above to see how you submit a reque
 
             + paymentToken:`LTEyMzYzMjQ3ODg` (string) - This is the payment token representing the card. Either the *paymentToken* or the *cardNum* is required if the optional *card* object is included.
                 _length<=80_
-            + cvv:`123` (string) - This is the 3- or 4-digit security code that appears on the card following the card number.
-                _length=3-4_
-
+          
     + card (object) - These are the details of the [card](#cardobject) used for the request. Only one **card** object can be included in the request.
     
         + Properties
 
             + cardNum:`4111111111111111` (string, required) - This is the card number used for the request. Either the *cardNum* or the *paymentToken* is required if the optional *card* object is included.
                 _length=8-20_
+            + cardType:`AM` (enum) - This is type of card used for the request.
+                + Members
+                - AM - American Express
+                - DC - Diners Club
+                - DI - Discover
+                - JC - JCB
+                - MC - MasterCard
+                - MD - Maestro
+                - SF - Swiff
+                - SO - Solo
+                - VI - Visa
+                - VD - Visa Debit
+                - VE - Visa Electron
+            + cardCategory:`CREDIT` (enum) - This denotes the card category.
+                + Members
+                - CREDIT - Credit card
+                - DEBIT - Debit card 
+                - PREPAID - Prepaid card
+                - UNKNOWN - BIN not found in database 
+           + lastDigits:`1111` (string) - This is the last four digits of the card used for the request, returned in the response.|
+                _Read Only, length=4_
             + cardExpiry (object) - This is the card's [expiry date](#cardexpiryobject).
                 + month:12 (number) - This is the card expiry month.
                     _length=2_
                 + year:2020 (number) - This is the card expiry year.
                     _length=4_
-            + cvv:`123` (string) - This is the 3- or 4-digit security code that appears on the card following the card number.
-                _length=3-4_
-            + lastDigits:`1111` (string) - This is the last four digits of the card used for the request, returned in the response.|
-                _Read Only, length=4_
-            + track1 (string) - This is Track 1 information read from the card's magnetic stripe.
-            + track2 (string) - This is Track 2 information read from the card's magnetic stripe.
-
+            
+            + holderName: `John Doe` (string) - This is card holder name.
+            + cardBin: `123456` (string) - This is the card BIN, typically the first six digits.
+                _length=6_
+      
 ## `Card Rerun`
 
 +  card (object) - These are the details of the [card](#cardobject) used for the request. Only one **card** object can be included in the request.
@@ -2099,6 +2364,8 @@ Click on **Rerun a Customer Identity Check** above to see how you submit a reque
     
     + Properties
 
+         + cardNum:`************1111` (string) - This is the card number used for the request. For security reasons, the card number is masked in the response.
+               _Read Only, length=8-20_
         + cardExpiry (object) - This is the card's [expiry date](#cardexpiryobject).
             _Read Only_
             + month:12 (number) - This is the card expiry month.
@@ -2113,7 +2380,7 @@ Click on **Rerun a Customer Identity Check** above to see how you submit a reque
 + `currentAddress` (object, required)
     + `apartment`: `11` (string) -  This is the customer's apartment number, if applicable.
         _length<=50_
-    + `street`: `100 Queen Street West` - (string, required) - This is the first line of the customer's street address.
+    + `street`: `100 Queen Street West` (string, required) - This is the first line of the customer's street address.
         _length<=50_
     + `street2`: `Building B` (string) - This is the second line of the customer's street address, if required.
         _length<=50_
