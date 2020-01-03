@@ -1870,7 +1870,7 @@ Click on **Rerun a Customer Identity Check** above to see how you submit a reque
 ## Run a Customer Identity Check Lookup using Merchant Reference Number [GET /v1/identityprofiles/merchantrefnum/{merchantRefNum}]
 <a name="riskcheckrequestlookup" title="Run a Customer Identity Check Lookup using Merchant Reference Number"></a>
 
-Click on **Run a Customer Identity Check Lookup using Merchant Reference Number** above to see how to look up a customer identity check request using the Merchant Reference Number.
+Click on **Run a Customer Identity Check Lookup using Merchant Reference Number** above to see how to look up and obtain the details of a past customer identity check request using the Merchant Reference Number.
 
 + Parameters
     + merchantRefNum:`P1234` (string, required) - This is the merchant reference number created by the merchant and submitted as part of the request.
@@ -2054,13 +2054,13 @@ Click on **Run a Customer Identity Check Lookup using Merchant Reference Number*
             }
 
 
-## Run a Customer Identity Check Lookup using ID [GET /v1/identityprofiles/{id}]
+## Run a Customer Identity Check Lookup using ID [GET /v1/identityprofiles/{customer_identity_id}]
 <a name="riskcheckrequestlookupid" title="Run a Customer Identity Check Lookup using ID"></a>
 
-Click on **Run a Customer Identity Check Lookup using ID** above to see how to look up a customer identity check request using the ID.
+Click on **Run a Customer Identity Check Lookup using ID** above to see how to look up and obtain the details of a past customer identity check request using the ID.
 
 + Parameters
-    + `id`: `d4b746cc1ced-ce28-4df2-bc3f-d4b746cc1ced-0f1266b9` (string) - This is the ID generated for the request, returned in the response.
+    + `customer_identity_id`: `d4b746cc1ced-ce28-4df2-bc3f-d4b746cc1ced-0f1266b9` (string) - This is the ID generated for the request, returned in the response.
 
 + Request Customer Identity Check Lookup Using ID (application/json)
 
@@ -2364,6 +2364,8 @@ Click on **Run a Customer Identity Check Lookup using ID** above to see how to l
     
     + Properties
 
+         + cardNum:`************1111` (string) - This is the card number used for the request. For security reasons, the card number is masked in the response.
+               _Read Only, length=8-20_
         + cardExpiry (object) - This is the card's [expiry date](#cardexpiryobject).
             _Read Only_
             + month:12 (number) - This is the card expiry month.
